@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "portarts"
+  },
+  "targets": {
+    "portarts": {
+      "hosting": {
+        "portarts": ["portarts"]
+      }
+    }
+  }
+}

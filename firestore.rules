@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin() && docId == "portfolio";
+    }
+
+    match /projects/{projectId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() && validProject();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.uid in get(/databases/$(database)/documents/config/portfolio).data.allowedAdmins;
+    }
+
+    function validProject() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['name', 'slug', 'published']) &&
+        data.name is string && data.name.size() > 0 &&
+        data.slug is string && data.slug.size() > 0 &&
+        data.published is bool;
+    }
+  }
+}

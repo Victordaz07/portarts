@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Interactive Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS
+   ══════════════════════════════════════════════ */
+:root {
+  --bg:#060608; --bg1:#0c0c10; --bg2:#121216; --bg3:#1a1a20;
+  --surf:rgba(255,255,255,0.025); --brd:rgba(255,255,255,0.06); --brd2:rgba(255,255,255,0.12);
+  --t1:#efeae0; --t2:#908a7e; --t3:#56524a; --t4:#36332e;
+  --ac:#e8c547; --ac2:rgba(232,197,71,0.1); --cyan:#47c5e8; --grn:#4ade80; --rose:#f471b5; --purp:#a78bfa;
+  --r:14px; --rl:20px;
+  --fd:'Instrument Serif',Georgia,serif;
+  --fb:'Outfit',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--t1);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.02'/%3E%3C/svg%3E")}
+::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--t4);border-radius:3px}
+
+/* AMBIENT */
+.amb{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.amb i{position:absolute;border-radius:50%;filter:blur(140px);opacity:.3;animation:bf 24s ease-in-out infinite alternate}
+.amb i:nth-child(1){width:600px;height:600px;background:radial-gradient(circle,rgba(232,197,71,.09),transparent 70%);top:-12%;left:-8%}
+.amb i:nth-child(2){width:450px;height:450px;background:radial-gradient(circle,rgba(71,197,232,.06),transparent 70%);bottom:5%;right:-4%;animation-delay:-9s}
+@keyframes bf{0%{transform:translate(0,0) scale(1)}50%{transform:translate(25px,-35px) scale(1.04)}100%{transform:translate(-10px,15px) scale(.97)}}
+
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+
+/* ══════════════════════════════════════════════
+   NAV
+   ══════════════════════════════════════════════ */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:16px clamp(16px,4vw,48px);display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);background:rgba(6,6,8,.6);border-bottom:1px solid var(--brd);transition:all .4s var(--ease)}
+nav.compact{padding:10px clamp(16px,4vw,48px);background:rgba(6,6,8,.88)}
+.n-brand{font-family:var(--fd);font-size:1.5rem;cursor:pointer} .n-brand span{color:var(--ac)}
+.n-links{display:flex;gap:24px;align-items:center}
+.n-links a{color:var(--t2);text-decoration:none;font-size:.8rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .3s}
+.n-links a:hover{color:var(--t1)}
+.n-btn{padding:8px 20px;background:0;border:1px solid var(--brd);color:var(--t1);font-family:var(--fb);font-size:.8rem;font-weight:500;border-radius:100px;cursor:pointer;transition:all .3s;letter-spacing:.03em}
+.n-btn:hover{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.n-ham{display:none;background:0;border:0;color:var(--t1);font-size:1.3rem;cursor:pointer}
+@media(max-width:768px){.n-ham{display:block}.n-links{display:none}.n-links.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;padding:20px;background:rgba(6,6,8,.95);border-bottom:1px solid var(--brd);backdrop-filter:blur(24px)}}
+
+/* PAGES */
+.page{display:none;opacity:0;transition:opacity .45s var(--ease)} .page.on{display:block;opacity:1} .page.fade-in{opacity:0} .page.vis{opacity:1}
+.rv{opacity:0;transform:translateY(32px);transition:all .65s var(--ease)} .rv.v{opacity:1;transform:translateY(0)}
+
+/* ══════════════════════════════════════════════
+   HERO
+   ══════════════════════════════════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:80px;position:relative}
+.h-eye{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;background:var(--surf);border:1px solid var(--brd);border-radius:100px;font-size:.76rem;color:var(--t2);width:fit-content;margin-bottom:24px;opacity:0;animation:fu .7s .2s forwards}
+.h-eye b{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pul 2s infinite}
+@keyframes pul{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:var(--fd);font-size:clamp(2.6rem,7vw,6.2rem);font-weight:400;line-height:.96;letter-spacing:-.02em;margin-bottom:20px;opacity:0;animation:fu .7s .35s forwards}
+.hero h1 em{font-style:italic;color:var(--ac)} .hero h1 .gh{-webkit-text-stroke:1.2px var(--t1);color:transparent}
+.h-sub{font-size:clamp(.92rem,1.6vw,1.1rem);color:var(--t2);max-width:460px;line-height:1.75;font-weight:300;opacity:0;animation:fu .7s .5s forwards}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* SEC HEADER */
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:44px;padding-top:90px}
+.sh-n{font-family:var(--fm);font-size:.76rem;color:var(--ac);opacity:.5}
+.sh-t{font-family:var(--fd);font-size:clamp(1.7rem,3.2vw,2.8rem)}
+.sh-l{flex:1;height:1px;background:var(--brd)}
+
+/* ══════════════════════════════════════════════
+   PROJECT CARDS (HOME)
+   ══════════════════════════════════════════════ */
+.p-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(max-width:768px){.p-grid{grid-template-columns:1fr}}
+.p-card{position:relative;border-radius:var(--rl);overflow:hidden;border:1px solid var(--brd);background:var(--bg2);cursor:pointer;transition:all .5s var(--ease)}
+.p-card:hover{transform:translateY(-3px);border-color:var(--brd2);box-shadow:0 20px 56px rgba(0,0,0,.4)}
+.p-card.ft{grid-column:span 2}@media(max-width:768px){.p-card.ft{grid-column:span 1}}
+.p-vis{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.p-card.ft .p-vis{aspect-ratio:21/9}
+.p-vis .vbg{width:100%;height:100%;transition:transform .6s var(--ease)}
+.p-card:hover .p-vis .vbg{transform:scale(1.04)}
+/* themes */
+.vb-fleet{background:linear-gradient(135deg,#0f1923,#1a2940)}.vb-fleet::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(71,197,232,.16),transparent 55%),radial-gradient(circle at 70% 60%,rgba(232,197,71,.1),transparent 45%)}
+.vb-family{background:linear-gradient(135deg,#1a0f23,#291a40)}.vb-family::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(164,123,250,.12),transparent 60%)}
+.vb-focus{background:linear-gradient(135deg,#0f2318,#1a4030)}.vb-focus::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(74,222,128,.1),transparent 55%)}
+.vb-gospel{background:linear-gradient(135deg,#1f1408,#352414)}.vb-gospel::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(232,197,71,.09),transparent 55%)}
+.vb-default{background:linear-gradient(135deg,#0f1118,#1a1d2a)}.vb-default::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.04),transparent 60%)}
+.p-ov{position:absolute;inset:0;z-index:2;background:linear-gradient(to top,rgba(6,6,8,.94) 0%,rgba(6,6,8,.2) 55%,transparent 100%)}
+.p-body{position:relative;z-index:3;padding:22px}
+.p-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.p-tag{padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:100px;font-size:.66rem;color:var(--t2);font-family:var(--fm);letter-spacing:.03em}
+.p-tag.hi{background:var(--ac2);border-color:rgba(232,197,71,.16);color:var(--ac)}
+.p-nm{font-family:var(--fd);font-size:1.4rem;margin-bottom:5px}.p-card.ft .p-nm{font-size:1.9rem}
+.p-ds{color:var(--t2);font-size:.83rem;line-height:1.55;font-weight:300;max-width:420px}
+.p-ft{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--brd)}
+.p-st{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--t3)}
+.p-st i{width:5px;height:5px;border-radius:50%;display:inline-block}
+.p-st i.g{background:var(--grn)}.p-st i.y{background:var(--ac)}.p-st i.b{background:var(--cyan)}
+.p-ar{width:32px;height:32px;border-radius:50%;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--t2);transition:all .3s}
+.p-card:hover .p-ar{background:var(--ac);border-color:var(--ac);color:var(--bg);transform:rotate(-45deg)}
+
+/* DEVICE BADGE on card */
+.p-device-badge{position:absolute;top:12px;right:12px;z-index:5;display:flex;gap:4px}
+.p-db{padding:3px 8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:6px;font-size:.6rem;font-family:var(--fm);color:var(--t2);display:flex;align-items:center;gap:3px}
+
+/* GITHUB SECTION */
+.gh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.gh-card{padding:20px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);transition:all .35s var(--ease);cursor:pointer;text-decoration:none;color:inherit;display:block}
+.gh-card:hover{border-color:var(--brd2);transform:translateY(-2px);background:var(--bg3)}
+.gh-card h4{font-family:var(--fm);font-size:.85rem;color:var(--ac);margin-bottom:8px;font-weight:500}
+.gh-card p{font-size:.8rem;color:var(--t2);line-height:1.5;font-weight:300;margin-bottom:12px}
+.gh-meta{display:flex;gap:14px;font-size:.7rem;color:var(--t3)}
+.gh-meta span{display:flex;align-items:center;gap:3px}
+.gh-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.gh-msg{text-align:center;padding:48px;color:var(--t3);font-size:.84rem}
+
+/* CTA */
+.cta{padding:90px 0;text-align:center}
+.cta h2{font-family:var(--fd);font-size:clamp(2rem,4vw,3.6rem);margin-bottom:14px}.cta h2 em{font-style:italic;color:var(--ac)}
+.cta p{color:var(--t2);font-size:1rem;font-weight:300;max-width:400px;margin:0 auto 30px;line-height:1.7}
+.cta-bx{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-p{padding:13px 32px;background:var(--ac);color:var(--bg);font-family:var(--fb);font-size:.86rem;font-weight:700;border:none;border-radius:100px;cursor:pointer;transition:all .3s;letter-spacing:.03em}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(232,197,71,.3)}
+.btn-s{padding:13px 32px;background:0;color:var(--t1);font-family:var(--fb);font-size:.86rem;font-weight:500;border:1px solid var(--brd);border-radius:100px;cursor:pointer;transition:all .3s}
+.btn-s:hover{border-color:var(--t2);transform:translateY(-2px)}
+.foot{padding:28px 0;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;font-size:.76rem;color:var(--t3)}
+.foot a{color:var(--t2);text-decoration:none;cursor:pointer;transition:color .3s}.foot a:hover{color:var(--ac)}
+
+/* ══════════════════════════════════════════════
+   DETAIL PAGE
+   ══════════════════════════════════════════════ */
+.d-back{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:var(--surf);border:1px solid var(--brd);border-radius:100px;font-size:.78rem;color:var(--t2);cursor:pointer;transition:all .3s;margin-top:90px;margin-bottom:36px;font-family:var(--fb)}
+.d-back:hover{color:var(--t1);background:var(--bg3)}
+
+/* ══════════════════════════════════════════════
+   🔥 DEVICE PREVIEW — THE CORE FEATURE
+   ══════════════════════════════════════════════ */
+.preview-section{margin-bottom:56px}
+.preview-controls{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.prev-btn{padding:7px 16px;background:var(--surf);border:1px solid var(--brd);border-radius:100px;font-size:.75rem;font-family:var(--fm);color:var(--t2);cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:5px}
+.prev-btn:hover,.prev-btn.active{background:var(--ac2);border-color:rgba(232,197,71,.2);color:var(--ac)}
+.prev-url{flex:1;min-width:200px;padding:8px 14px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;color:var(--t1);font-family:var(--fm);font-size:.78rem}
+.prev-url:focus{outline:none;border-color:var(--ac)}
+.prev-open{padding:7px 14px;background:var(--bg3);border:1px solid var(--brd);border-radius:8px;font-size:.75rem;color:var(--t2);cursor:pointer;transition:all .3s;font-family:var(--fm)}
+.prev-open:hover{color:var(--ac);border-color:var(--ac)}
+
+/* Device Frame */
+.device-stage{display:flex;justify-content:center;align-items:flex-start;padding:40px 20px;background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rl);min-height:500px;position:relative;overflow:hidden}
+.device-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,197,71,.03),transparent 60%);pointer-events:none}
+
+/* Phone Frame */
+.frame-phone{width:320px;height:640px;background:var(--bg);border-radius:40px;border:3px solid #2a2a30;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04);overflow:hidden;transition:all .5s var(--ease)}
+.frame-phone .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#1a1a1e;border-radius:0 0 18px 18px;z-index:10}
+.frame-phone .notch::after{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:#2a2a30;border-radius:50%}
+.frame-phone .home-bar{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:100px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;z-index:10}
+.frame-phone iframe{width:100%;height:100%;border:none;border-radius:37px;background:#fff}
+
+/* Tablet Frame */
+.frame-tablet{width:600px;height:450px;background:var(--bg);border-radius:20px;border:3px solid #2a2a30;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04);overflow:hidden;transition:all .5s var(--ease)}
+.frame-tablet .cam{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#2a2a30;border-radius:50%;z-index:10}
+.frame-tablet iframe{width:100%;height:100%;border:none;border-radius:17px;background:#fff}
+
+/* Desktop Frame */
+.frame-desktop{width:100%;max-width:900px;background:var(--bg);border-radius:12px;border:2px solid #2a2a30;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;transition:all .5s var(--ease)}
+.frame-desktop .topbar{height:32px;background:#1a1a1e;display:flex;align-items:center;padding:0 12px;gap:6px;border-bottom:1px solid rgba(255,255,255,.05)}
+.frame-desktop .topbar i{width:10px;height:10px;border-radius:50%}
+.frame-desktop .topbar i:nth-child(1){background:#ff5f57}.frame-desktop .topbar i:nth-child(2){background:#febc2e}.frame-desktop .topbar i:nth-child(3){background:#28c840}
+.frame-desktop .topbar .url-bar{flex:1;margin-left:10px;padding:4px 10px;background:rgba(255,255,255,.06);border-radius:6px;font-size:.65rem;color:var(--t3);font-family:var(--fm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frame-desktop iframe{width:100%;height:520px;border:none;background:#fff}
+
+/* No preview state */
+.no-preview{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px;color:var(--t3)}
+.no-preview .icon{font-size:3rem;margin-bottom:16px;opacity:.4}
+.no-preview h4{font-size:1rem;color:var(--t2);margin-bottom:8px;font-family:var(--fd)}
+.no-preview p{font-size:.8rem;line-height:1.6;max-width:280px}
+
+/* Detail info sections */
+.d-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-bottom:48px}
+@media(max-width:768px){.d-hero{grid-template-columns:1fr}}
+.d-hero h1{font-family:var(--fd);font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:10px}
+.d-desc{color:var(--t2);font-size:.95rem;line-height:1.75;font-weight:300;margin-bottom:20px}
+.d-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.d-mi{padding:14px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r)}
+.d-mi .lb{font-size:.68rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}.d-mi .vl{font-size:.85rem;color:var(--t1);font-weight:500}
+.d-vis{border-radius:var(--rl);overflow:hidden;border:1px solid var(--brd);aspect-ratio:4/3}.d-vis .vbg{width:100%;height:100%}
+
+.d-sec{margin-bottom:48px}
+.d-sec h2{font-family:var(--fd);font-size:1.4rem;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--brd)}
+.feat-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.feat-i{padding:18px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);transition:all .3s}
+.feat-i:hover{border-color:var(--brd2)}
+.feat-i h4{font-size:.86rem;margin-bottom:5px}.feat-i p{font-size:.8rem;color:var(--t2);line-height:1.5;font-weight:300}
+.tech-bx{display:flex;gap:7px;flex-wrap:wrap}
+.tech-b{padding:7px 14px;background:var(--bg2);border:1px solid var(--brd);border-radius:100px;font-family:var(--fm);font-size:.75rem;color:var(--t2);transition:all .3s}
+.tech-b:hover{border-color:var(--ac);color:var(--ac)}
+
+/* Timeline */
+.tl{position:relative;padding-left:24px}
+.tl::before{content:'';position:absolute;left:5px;top:4px;bottom:4px;width:1px;background:var(--brd)}
+.tl-i{position:relative;margin-bottom:20px}
+.tl-i::before{content:'';position:absolute;left:-20px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 3px var(--ac2)}
+.tl-i .dt{font-family:var(--fm);font-size:.68rem;color:var(--t3);margin-bottom:3px}.tl-i h4{font-size:.85rem;margin-bottom:3px}.tl-i p{font-size:.8rem;color:var(--t2);line-height:1.5;font-weight:300}
+
+/* README viewer */
+.readme-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:24px;max-height:500px;overflow-y:auto}
+.readme-box pre{font-family:var(--fm);font-size:.8rem;color:var(--t2);line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.readme-box h1,.readme-box h2,.readme-box h3{font-family:var(--fd);color:var(--t1);margin:16px 0 8px}
+.readme-box h1{font-size:1.4rem}.readme-box h2{font-size:1.1rem}.readme-box h3{font-size:.95rem}
+.readme-box p{font-size:.84rem;color:var(--t2);line-height:1.7;margin-bottom:10px}
+.readme-box code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:var(--fm);font-size:.78rem;color:var(--ac)}
+.readme-box a{color:var(--cyan);text-decoration:none}.readme-box a:hover{text-decoration:underline}
+.readme-box ul,.readme-box ol{padding-left:20px;margin-bottom:10px;color:var(--t2);font-size:.84rem}
+.readme-box img{max-width:100%;border-radius:8px;margin:10px 0}
+.readme-box blockquote{border-left:3px solid var(--ac);padding-left:12px;color:var(--t3);font-style:italic;margin:10px 0}
+
+/* Links */
+.d-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.d-links a{padding:11px 24px;border-radius:100px;font-size:.83rem;font-weight:500;text-decoration:none;transition:all .3s;font-family:var(--fb);display:inline-flex;align-items:center;gap:6px}
+.dl-p{background:var(--ac);color:var(--bg)}.dl-p:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(232,197,71,.3)}
+.dl-s{background:0;color:var(--t1);border:1px solid var(--brd)}.dl-s:hover{border-color:var(--t2);transform:translateY(-2px)}
+
+/* ══════════════════════════════════════════════
+   CONFIG PANEL
+   ══════════════════════════════════════════════ */
+.cfg-tog{position:fixed;bottom:20px;right:20px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--ac);color:var(--bg);border:none;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(232,197,71,.3);transition:all .3s;display:flex;align-items:center;justify-content:center}
+.cfg-tog:hover{transform:scale(1.1)}
+.cfg-panel{position:fixed;bottom:76px;right:20px;z-index:300;width:400px;max-height:75vh;overflow-y:auto;background:var(--bg1);border:1px solid var(--brd);border-radius:var(--rl);padding:24px;box-shadow:0 24px 64px rgba(0,0,0,.6);display:none;opacity:0;transform:translateY(10px) scale(.97);transition:all .35s var(--ease)}
+.cfg-panel.open{display:block;opacity:1;transform:translateY(0) scale(1)}
+@media(max-width:500px){.cfg-panel{width:calc(100vw - 40px);right:20px}}
+.cfg-panel h3{font-family:var(--fd);font-size:1.2rem;margin-bottom:3px}
+.cfg-sub{font-size:.78rem;color:var(--t3);margin-bottom:16px}
+.cfg-s{margin-bottom:16px}
+.cfg-s label{display:block;font-size:.72rem;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:500}
+.cfg-s input,.cfg-s textarea,.cfg-s select{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;color:var(--t1);font-family:var(--fm);font-size:.8rem;transition:border-color .3s}
+.cfg-s input:focus,.cfg-s textarea:focus,.cfg-s select:focus{outline:none;border-color:var(--ac)}
+.cfg-s textarea{min-height:70px;resize:vertical}
+.cfg-s select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23908a7e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.cfg-hint{font-size:.68rem;color:var(--t3);margin-top:3px}
+.cfg-divider{height:1px;background:var(--brd);margin:16px 0}
+.cfg-row{display:flex;gap:8px}
+.cfg-row .cfg-s{flex:1}
+.cfg-btns{display:flex;gap:7px;margin-top:14px}
+.cfg-bt{flex:1;padding:9px;border-radius:8px;border:none;font-family:var(--fb);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s}
+.cfg-bt.pr{background:var(--ac);color:var(--bg)}.cfg-bt.pr:hover{box-shadow:0 4px 14px rgba(232,197,71,.3)}
+.cfg-bt.sc{background:var(--surf);color:var(--t2);border:1px solid var(--brd)}.cfg-bt.sc:hover{border-color:var(--t2)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);padding:10px 22px;background:var(--grn);color:var(--bg);border-radius:100px;font-size:.84rem;font-weight:600;opacity:0;transition:all .4s var(--ease);z-index:400;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="amb"><i></i><i></i></div>
+
+<nav id="nav">
+  <div class="n-brand" onclick="goHome()">V<span>.</span></div>
+  <button class="n-ham" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+  <div class="n-links">
+    <a href="#" onclick="goHome();return false">Proyectos</a>
+    <a href="#" onclick="goSec('github');return false">GitHub</a>
+    <a href="#" onclick="goSec('about');return false">Sobre mí</a>
+    <button class="n-btn" onclick="goSec('contact')">Hablemos</button>
+  </div>
+</nav>
+
+<!-- ══════ HOME ══════ -->
+<div class="page on" id="pg-home">
+  <section class="hero wrap">
+    <div class="h-eye"><b></b> Disponible para proyectos</div>
+    <h1>Creando<br><em>experiencias</em><br><span class="gh">digitales</span></h1>
+    <p class="h-sub" id="hero-sub"></p>
+  </section>
+
+  <section class="wrap" id="sec-projects">
+    <div class="sh rv"><span class="sh-n">01</span><h2 class="sh-t">Proyectos</h2><div class="sh-l"></div></div>
+    <div class="p-grid" id="pgrid"></div>
+  </section>
+
+  <section class="wrap" id="sec-github">
+    <div class="sh rv"><span class="sh-n">02</span><h2 class="sh-t">GitHub</h2><div class="sh-l"></div></div>
+    <div id="gh-box"><div class="gh-msg">Cargando repositorios...</div></div>
+  </section>
+
+  <section class="wrap" id="sec-about">
+    <div class="sh rv"><span class="sh-n">03</span><h2 class="sh-t">Sobre mí</h2><div class="sh-l"></div></div>
+    <div id="about-box" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:48px">
+      <div id="about-txt" class="rv"></div>
+      <div id="about-stats" class="rv" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start"></div>
+    </div>
+  </section>
+
+  <section class="wrap cta rv" id="sec-contact">
+    <h2>¿Listo para<br><em>construir</em> juntos?</h2>
+    <p>Siempre abierto a colaborar en proyectos ambiciosos.</p>
+    <div class="cta-bx"><button class="btn-p" id="cta-1">Iniciar conversación</button><button class="btn-s" id="cta-2">Ver GitHub</button></div>
+  </section>
+  <footer class="wrap foot"><span id="ftxt"></span><a onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Arriba</a></footer>
+</div>
+
+<!-- ══════ DETAIL ══════ -->
+<div class="page" id="pg-detail">
+  <div class="wrap">
+    <button class="d-back" onclick="goHome()">← Volver a proyectos</button>
+    <div id="detail-c"></div>
+    <footer class="foot" style="margin-top:48px"><span id="ftxt2"></span><a onclick="goHome()" style="cursor:pointer">← Proyectos</a></footer>
+  </div>
+</div>
+
+<button class="cfg-tog" onclick="toggleCfg()" title="Configuración">⚙</button>
+<div class="cfg-panel" id="cfgPanel">
+  <h3>Configuración</h3>
+  <p class="cfg-sub">Agrega proyectos con preview interactivo</p>
+
+  <div class="cfg-s">
+    <label>GitHub Username</label>
+    <input type="text" id="cfg-gh" placeholder="tu-usuario">
+    <p class="cfg-hint">Se cargan tus repos públicos automáticamente</p>
+  </div>
+
+  <div class="cfg-divider"></div>
+  <p style="font-size:.8rem;color:var(--t1);font-weight:600;margin-bottom:10px">➕ Agregar proyecto rápido</p>
+
+  <div class="cfg-s"><label>Nombre</label><input id="q-name" placeholder="Mi App"></div>
+  <div class="cfg-s"><label>Descripción</label><textarea id="q-desc" rows="2" placeholder="Breve descripción..."></textarea></div>
+  <div class="cfg-row">
+    <div class="cfg-s"><label>Preview URL</label><input id="q-url" placeholder="https://mi-app.vercel.app"></div>
+    <div class="cfg-s"><label>Tipo</label>
+      <select id="q-type"><option value="phone">📱 Móvil</option><option value="tablet">📱 Tablet</option><option value="desktop" selected>🖥 Desktop</option></select>
+    </div>
+  </div>
+  <div class="cfg-row">
+    <div class="cfg-s"><label>GitHub Repo URL</label><input id="q-repo" placeholder="https://github.com/user/repo"></div>
+    <div class="cfg-s"><label>Tema visual</label>
+      <select id="q-theme"><option value="fleet">🔵 Fleet</option><option value="family">🟣 Family</option><option value="focus">🟢 Focus</option><option value="gospel">🟡 Gospel</option><option value="default">⚪ Default</option></select>
+    </div>
+  </div>
+  <div class="cfg-s"><label>Tags (separados por coma)</label><input id="q-tags" placeholder="React, Firebase, PWA"></div>
+
+  <div class="cfg-btns">
+    <button class="cfg-bt pr" onclick="quickAdd()">Agregar proyecto</button>
+    <button class="cfg-bt sc" onclick="exportCfg()">📋 Copiar JSON</button>
+  </div>
+  <div class="cfg-divider"></div>
+  <div class="cfg-s">
+    <label>O pega JSON completo</label>
+    <textarea id="cfg-json" rows="8" placeholder="JSON de configuración..."></textarea>
+  </div>
+  <div class="cfg-btns">
+    <button class="cfg-bt pr" onclick="applyJSON()">Aplicar JSON</button>
+    <button class="cfg-bt sc" onclick="location.reload()">Reset</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   📋 CONFIGURATION — EDIT THIS OR USE THE ⚙ PANEL
+   ══════════════════════════════════════════════════════════ */
+let CFG = {
+  name: "Victor",
+  github: "",          // ← TU USERNAME DE GITHUB
+  email: "",
+  subtitle: "Full-stack developer construyendo productos que combinan diseño impecable con arquitectura sólida.",
+  about: [
+    "Desarrollo productos digitales que resuelven problemas reales. Desde plataformas de gestión de flotas hasta apps de productividad con IA, cada proyecto nace de una necesidad concreta.",
+    "Mi stack combina React, React Native, Next.js con backends en Firebase y Supabase. Uso herramientas de IA como Claude, Cursor y Antigravity para potenciar mi desarrollo."
+  ],
+  stats: [
+    {value:"5+",label:"Proyectos"},{value:"3",label:"Plataformas"},
+    {value:"Web",label:"iOS & Android"},{value:"AI",label:"Powered Dev"}
+  ],
+  projects: [
+    {
+      id: "dspxteams",
+      name: "DspXteams",
+      tagline: "Fleet Management Platform",
+      description: "Plataforma de gestión de flotas para servicios de delivery con dashboard analítico, gestión de conductores y nómina.",
+      fullDescription: "DspXteams es una plataforma integral de gestión de flotas diseñada para servicios de delivery. Dashboard analítico, gestión de conductores, rutas, y nómina desde un solo lugar.",
+      featured: true,
+      status: {text:"83% completado",color:"yellow"},
+      tags: ["Next.js","Supabase","Fleet Management"],
+      theme: "fleet",
+
+      // 🔥 PREVIEW CONFIG — The magic!
+      preview: {
+        url: "",                    // ← URL de tu app desplegada
+        type: "desktop",            // phone | tablet | desktop
+        githubRepo: "",             // ← "usuario/repo" para cargar README
+      },
+
+      metadata: {"Plataforma":"Web","Stack":"Next.js + Supabase","Estado":"83%","Rol":"Full-Stack Dev"},
+      features: [
+        {title:"Dashboard Analítico",desc:"Métricas en tiempo real de entregas y rendimiento."},
+        {title:"Gestión de Conductores",desc:"Perfiles, documentación y sistema de evaluación."},
+        {title:"Sistema de Nómina",desc:"Cálculo automático basado en entregas y bonus."},
+        {title:"Rutas Inteligentes",desc:"Optimización con mapa en tiempo real."},
+        {title:"Reportes",desc:"Exportables por período, conductor o zona."},
+        {title:"Multi-tenant",desc:"Múltiples equipos con datos aislados."}
+      ],
+      techStack: ["Next.js","React","Supabase","PostgreSQL","Tailwind","Vercel","TypeScript"],
+      timeline: [
+        {date:"2024 Q3",title:"Inicio",desc:"Arquitectura, auth y dashboard."},
+        {date:"2024 Q4",title:"Módulos core",desc:"Drivers, analytics, payroll."},
+        {date:"2025 Q1",title:"Optimización",desc:"Audit, performance, seguridad."}
+      ],
+      links: {github:"",live:"",figma:""}
+    },
+    {
+      id: "familydash",
+      name: "FamilyDash",
+      tagline: "Family Management PWA",
+      description: "PWA de gestión familiar con Cloud Functions para validación segura de invitaciones.",
+      fullDescription: "FamilyDash es una PWA para gestionar actividades, tareas y comunicación familiar con autenticación segura.",
+      featured: false,
+      status: {text:"Activo",color:"green"},
+      tags: ["React","Firebase","PWA"],
+      theme: "family",
+      preview: {url:"",type:"phone",githubRepo:""},
+      metadata: {"Plataforma":"PWA","Stack":"React + Firebase","Estado":"Activo","Rol":"Full-Stack Dev"},
+      features: [
+        {title:"Auth Seguro",desc:"Firebase Auth con validación multi-capa."},
+        {title:"Invitaciones Seguras",desc:"Cloud Functions para validación."},
+        {title:"Dashboard Familiar",desc:"Vista unificada de tareas y eventos."},
+        {title:"PWA Optimizada",desc:"Funciona offline como app nativa."}
+      ],
+      techStack: ["React","Firebase","Cloud Functions","Firestore","PWA"],
+      timeline: [
+        {date:"2024 Q2",title:"MVP",desc:"Auth, dashboard y familias."},
+        {date:"2024 Q4",title:"Security Audit",desc:"Corrección de vulnerabilidades."},
+        {date:"2025 Q1",title:"Cloud Functions",desc:"Lógica server-side."}
+      ],
+      links: {github:"",live:""}
+    },
+    {
+      id: "focobit",
+      name: "Focobit",
+      tagline: "ADHD Productivity App",
+      description: "App de productividad para ADHD con filtrado por energía, micro-pasos con IA y gamificación.",
+      fullDescription: "Focobit usa filtrado por energía, IA para micro-pasos, y gamificación para ayudar a personas con ADHD a ser productivas.",
+      featured: false,
+      status: {text:"MVP completado",color:"green"},
+      tags: ["React Native","Firebase","AI"],
+      theme: "focus",
+      preview: {url:"",type:"phone",githubRepo:""},
+      metadata: {"Plataforma":"iOS & Android","Stack":"React Native + Firebase","Estado":"MVP","Rol":"Full-Stack Dev"},
+      features: [
+        {title:"Energy-Based Filtering",desc:"Tareas según tu energía: bajo, medio, alto."},
+        {title:"AI Micro-Steps",desc:"IA genera pasos pequeños de tareas grandes."},
+        {title:"Gamificación",desc:"Puntos, streaks y logros."},
+        {title:"Focus Timer",desc:"Pomodoro adaptativo."}
+      ],
+      techStack: ["React Native","Firebase","Firestore","Cloud Functions","AI/ML","WearOS"],
+      timeline: [
+        {date:"2025 Q1",title:"Desarrollo",desc:"19 prompts de desarrollo completo."},
+        {date:"2025 Q1",title:"MVP Launch",desc:"Todas las features core."}
+      ],
+      links: {github:"",live:""}
+    },
+    {
+      id: "xthegospel",
+      name: "XtheGospel",
+      tagline: "Educational Leadership PWA",
+      description: "PWA local-first para liderazgo educativo religioso con 4 etapas claras.",
+      fullDescription: "PWA local-first para educación religiosa. Reestructurada de 20+ lecciones a 4 etapas claras con manifiesto anti-vigilancia.",
+      featured: false,
+      status: {text:"Reestructuración",color:"blue"},
+      tags: ["PWA","Local-first","Education"],
+      theme: "gospel",
+      preview: {url:"",type:"desktop",githubRepo:""},
+      metadata: {"Plataforma":"PWA Local-first","Stack":"Vanilla JS + IndexedDB","Estado":"Reestructuración","Rol":"Dev & Designer"},
+      features: [
+        {title:"4 Etapas Claras",desc:"Progresión lógica del contenido."},
+        {title:"Local-First",desc:"100% offline, datos locales."},
+        {title:"Anti-Surveillance",desc:"Sin tracking ni gamificación manipulativa."},
+        {title:"Contenido Rico",desc:"Material doctrinal y guías educativas."}
+      ],
+      techStack: ["PWA","IndexedDB","Service Workers","Vanilla JS"],
+      timeline: [
+        {date:"2024 Q2",title:"Versión original",desc:"20+ lecciones."},
+        {date:"2024 Q4",title:"Limpieza ética",desc:"Eliminación de tracking."},
+        {date:"2025 Q1",title:"Reestructuración",desc:"4 etapas, nuevo diseño."}
+      ],
+      links: {github:"",live:""}
+    }
+  ]
+};
+
+// ══════════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════════
+
+const THEMES = {fleet:'vb-fleet',family:'vb-family',focus:'vb-focus',gospel:'vb-gospel',default:'vb-default'};
+const DOTS = {green:'g',yellow:'y',blue:'b'};
+const LANG_C = {JavaScript:'#f1e05a',TypeScript:'#3178c6',Python:'#3572A5',HTML:'#e34c26',CSS:'#563d7c',Java:'#b07219',Kotlin:'#A97BFF',Swift:'#F05138',Dart:'#00B4AB'};
+const DEVICE_ICONS = {phone:'📱',tablet:'📱',desktop:'🖥'};
+const DEVICE_LABELS = {phone:'Mobile',tablet:'Tablet',desktop:'Desktop'};
+
+function render() {
+  document.getElementById('hero-sub').textContent = CFG.subtitle;
+  document.getElementById('ftxt').textContent = `© 2026 ${CFG.name}`;
+  document.getElementById('ftxt2').textContent = `© 2026 ${CFG.name}`;
+  if(CFG.email) document.getElementById('cta-1').onclick=()=>window.open(`mailto:${CFG.email}`);
+  if(CFG.github) document.getElementById('cta-2').onclick=()=>window.open(`https://github.com/${CFG.github}`,'_blank');
+
+  // Projects
+  document.getElementById('pgrid').innerHTML = CFG.projects.map(p=>`
+    <div class="p-card ${p.featured?'ft':''} rv" onclick="openProj('${p.id}')">
+      ${p.preview&&p.preview.url?`<div class="p-device-badge"><span class="p-db">${DEVICE_ICONS[p.preview.type]||'🖥'} ${DEVICE_LABELS[p.preview.type]||'Web'}</span><span class="p-db" style="color:var(--grn)">● Live</span></div>`:''}
+      <div class="p-vis"><div class="vbg ${THEMES[p.theme]||THEMES.default}"></div><div class="p-ov"></div></div>
+      <div class="p-body">
+        <div class="p-tags">${p.featured?'<span class="p-tag hi">Featured</span>':''}${p.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>
+        <h3 class="p-nm">${p.name}</h3>
+        <p class="p-ds">${p.description}</p>
+        <div class="p-ft"><div class="p-st"><i class="${DOTS[p.status.color]||'g'}"></i> ${p.status.text}</div><div class="p-ar">↗</div></div>
+      </div>
+    </div>`).join('');
+
+  // About
+  document.getElementById('about-txt').innerHTML = CFG.about.map(p=>`<p style="color:var(--t2);line-height:1.8;font-weight:300;margin-bottom:16px">${p}</p>`).join('');
+  document.getElementById('about-stats').innerHTML = CFG.stats.map(s=>`<div class="st-card" style="padding:20px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:2rem;background:linear-gradient(135deg,var(--t1),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${s.value}</div><div style="font-size:.72rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">${s.label}</div></div>`).join('');
+
+  loadGH();
+  initObs();
+}
+
+// ── Project Detail with LIVE PREVIEW ──
+function openProj(id) {
+  const p = CFG.projects.find(x=>x.id===id);
+  if(!p) return;
+  const pv = p.preview||{};
+  const hasPreview = !!pv.url;
+  const hasRepo = !!pv.githubRepo;
+  const hasLinks = p.links && Object.values(p.links).some(v=>v);
+
+  document.getElementById('detail-c').innerHTML = `
+    <div class="d-hero rv">
+      <div>
+        <div class="p-tags" style="margin-bottom:12px">${p.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>
+        <h1>${p.name}</h1>
+        <p class="d-desc">${p.fullDescription||p.description}</p>
+        ${p.metadata?`<div class="d-meta">${Object.entries(p.metadata).map(([k,v])=>`<div class="d-mi"><div class="lb">${k}</div><div class="vl">${v}</div></div>`).join('')}</div>`:''}
+      </div>
+      <div class="d-vis"><div class="vbg ${THEMES[p.theme]||THEMES.default}"></div></div>
+    </div>
+
+    <!-- 🔥 INTERACTIVE PREVIEW -->
+    <div class="preview-section rv">
+      <div class="d-sec">
+        <h2>🖥 Preview Interactivo</h2>
+        <div class="preview-controls">
+          <button class="prev-btn ${pv.type==='phone'?'active':''}" onclick="switchDevice('phone',this)" data-proj="${id}">📱 Phone</button>
+          <button class="prev-btn ${pv.type==='tablet'?'active':''}" onclick="switchDevice('tablet',this)" data-proj="${id}">📱 Tablet</button>
+          <button class="prev-btn ${pv.type==='desktop'||!pv.type?'active':''}" onclick="switchDevice('desktop',this)" data-proj="${id}">🖥 Desktop</button>
+          <input class="prev-url" id="prev-url-input" value="${pv.url||''}" placeholder="https://tu-app-desplegada.com" onchange="updatePreview(this.value)">
+          <button class="prev-open" onclick="window.open(document.getElementById('prev-url-input').value,'_blank')">↗ Abrir</button>
+        </div>
+        <div class="device-stage" id="device-stage">
+          ${hasPreview ? buildDevice(pv.type||'desktop', pv.url) : buildNoPreview()}
+        </div>
+      </div>
+    </div>
+
+    ${p.features&&p.features.length?`<div class="d-sec rv"><h2>Features</h2><div class="feat-g">${p.features.map(f=>`<div class="feat-i"><h4>${f.title}</h4><p>${f.desc}</p></div>`).join('')}</div></div>`:''}
+    ${p.techStack&&p.techStack.length?`<div class="d-sec rv"><h2>Tech Stack</h2><div class="tech-bx">${p.techStack.map(t=>`<span class="tech-b">${t}</span>`).join('')}</div></div>`:''}
+    ${p.timeline&&p.timeline.length?`<div class="d-sec rv"><h2>Timeline</h2><div class="tl">${p.timeline.map(t=>`<div class="tl-i"><div class="dt">${t.date}</div><h4>${t.title}</h4><p>${t.desc}</p></div>`).join('')}</div></div>`:''}
+
+    ${hasRepo?`<div class="d-sec rv"><h2>📄 README</h2><div class="readme-box" id="readme-box"><p style="color:var(--t3)">Cargando README de ${pv.githubRepo}...</p></div></div>`:''}
+
+    ${hasLinks?`<div class="d-links rv">
+      ${p.links.live?`<a href="${p.links.live}" target="_blank" class="dl-p">Ver proyecto →</a>`:''}
+      ${p.links.github?`<a href="${p.links.github}" target="_blank" class="dl-s">GitHub ↗</a>`:''}
+      ${p.links.figma?`<a href="${p.links.figma}" target="_blank" class="dl-s">Figma ↗</a>`:''}
+    </div>`:''}
+  `;
+
+  showPg('pg-detail');
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>initObs(),100);
+
+  if(hasRepo) loadReadme(pv.githubRepo);
+}
+
+// ── Device Frame Builders ──
+function buildDevice(type, url) {
+  if(type==='phone') return `
+    <div class="frame-phone" id="device-frame">
+      <div class="notch"></div>
+      <iframe src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
+      <div class="home-bar"></div>
+    </div>`;
+  if(type==='tablet') return `
+    <div class="frame-tablet" id="device-frame">
+      <div class="cam"></div>
+      <iframe src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
+    </div>`;
+  return `
+    <div class="frame-desktop" id="device-frame">
+      <div class="topbar"><i></i><i></i><i></i><span class="url-bar">${url}</span></div>
+      <iframe src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" loading="lazy"></iframe>
+    </div>`;
+}
+
+function buildNoPreview() {
+  return `<div class="no-preview" id="device-frame">
+    <div class="icon">🚀</div>
+    <h4>Sin preview configurado</h4>
+    <p>Pega la URL de tu app desplegada arriba para verla en vivo, o usa el panel ⚙ al agregar el proyecto.</p>
+  </div>`;
+}
+
+function switchDevice(type, btn) {
+  document.querySelectorAll('.prev-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const url = document.getElementById('prev-url-input').value;
+  const stage = document.getElementById('device-stage');
+  if(url) {
+    stage.innerHTML = buildDevice(type, url);
+  } else {
+    stage.innerHTML = buildNoPreview();
+  }
+}
+
+function updatePreview(url) {
+  if(!url) return;
+  const activeBtn = document.querySelector('.prev-btn.active');
+  const type = activeBtn ? (activeBtn.textContent.includes('Phone')?'phone':activeBtn.textContent.includes('Tablet')?'tablet':'desktop') : 'desktop';
+  document.getElementById('device-stage').innerHTML = buildDevice(type, url);
+  // Update desktop url bar
+  const bar = document.querySelector('.url-bar');
+  if(bar) bar.textContent = url;
+}
+
+// ── Load README from GitHub ──
+async function loadReadme(repo) {
+  const box = document.getElementById('readme-box');
+  if(!box) return;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/readme`, {headers:{Accept:'application/vnd.github.v3.html'}});
+    if(!res.ok) throw new Error();
+    const html = await res.text();
+    box.innerHTML = html;
+    // Fix relative images
+    box.querySelectorAll('img').forEach(img=>{
+      const src = img.getAttribute('src');
+      if(src && !src.startsWith('http')) {
+        img.src = `https://raw.githubusercontent.com/${repo}/main/${src}`;
+      }
+    });
+  } catch(e) {
+    box.innerHTML = `<p style="color:var(--t3)">No se pudo cargar el README de "${repo}".</p>`;
+  }
+}
+
+// ── GitHub repos ──
+async function loadGH() {
+  const box = document.getElementById('gh-box');
+  if(!CFG.github) {
+    box.innerHTML = `<div class="gh-msg"><p>Sin GitHub configurado.</p><p style="font-size:.76rem;margin-top:4px">Usa el panel ⚙ para agregar tu usuario.</p></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="gh-msg">Cargando repos de @${CFG.github}...</div>`;
+  try {
+    const res = await fetch(`https://api.github.com/users/${CFG.github}/repos?sort=updated&per_page=6&type=owner`);
+    if(!res.ok) throw new Error();
+    const repos = await res.json();
+    if(!repos.length){box.innerHTML='<div class="gh-msg">Sin repos públicos.</div>';return}
+    box.innerHTML = `<div class="gh-grid">${repos.map(r=>`
+      <a class="gh-card rv" href="${r.html_url}" target="_blank">
+        <h4>📦 ${r.name}</h4>
+        <p>${r.description||'Sin descripción'}</p>
+        <div class="gh-meta">
+          ${r.language?`<span><span class="gh-dot" style="background:${LANG_C[r.language]||'#888'}"></span>${r.language}</span>`:''}
+          <span>⭐ ${r.stargazers_count}</span><span>🍴 ${r.forks_count}</span>
+        </div>
+      </a>`).join('')}</div>`;
+    setTimeout(()=>initObs(),50);
+  } catch(e) {
+    box.innerHTML = `<div class="gh-msg" style="color:var(--rose)">Error cargando repos de "${CFG.github}".</div>`;
+  }
+}
+
+// ── Navigation ──
+function showPg(id){document.querySelectorAll('.page').forEach(p=>{p.classList.remove('on','vis');p.style.opacity='0'});const pg=document.getElementById(id);pg.classList.add('on');pg.style.opacity='';requestAnimationFrame(()=>requestAnimationFrame(()=>pg.classList.add('vis')))}
+function goHome(){showPg('pg-home');window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>initObs(),100)}
+function goSec(id){showPg('pg-home');setTimeout(()=>{const el=document.getElementById('sec-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},100)}
+
+// ── Observer ──
+function initObs(){
+  const ob=new IntersectionObserver((es)=>{es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('v'),i*70);ob.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rv:not(.v)').forEach(el=>ob.observe(el));
+}
+
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('compact',window.scrollY>50));
+
+// ── Config Panel ──
+function toggleCfg(){document.getElementById('cfgPanel').classList.toggle('open')}
+
+function quickAdd() {
+  const name = document.getElementById('q-name').value.trim();
+  const desc = document.getElementById('q-desc').value.trim();
+  const url = document.getElementById('q-url').value.trim();
+  const type = document.getElementById('q-type').value;
+  const repo = document.getElementById('q-repo').value.trim();
+  const theme = document.getElementById('q-theme').value;
+  const tags = document.getElementById('q-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+
+  if(!name){toast('❌ Nombre requerido');return}
+
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g,'-');
+  // Extract "user/repo" from full URL
+  let ghRepo = '';
+  if(repo) {
+    const m = repo.match(/github\.com\/([^\/]+\/[^\/]+)/);
+    ghRepo = m ? m[1] : repo;
+  }
+
+  CFG.projects.push({
+    id, name,
+    tagline: desc.substring(0,50),
+    description: desc,
+    fullDescription: desc,
+    featured: false,
+    status: {text:"En desarrollo",color:"yellow"},
+    tags: tags.length ? tags : ["Proyecto"],
+    theme,
+    preview: {url, type, githubRepo: ghRepo},
+    metadata: {"Stack":tags.join(', ')||"—","Estado":"En desarrollo"},
+    features: [],
+    techStack: tags,
+    timeline: [],
+    links: {github:repo,live:url}
+  });
+
+  // Clear inputs
+  ['q-name','q-desc','q-url','q-repo','q-tags'].forEach(id=>document.getElementById(id).value='');
+
+  render();
+  toast('✅ Proyecto agregado');
+  document.getElementById('cfgPanel').classList.remove('open');
+}
+
+function applyJSON() {
+  const gh = document.getElementById('cfg-gh').value.trim();
+  const json = document.getElementById('cfg-json').value.trim();
+  if(gh) CFG.github = gh;
+  if(json){try{CFG={...CFG,...JSON.parse(json)}}catch(e){toast('❌ JSON inválido');return}}
+  render();showPg('pg-home');toast('✅ Actualizado');
+  document.getElementById('cfgPanel').classList.remove('open');
+}
+
+function exportCfg(){
+  navigator.clipboard.writeText(JSON.stringify(CFG,null,2)).then(()=>toast('📋 JSON copiado')).catch(()=>{
+    document.getElementById('cfg-json').value=JSON.stringify(CFG,null,2);toast('JSON en textarea');
+  });
+}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+
+// ── Init ──
+render();
+</script>
+</body>
+</html>
