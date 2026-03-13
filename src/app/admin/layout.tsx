@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
+import { useState } from "react";
 
 function LoginPage() {
   const { signInWithGitHub, signInWithGoogle } = useAuth();
@@ -74,8 +75,44 @@ function LoginPage() {
 }
 
 function UnauthorizedPage({ uid }: { uid: string }) {
+  const { signOut, signInWithGitHub, signInWithGoogle } = useAuth();
+  const [pending, setPending] = useState<"none" | "github" | "google" | "signout">("none");
+
   const copyUid = () => {
     navigator.clipboard.writeText(uid);
+  };
+
+  const reloadAndRetry = () => {
+    window.location.reload();
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setPending("signout");
+      await signOut();
+    } finally {
+      setPending("none");
+    }
+  };
+
+  const handleRetryGitHub = async () => {
+    try {
+      setPending("github");
+      await signOut();
+      await signInWithGitHub();
+    } finally {
+      setPending("none");
+    }
+  };
+
+  const handleRetryGoogle = async () => {
+    try {
+      setPending("google");
+      await signOut();
+      await signInWithGoogle();
+    } finally {
+      setPending("none");
+    }
   };
 
   return (
@@ -108,6 +145,39 @@ function UnauthorizedPage({ uid }: { uid: string }) {
         <p className="text-text-muted text-sm mb-6">
           In Firebase Console → Firestore → config → portfolio → allowedAdmins (array) → add this UID.
         </p>
+        <div className="mb-6 grid gap-3">
+          <button
+            type="button"
+            onClick={reloadAndRetry}
+            className="w-full px-4 py-2.5 border border-border rounded-lg text-text-primary hover:border-accent transition-colors"
+          >
+            Retry access
+          </button>
+          <button
+            type="button"
+            onClick={handleRetryGitHub}
+            disabled={pending !== "none"}
+            className="w-full px-4 py-2.5 border border-border rounded-lg text-text-primary hover:border-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {pending === "github" ? "Retrying with GitHub..." : "Retry sign in with GitHub"}
+          </button>
+          <button
+            type="button"
+            onClick={handleRetryGoogle}
+            disabled={pending !== "none"}
+            className="w-full px-4 py-2.5 border border-border rounded-lg text-text-primary hover:border-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {pending === "google" ? "Retrying with Google..." : "Retry sign in with Google"}
+          </button>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={pending !== "none"}
+            className="w-full px-4 py-2.5 border border-rose/40 text-rose rounded-lg hover:bg-rose/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {pending === "signout" ? "Signing out..." : "Sign out"}
+          </button>
+        </div>
         <Link
           href="/"
           className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-bg rounded-full font-medium hover:shadow-[0_6px_24px_rgba(232,197,71,0.3)] transition-all"
