@@ -14,24 +14,17 @@ const THEME_CLASSES: Record<ProjectTheme, string> = {
 };
 
 const STATUS_DOTS: Record<string, string> = {
-  green: "bg-green",
-  yellow: "bg-accent",
-  blue: "bg-cyan",
-  red: "bg-rose",
+  green: "bg-[#dcfce7] text-[#166534]",
+  yellow: "bg-[#fef3c7] text-[#92400e]",
+  blue: "bg-[#dbeafe] text-[#1d4ed8]",
+  red: "bg-[#ffe4e6] text-[#be123c]",
 };
 
 const VISUAL_GRADIENTS: Record<string, string> = {
-  family: "bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-500",
-  fleet: "bg-gradient-to-br from-slate-950 via-blue-900 to-teal-600",
-  gospel: "bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600",
-  default: "bg-gradient-to-br from-zinc-900 via-slate-800 to-zinc-700",
-};
-
-const VISUAL_ICONS: Record<string, string> = {
-  family: "👨‍👩‍👧‍👦",
-  fleet: "🚚",
-  gospel: "✨",
-  default: "💻",
+  family: "bg-gradient-to-br from-[#8b5cf6] via-[#6366f1] to-[#3b82f6]",
+  fleet: "bg-gradient-to-br from-[#475569] via-[#2563eb] to-[#0ea5e9]",
+  gospel: "bg-gradient-to-br from-[#f59e0b] via-[#f97316] to-[#facc15]",
+  default: "bg-gradient-to-br from-[#334155] via-[#1d4ed8] to-[#0f172a]",
 };
 
 interface ProjectCardProps {
@@ -40,7 +33,6 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const themeClass = THEME_CLASSES[(project.theme ?? "default") as ProjectTheme] ?? "theme-default";
-  const statusDot = STATUS_DOTS[project.status?.color ?? "green"] ?? "bg-green";
   const previewCollection = (
     project as Project & { previews?: Array<{ url?: string }> }
   ).previews;
@@ -51,68 +43,53 @@ export function ProjectCard({ project }: ProjectCardProps) {
       ? project.theme
       : "default";
   const visualGradient = VISUAL_GRADIENTS[visualTheme] ?? VISUAL_GRADIENTS.default;
-  const visualIcon = VISUAL_ICONS[visualTheme] ?? VISUAL_ICONS.default;
+  const statusColor = STATUS_DOTS[project.status?.color ?? "blue"] ?? STATUS_DOTS.blue;
 
   return (
     <Link
       href={`/project/${project.slug}`}
-      className={`block rounded-card-lg overflow-hidden border border-border bg-bg-card cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:translate-y-[-3px] hover:border-border-hover hover:shadow-[0_20px_56px_rgba(0,0,0,0.4)] group ${
+      className={`block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] group ${
         project.featured ? "md:col-span-2" : ""
       }`}
     >
-      {hasPreview ? (
-        <div className="relative w-full h-[160px] md:h-[200px] overflow-hidden">
-          <div
-            className={`absolute inset-0 ${visualGradient} transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105`}
-          />
-          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_45%)]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
-          <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center text-center px-4">
-            <span className="text-4xl md:text-5xl drop-shadow-md">{visualIcon}</span>
-            <h3 className="mt-3 font-display text-2xl md:text-3xl text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
-              {project.name}
-            </h3>
-          </div>
+      <div className="relative w-full h-[200px] overflow-hidden">
+        <div
+          className={`absolute inset-0 ${hasPreview ? visualGradient : themeClass} opacity-95 transition-transform duration-500 ease-smooth group-hover:scale-105`}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
+        <div className="absolute inset-0 flex items-center justify-center px-4 text-center">
+          <h3 className="text-white text-2xl md:text-3xl font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+            {project.name}
+          </h3>
         </div>
-      ) : (
-        <div className="relative w-full aspect-video overflow-hidden group">
+      </div>
+      <div className="relative z-3 p-5">
+        <div className="flex gap-2 flex-wrap mb-3">
           {project.featured && (
-            <div className="absolute inset-0 aspect-[21/9] md:aspect-[21/9]" />
-          )}
-          <div
-            className={`absolute inset-0 ${themeClass} transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg/95 via-bg/20 to-transparent" />
-        </div>
-      )}
-      <div className="relative z-[3] p-5">
-        <div className="flex gap-1 flex-wrap mb-2">
-          {project.featured && (
-            <span className="px-2 py-0.5 bg-accent-dim border border-accent/20 rounded-full text-xs font-mono text-accent">
+            <span className="px-2.5 py-1 bg-[#f4f4f5] rounded-full text-xs text-text-secondary font-medium">
               Featured
             </span>
           )}
           {project.tags?.map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 bg-[rgba(255,255,255,0.04)] border border-border rounded-full text-xs font-mono text-text-secondary"
+              className="px-2.5 py-1 bg-[#f4f4f5] rounded-full text-xs text-text-secondary font-medium"
             >
               {tag}
             </span>
           ))}
         </div>
-        <h3 className={`font-display text-text-primary mb-1 ${project.featured ? "text-2xl md:text-3xl" : "text-xl"}`}>
+        <h3 className="text-black font-bold text-[20px] mb-2">
           {project.name}
         </h3>
-        <p className="text-text-secondary text-sm leading-relaxed font-light max-w-[420px]">
+        <p className="text-text-secondary text-[14px] leading-relaxed max-w-[420px]">
           {project.description}
         </p>
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
-          <div className="flex items-center gap-1 text-xs text-text-muted">
-            <span className={`w-1.5 h-1.5 rounded-full ${statusDot}`} />
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
+          <div className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusColor}`}>
             {project.status?.text ?? "In development"}
           </div>
-          <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-text-secondary transition-all duration-300 group-hover:bg-accent group-hover:border-accent group-hover:text-bg group-hover:rotate-[-45deg]">
+          <div className="w-8 h-8 rounded-full border border-[#dbeafe] flex items-center justify-center text-accent transition-all duration-300 group-hover:bg-[#eff6ff] group-hover:-rotate-12">
             <ArrowUpRight className="w-4 h-4" />
           </div>
         </div>

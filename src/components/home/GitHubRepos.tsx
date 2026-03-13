@@ -14,7 +14,7 @@ interface Repo {
 }
 
 const LANG_COLORS: Record<string, string> = {
-  JavaScript: "#f1e05a",
+  JavaScript: "#f7df1e",
   TypeScript: "#3178c6",
   Python: "#3572A5",
   HTML: "#e34c26",
@@ -57,7 +57,7 @@ export function GitHubRepos({ username }: GitHubReposProps) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="p-5 bg-bg-card border border-border rounded-card animate-pulse h-32"
+            className="p-5 bg-white border border-border rounded-lg animate-pulse h-32"
           />
         ))}
       </div>
@@ -88,17 +88,25 @@ export function GitHubRepos({ username }: GitHubReposProps) {
           href={repo.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block p-5 bg-bg-card border border-border rounded-card transition-all duration-350 hover:border-border-hover hover:-translate-y-0.5 hover:bg-bg-hover no-underline text-inherit"
+          className="block p-5 bg-white border border-border rounded-lg transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 no-underline text-inherit"
         >
-          <h4 className="font-mono text-sm text-accent mb-2 font-medium">
-            📦 {repo.name}
+          <h4 className="text-base text-black mb-2 font-bold transition-colors hover:text-accent">
+            {repo.name}
           </h4>
-          <p className="text-sm text-text-secondary leading-relaxed mb-3 line-clamp-2">
-            {repo.description || "No description"}
+          <p className={`text-sm leading-relaxed mb-3 line-clamp-2 ${repo.description ? "text-text-secondary" : "text-text-muted italic"}`}>
+            {repo.description || "No description available"}
           </p>
-          <div className="flex gap-4 text-xs text-text-muted">
+          <div className="flex gap-4 text-xs text-text-secondary">
             {repo.language && (
-              <span className="flex items-center gap-1">
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${
+                  repo.language === "JavaScript"
+                    ? "bg-[#333333] text-[#f7df1e]"
+                    : repo.language === "TypeScript"
+                      ? "bg-cyan text-white"
+                      : "bg-[#f3f4f6] text-[#374151]"
+                }`}
+              >
                 <span
                   className="w-2 h-2 rounded-full"
                   style={{

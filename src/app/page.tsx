@@ -18,16 +18,11 @@ export default async function HomePage() {
 
   return (
     <HomeScrollReveal>
-      <section className="min-h-screen flex flex-col justify-center">
+      <section className="bg-white">
         <Hero config={config} />
       </section>
 
-      <section id="projects" className="pt-24 pb-12">
-        <div className="flex items-baseline gap-4 mb-11 reveal">
-          <span className="font-mono text-xs text-accent opacity-50">01</span>
-          <h2 className="font-display text-3xl md:text-4xl">Projects</h2>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+      <section id="projects" className="pt-10 pb-14 bg-white">
         <div className="reveal">
           <ErrorBoundary section="proyectos">
             <ProjectGrid projects={projects} />
@@ -35,16 +30,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="marquee">
+      <section id="marquee" className="bg-[#f9fafb]">
         <div className="reveal">
           <TechMarquee items={config?.techStack ?? []} />
         </div>
       </section>
 
-      <section id="github" className="pt-24 pb-12">
+      <section id="github" className="pt-16 pb-14 bg-[#f9fafb]">
         <div className="flex items-baseline gap-4 mb-11 reveal">
-          <span className="font-mono text-xs text-accent opacity-50">02</span>
-          <h2 className="font-display text-3xl md:text-4xl">GitHub</h2>
+          <span className="font-mono text-xs text-accent">02</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-black">GitHub</h2>
           <div className="flex-1 h-px bg-border" />
         </div>
         <div className="reveal">
@@ -54,10 +49,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="pt-24 pb-12">
+      <section id="about" className="pt-16 pb-14 bg-white">
         <div className="flex items-baseline gap-4 mb-11 reveal">
-          <span className="font-mono text-xs text-accent opacity-50">03</span>
-          <h2 className="font-display text-3xl md:text-4xl">About me</h2>
+          <span className="font-mono text-xs text-accent">03</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-black">About me</h2>
           <div className="flex-1 h-px bg-border" />
         </div>
         <div className="reveal">
@@ -67,7 +62,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="contact">
+      <section id="contact" className="pt-6 pb-6 bg-white">
         <div className="reveal">
           <CTASection
             email={config?.email}

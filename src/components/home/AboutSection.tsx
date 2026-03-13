@@ -14,7 +14,7 @@ export function AboutSection({ config }: AboutSectionProps) {
         {about.map((paragraph, i) => (
           <p
             key={i}
-            className="text-text-secondary leading-relaxed font-light mb-4"
+            className="text-[#444444] leading-[1.8] mb-4"
           >
             {paragraph}
           </p>
@@ -24,12 +24,12 @@ export function AboutSection({ config }: AboutSectionProps) {
         {stats.map((stat, i) => (
           <div
             key={i}
-            className="p-5 bg-surface border border-border rounded-card"
+            className="p-5 bg-white border border-border rounded-[12px] transition-colors duration-300 hover:border-accent"
           >
-            <div className="font-display text-3xl bg-gradient-to-br from-text-primary to-accent bg-clip-text text-transparent">
+            <div className="text-3xl font-bold text-black">
               {stat.value}
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-wider mt-0.5">
+            <div className="text-xs text-text-secondary uppercase tracking-wider mt-0.5">
               {stat.label}
             </div>
           </div>

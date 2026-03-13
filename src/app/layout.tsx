@@ -1,31 +1,21 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Outfit, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { AmbientBlobs } from "@/components/layout/AmbientBlobs";
 import { AuthProvider } from "@/context/AuthContext";
 import { getPortfolioConfig } from "@/lib/firestore";
 
 export const dynamic = "force-dynamic";
 
-const instrumentSerif = Instrument_Serif({
-  weight: ["400"],
-  style: ["normal", "italic"],
+const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-geist-sans",
 });
 
-const outfit = Outfit({
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-body",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  weight: ["400", "500", "600"],
-  subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-geist-mono",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,20 +34,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const config = await getPortfolioConfig();
-
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="font-body antialiased">
-        <AmbientBlobs />
+      <body className="font-body antialiased bg-bg text-text-primary">
         <AuthProvider>
           <Navbar />
           <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-12">
             <main className="pt-20">{children}</main>
-            <Footer name={config?.name ?? "Victor"} />
+            <Footer name="Victor Ruiz" />
           </div>
         </AuthProvider>
       </body>

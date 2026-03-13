@@ -10,15 +10,15 @@ export function TechMarquee({ items }: TechMarqueeProps) {
   const duplicated = [...items, ...items];
 
   return (
-    <div className="py-12 overflow-hidden">
+    <div className="py-10 overflow-hidden bg-[#f9fafb] border-y border-border">
       <div
-        className="flex gap-8 w-max"
-        style={{ animation: "marquee 28s linear infinite" }}
+        className="flex gap-4 w-max"
+        style={{ animation: "marquee 34s linear infinite" }}
       >
         {duplicated.map((item, i) => (
           <span
             key={`${item}-${i}`}
-            className="font-mono text-sm text-text-muted px-4 shrink-0"
+            className="text-sm text-text-secondary px-3 py-1.5 shrink-0 rounded-full bg-white border border-border"
           >
             {item}
           </span>

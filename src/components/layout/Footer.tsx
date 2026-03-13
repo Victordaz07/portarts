@@ -1,15 +1,17 @@
 "use client";
 
-export function Footer({ name = "Victor" }: { name?: string }) {
+export function Footer({ name = "Victor Ruiz" }: { name?: string }) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="py-7 border-t border-border flex justify-between items-center text-text-muted text-sm">
-      <span>© {year} {name}</span>
+    <footer className="mt-16 py-7 px-4 md:px-6 bg-black border-t border-black flex justify-between items-center text-text-secondary text-sm rounded-t-xl">
+      <span>
+        © {year} <span className="text-white font-medium">{name}</span>
+      </span>
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="text-text-secondary hover:text-accent transition-colors cursor-pointer"
+        className="text-text-secondary hover:text-white transition-colors cursor-pointer"
       >
         ↑ Back to top
       </button>

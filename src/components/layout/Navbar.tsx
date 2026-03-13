@@ -23,23 +23,23 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[200] flex justify-between items-center
+      className={`fixed top-0 left-0 right-0 z-200 flex justify-between items-center
         px-4 md:px-12 py-4
-        backdrop-blur-[24px] saturate-[180%] bg-[rgba(6,6,8,0.6)]
+        backdrop-blur-[10px] bg-white/90
         border-b border-border
-        transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]
-        ${compact ? "py-2.5 bg-[rgba(6,6,8,0.88)]" : ""}`}
+        transition-all duration-400 ease-smooth
+        ${compact ? "py-3 bg-white/95" : ""}`}
     >
       <Link
         href="/"
-        className="font-display text-2xl text-text-primary hover:text-accent transition-colors"
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
       >
-        V<span className="text-accent">.</span>
+        <span className="text-2xl font-bold text-black tracking-tight">V.</span>
       </Link>
 
       <button
         type="button"
-        className="md:hidden p-2 text-text-primary"
+        className="md:hidden p-2 text-black"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
       >
@@ -47,16 +47,17 @@ export function Navbar() {
       </button>
 
       <div
-        className={`
-          hidden md:flex items-center gap-6
-          ${mobileOpen ? "flex flex-col absolute top-full left-0 right-0 py-5 px-5 bg-[rgba(6,6,8,0.95)] border-b border-border backdrop-blur-[24px]" : ""}
-        `}
+        className={`items-center gap-6 ${
+          mobileOpen
+            ? "flex flex-col absolute top-full left-0 right-0 py-5 px-5 bg-white border-b border-border"
+            : "hidden md:flex"
+        }`}
       >
         {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="text-text-secondary hover:text-text-primary text-sm font-medium uppercase tracking-wider transition-colors"
+            className="text-text-secondary hover:text-black text-sm font-medium transition-colors"
             onClick={() => setMobileOpen(false)}
           >
             {link.label}
@@ -64,21 +65,21 @@ export function Navbar() {
         ))}
         <Link
           href="/#contact"
-          className="px-5 py-2 border border-border rounded-full text-text-primary text-sm font-medium hover:bg-accent hover:text-bg hover:border-accent transition-all"
+          className="px-4 py-2 rounded-lg bg-black text-white text-sm font-medium border border-black hover:opacity-90 transition-all"
           onClick={() => setMobileOpen(false)}
         >
           Let&apos;s talk
         </Link>
         <Link
           href="/admin"
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border border-black ${
             isAdminUser
-              ? "bg-accent/20 border border-accent/30 text-accent hover:bg-accent hover:text-bg"
-              : "border border-border text-text-secondary hover:text-accent hover:border-accent"
+              ? "text-black bg-bg-hover"
+              : "text-black bg-transparent hover:bg-bg-hover"
           }`}
           onClick={() => setMobileOpen(false)}
         >
-          {isAdminUser ? "Admin" : "Sign in"}
+          Admin
         </Link>
       </div>
     </nav>

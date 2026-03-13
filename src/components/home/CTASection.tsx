@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 interface CTASectionProps {
   email?: string;
@@ -21,26 +20,32 @@ export function CTASection({ socialLinks }: CTASectionProps) {
   ].filter((l) => l.url);
 
   return (
-    <section className="py-24 text-center">
-      <h2 className="font-display text-3xl md:text-5xl mb-4">
+    <section className="py-20 px-6 md:px-10 text-center bg-black rounded-2xl">
+      <h2 className="text-3xl md:text-5xl mb-4 font-bold text-white">
         Ready to
         <br />
         <em className="text-accent not-italic">build</em> together?
       </h2>
-      <p className="text-text-secondary max-w-[400px] mx-auto mb-8 leading-relaxed">
+      <p className="text-[#a3a3a3] max-w-[460px] mx-auto mb-8 leading-relaxed">
         Always open to collaborate on ambitious projects.
       </p>
       <div className="flex gap-3 justify-center flex-wrap">
-        <Link href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-          <Button variant="primary" size="lg">
-            Start conversation
-          </Button>
+        <Link
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-accent text-white font-medium hover:opacity-90 transition-opacity"
+        >
+          Start conversation
         </Link>
         {links.map(({ url, label }) => (
-          <Link key={label} href={url!} target="_blank">
-            <Button variant="secondary" size="lg">
-              {label}
-            </Button>
+          <Link
+            key={label}
+            href={url!}
+            target="_blank"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-white text-white font-medium hover:bg-white hover:text-black transition-colors"
+          >
+            {label}
           </Link>
         ))}
       </div>
