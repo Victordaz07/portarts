@@ -20,6 +20,20 @@ const STATUS_DOTS: Record<string, string> = {
   red: "bg-rose",
 };
 
+const VISUAL_GRADIENTS: Record<string, string> = {
+  family: "bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-500",
+  fleet: "bg-gradient-to-br from-slate-950 via-blue-900 to-teal-600",
+  gospel: "bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600",
+  default: "bg-gradient-to-br from-zinc-900 via-slate-800 to-zinc-700",
+};
+
+const VISUAL_ICONS: Record<string, string> = {
+  family: "👨‍👩‍👧‍👦",
+  fleet: "🚚",
+  gospel: "✨",
+  default: "💻",
+};
+
 interface ProjectCardProps {
   project: Project;
 }
@@ -27,7 +41,14 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   const themeClass = THEME_CLASSES[(project.theme ?? "default") as ProjectTheme] ?? "theme-default";
   const statusDot = STATUS_DOTS[project.status?.color ?? "green"] ?? "bg-green";
-  const hasPreview = !!project.preview?.url;
+  const previewUrl = project.preview?.url || project.previews?.[0]?.url;
+  const hasPreview = !!previewUrl;
+  const visualTheme =
+    project.theme === "family" || project.theme === "fleet" || project.theme === "gospel"
+      ? project.theme
+      : "default";
+  const visualGradient = VISUAL_GRADIENTS[visualTheme] ?? VISUAL_GRADIENTS.default;
+  const visualIcon = VISUAL_ICONS[visualTheme] ?? VISUAL_ICONS.default;
 
   return (
     <Link
@@ -36,26 +57,31 @@ export function ProjectCard({ project }: ProjectCardProps) {
         project.featured ? "md:col-span-2" : ""
       }`}
     >
-      <div className="relative w-full aspect-video overflow-hidden group">
-        {project.featured && (
-          <div className="absolute inset-0 aspect-[21/9] md:aspect-[21/9]" />
-        )}
-        <div
-          className={`absolute inset-0 ${themeClass} transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg/95 via-bg/20 to-transparent" />
-        {hasPreview && project.preview && (
-          <div className="absolute top-3 right-3 z-[5] flex gap-1">
-            <span className="px-2 py-1 bg-black/60 backdrop-blur-sm border border-white/10 rounded-md text-xs font-mono text-text-secondary flex items-center gap-1">
-              {project.preview.type === "phone" && "📱"}
-              {project.preview.type === "tablet" && "📱"}
-              {project.preview.type === "desktop" && "🖥"}
-              {project.preview.type === "phone" ? "Mobile" : project.preview.type === "tablet" ? "Tablet" : "Desktop"}
-            </span>
-            <span className="px-2 py-1 text-green text-xs">● Live</span>
+      {hasPreview ? (
+        <div className="relative w-full h-[160px] md:h-[200px] overflow-hidden">
+          <div
+            className={`absolute inset-0 ${visualGradient} transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105`}
+          />
+          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_45%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+          <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center text-center px-4">
+            <span className="text-4xl md:text-5xl drop-shadow-md">{visualIcon}</span>
+            <h3 className="mt-3 font-display text-2xl md:text-3xl text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+              {project.name}
+            </h3>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="relative w-full aspect-video overflow-hidden group">
+          {project.featured && (
+            <div className="absolute inset-0 aspect-[21/9] md:aspect-[21/9]" />
+          )}
+          <div
+            className={`absolute inset-0 ${themeClass} transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/95 via-bg/20 to-transparent" />
+        </div>
+      )}
       <div className="relative z-[3] p-5">
         <div className="flex gap-1 flex-wrap mb-2">
           {project.featured && (

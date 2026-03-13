@@ -11,7 +11,8 @@ interface CTASectionProps {
   };
 }
 
-export function CTASection({ email, socialLinks }: CTASectionProps) {
+export function CTASection({ socialLinks }: CTASectionProps) {
+  const whatsappUrl = "https://wa.me/16508983153";
   const links = [
     { url: socialLinks?.github, label: "GitHub" },
     { url: socialLinks?.linkedin, label: "LinkedIn" },
@@ -30,17 +31,11 @@ export function CTASection({ email, socialLinks }: CTASectionProps) {
         Always open to collaborate on ambitious projects.
       </p>
       <div className="flex gap-3 justify-center flex-wrap">
-        {email ? (
-          <a href={`mailto:${email}`}>
-            <Button variant="primary" size="lg">
-              Start conversation
-            </Button>
-          </a>
-        ) : (
-          <Button variant="primary" size="lg" disabled>
+        <Link href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+          <Button variant="primary" size="lg">
             Start conversation
           </Button>
-        )}
+        </Link>
         {links.map(({ url, label }) => (
           <Link key={label} href={url!} target="_blank">
             <Button variant="secondary" size="lg">
