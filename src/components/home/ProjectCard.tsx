@@ -41,7 +41,10 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   const themeClass = THEME_CLASSES[(project.theme ?? "default") as ProjectTheme] ?? "theme-default";
   const statusDot = STATUS_DOTS[project.status?.color ?? "green"] ?? "bg-green";
-  const previewUrl = project.preview?.url || project.previews?.[0]?.url;
+  const previewCollection = (
+    project as Project & { previews?: Array<{ url?: string }> }
+  ).previews;
+  const previewUrl = project.preview?.url || previewCollection?.[0]?.url;
   const hasPreview = !!previewUrl;
   const visualTheme =
     project.theme === "family" || project.theme === "fleet" || project.theme === "gospel"
