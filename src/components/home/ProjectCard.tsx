@@ -48,9 +48,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
       href={`/project/${project.slug}`}
-      className={`block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] group ${
-        project.featured ? "md:col-span-2" : ""
-      }`}
+      className="block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] group"
     >
       <div className="relative w-full h-[200px] overflow-hidden">
         <div

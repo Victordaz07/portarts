@@ -34,7 +34,7 @@ export function Navbar() {
         href="/"
         className="flex items-center gap-2 hover:opacity-80 transition-opacity"
       >
-        <span className="text-2xl font-bold text-black tracking-tight">V.</span>
+        <span className="text-xl md:text-2xl font-bold text-black tracking-tight">Victor Ruiz</span>
       </Link>
 
       <button

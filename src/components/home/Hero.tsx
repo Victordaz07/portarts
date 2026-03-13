@@ -25,12 +25,12 @@ export function Hero({ config }: HeroProps) {
         />
         Available for projects
       </div>
-      <h1 className="font-body text-[48px] md:text-[72px] font-bold leading-[0.95] tracking-tight mb-5 text-black">
-        <span className="block">Creating</span>
-        <span className="block text-accent">digital</span>
-        <span className="block">experiences</span>
+      <h1 className="font-body text-[44px] md:text-[64px] lg:text-[72px] font-bold leading-[0.96] tracking-tight mb-5 text-black max-w-[1100px]">
+        <span>Creating </span>
+        <span className="text-accent">digital </span>
+        <span>experiences</span>
       </h1>
-      <p className="text-text-secondary text-lg md:text-xl max-w-[620px] leading-relaxed">
+      <p className="text-text-secondary text-lg md:text-xl max-w-[760px] leading-relaxed">
         {subtitle}
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-3">
