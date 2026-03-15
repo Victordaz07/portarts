@@ -10,7 +10,7 @@ interface ReadmeViewerProps {
 export function ReadmeViewer({ repo }: ReadmeViewerProps) {
   const [html, setHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!repo) {
@@ -20,14 +20,14 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
 
     fetch(`/api/github?repo=${encodeURIComponent(repo)}&file=readme`)
       .then((res) => {
-        if (!res.ok) throw new Error("Could not load README");
+        if (!res.ok) throw new Error("not found");
         return res.text();
       })
       .then((content) => {
         setHtml(content);
-        setError(null);
+        setFailed(false);
       })
-      .catch((err) => setError(err.message))
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false));
   }, [repo]);
 
@@ -46,27 +46,31 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
+      <>
+        <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
+          📄 README
+        </h2>
+        <div className="bg-bg-raised border border-border rounded-card p-6 flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      </>
     );
   }
 
-  if (error) {
-    return (
-      <p className="text-text-muted py-8">
-        Could not load README for &quot;{repo}&quot;.
-      </p>
-    );
-  }
-
-  if (!html) return null;
+  if (failed || !html) return null;
 
   return (
-    <div
-      id="readme-container"
-      className="readme-content prose prose-invert max-w-none"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <>
+      <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
+        📄 README
+      </h2>
+      <div className="bg-bg-raised border border-border rounded-card p-6 max-h-[500px] overflow-y-auto">
+        <div
+          id="readme-container"
+          className="readme-content prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+    </>
   );
 }

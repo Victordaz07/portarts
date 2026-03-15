@@ -91,11 +91,16 @@ body {
    SCROLL REVEAL UTILITY
    ══════════════════════════════════════════════ */
 .reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  transform: translateY(0);
 }
-.reveal.visible {
+.reveal.reveal-pending {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.reveal-pending.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -116,12 +121,11 @@ body {
 .device-phone {
   width: 320px;
   height: 640px;
-  background: #060608;
+  background: #f8fafc;
   border-radius: 40px;
-  border: 3px solid #2a2a30;
+  border: 2px solid #d1d5db;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -137,12 +141,11 @@ body {
 .device-tablet {
   width: 600px;
   height: 450px;
-  background: #060608;
+  background: #f8fafc;
   border-radius: 20px;
-  border: 3px solid #2a2a30;
+  border: 2px solid #d1d5db;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -153,7 +156,7 @@ body {
   transform: translateX(-50%);
   width: 6px;
   height: 6px;
-  background: #2a2a30;
+  background: #9ca3af;
   border-radius: 50%;
   z-index: 10;
 }
@@ -170,22 +173,22 @@ body {
 .device-desktop {
   width: 100%;
   max-width: 900px;
-  background: #060608;
+  background: #f8fafc;
   border-radius: 12px;
-  border: 2px solid #2a2a30;
+  border: 1px solid #d1d5db;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .device-desktop-topbar {
   height: 32px;
-  background: #1a1a1e;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   padding: 0 12px;
   gap: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .device-desktop-topbar .dot-red {
@@ -211,10 +214,10 @@ body {
   flex: 1;
   margin-left: 10px;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #ffffff;
   border-radius: 6px;
   font-size: 0.65rem;
-  color: #56524a;
+  color: #6b7280;
   font-family: "JetBrains Mono", monospace;
   white-space: nowrap;
   overflow: hidden;
@@ -234,8 +237,8 @@ body {
   justify-content: center;
   align-items: flex-start;
   padding: 40px 20px;
-  background: #0c0c10;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 20px;
   min-height: 500px;
   position: relative;
@@ -246,11 +249,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(232, 197, 71, 0.03),
-    transparent 60%
-  );
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 112, 243, 0.05), transparent 60%);
   pointer-events: none;
 }
 
@@ -279,8 +278,8 @@ body {
 .readme-content h1,
 .readme-content h2,
 .readme-content h3 {
-  font-family: "Instrument Serif", Georgia, serif;
-  color: #efeae0;
+  font-family: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
+  color: #000000;
   margin: 16px 0 8px;
 }
 .readme-content h1 { font-size: 1.4rem; }
@@ -288,20 +287,20 @@ body {
 .readme-content h3 { font-size: 0.95rem; }
 .readme-content p {
   font-size: 0.84rem;
-  color: #908a7e;
+  color: #444444;
   line-height: 1.7;
   margin-bottom: 10px;
 }
 .readme-content code {
-  background: #1a1a20;
+  background: #f3f4f6;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.78rem;
-  color: #e8c547;
+  color: #0f172a;
 }
 .readme-content pre {
-  background: #0c0c10;
+  background: #111827;
   padding: 16px;
   border-radius: 8px;
   overflow-x: auto;
@@ -310,9 +309,10 @@ body {
 .readme-content pre code {
   background: none;
   padding: 0;
+  color: #e5e7eb;
 }
 .readme-content a {
-  color: #47c5e8;
+  color: #0070f3;
   text-decoration: none;
 }
 .readme-content a:hover {
@@ -321,7 +321,7 @@ body {
 .readme-content ul, .readme-content ol {
   padding-left: 20px;
   margin-bottom: 10px;
-  color: #908a7e;
+  color: #444444;
   font-size: 0.84rem;
 }
 .readme-content img {
@@ -330,9 +330,9 @@ body {
   margin: 10px 0;
 }
 .readme-content blockquote {
-  border-left: 3px solid #e8c547;
+  border-left: 3px solid #0070f3;
   padding-left: 12px;
-  color: #56524a;
+  color: #666666;
   font-style: italic;
   margin: 10px 0;
 }
