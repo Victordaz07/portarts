@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Monitor, Tablet, Smartphone, ExternalLink, Maximize2 } from "lucide-react";
 import type { DeviceType } from "@/lib/types";
 
@@ -8,33 +8,46 @@ interface DevicePreviewProps {
   url: string;
   type: DeviceType;
   allowFullscreen?: boolean;
+  projectName?: string;
 }
 
 export function DevicePreview({
   url: initialUrl,
   type: initialType,
   allowFullscreen = true,
+  projectName,
 }: DevicePreviewProps) {
   const [url, setUrl] = useState(initialUrl);
   const [deviceType, setDeviceType] = useState<DeviceType>(initialType);
   const [loading, setLoading] = useState(!!initialUrl);
-  const [error, setError] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
-    setError(false);
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const href = iframe.contentWindow?.location?.href;
+      if (!href || href === "about:blank" || href.includes("about:blank")) {
+        setBlocked(true);
+      }
+    } catch {
+      // SecurityError = cross-origin page loaded successfully
+      setBlocked(false);
+    }
   }, []);
 
   const handleError = useCallback(() => {
     setLoading(false);
-    setError(true);
+    setBlocked(true);
   }, []);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUrl(value);
     setLoading(!!value);
-    setError(false);
+    setBlocked(false);
   };
 
   const openInNewTab = () => {
@@ -43,11 +56,67 @@ export function DevicePreview({
 
   const enterFullscreen = () => {
     if (!allowFullscreen || !url) return;
-    const iframe = document.getElementById("device-iframe") as HTMLIFrameElement;
+    const iframe = iframeRef.current;
     if (iframe?.requestFullscreen) iframe.requestFullscreen();
   };
 
   const hasPreview = !!url;
+
+  const iframeSrc = (() => {
+    if (!url) return "";
+    try {
+      const parsed = new URL(url);
+      if (!parsed.hash) parsed.hash = "top";
+      return parsed.toString();
+    } catch {
+      return url;
+    }
+  })();
+
+  const blockedPlaceholder = (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg z-20 p-8 text-center">
+      <div className="w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center mb-4">
+        <ExternalLink className="w-5 h-5 text-text-muted" />
+      </div>
+      {projectName && (
+        <h4 className="text-base font-display text-text-primary mb-1">
+          {projectName}
+        </h4>
+      )}
+      <p className="text-sm text-text-muted mb-4 max-w-[260px] leading-relaxed">
+        This site cannot be embedded in a preview frame.
+      </p>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-medium bg-accent text-bg no-underline transition-all hover:-translate-y-0.5 hover:shadow-[0_5px_18px_rgba(232,197,71,0.3)]"
+      >
+        Visit site
+        <ExternalLink className="w-3.5 h-3.5" />
+      </a>
+    </div>
+  );
+
+  const loadingSpinner = (
+    <div className="absolute inset-0 flex items-center justify-center bg-bg z-20">
+      <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  const renderIframe = (className: string) => (
+    <iframe
+      key={iframeSrc}
+      ref={iframeRef}
+      src={iframeSrc}
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+      loading="lazy"
+      onLoad={handleLoad}
+      onError={handleError}
+      className={className}
+      title="Preview"
+    />
+  );
 
   return (
     <div className="mb-14">
@@ -103,7 +172,7 @@ export function DevicePreview({
           <ExternalLink className="w-4 h-4" />
           Abrir
         </button>
-        {allowFullscreen && hasPreview && (
+        {allowFullscreen && hasPreview && !blocked && (
           <button
             type="button"
             onClick={enterFullscreen}
@@ -120,57 +189,17 @@ export function DevicePreview({
           <>
             {deviceType === "phone" && (
               <div className="device-phone">
-                <div className="device-phone-notch" />
-                {loading && !error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-bg z-20">
-                    <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-                {error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-bg z-20 p-6 text-center">
-                    <p className="text-text-muted text-sm">
-                      The site blocks iframe display (X-Frame-Options).
-                    </p>
-                  </div>
-                )}
-                <iframe
-                  id="device-iframe"
-                  src={url}
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  loading="lazy"
-                  onLoad={handleLoad}
-                  onError={handleError}
-                  className="w-full h-full border-none rounded-[37px] bg-white"
-                  title="Preview"
-                />
-                <div className="device-phone-bar" />
+                {loading && !blocked && loadingSpinner}
+                {blocked && blockedPlaceholder}
+                {renderIframe(`w-full h-full border-none rounded-[37px] bg-white ${blocked ? "invisible absolute" : ""}`)}
               </div>
             )}
             {deviceType === "tablet" && (
               <div className="device-tablet">
                 <div className="device-tablet-cam" />
-                {loading && !error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-bg z-20">
-                    <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-                {error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-bg z-20 p-6 text-center">
-                    <p className="text-text-muted text-sm">
-                      The site blocks iframe display.
-                    </p>
-                  </div>
-                )}
-                <iframe
-                  id="device-iframe"
-                  src={url}
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  loading="lazy"
-                  onLoad={handleLoad}
-                  onError={handleError}
-                  className="w-full h-full border-none rounded-[17px] bg-white"
-                  title="Preview"
-                />
+                {loading && !blocked && loadingSpinner}
+                {blocked && blockedPlaceholder}
+                {renderIframe(`w-full h-full border-none rounded-[17px] bg-white ${blocked ? "invisible absolute" : ""}`)}
               </div>
             )}
             {deviceType === "desktop" && (
@@ -181,28 +210,13 @@ export function DevicePreview({
                   <span className="dot-green" />
                   <span className="url-bar truncate">{url}</span>
                 </div>
-                {loading && !error && (
+                {loading && !blocked && (
                   <div className="absolute inset-0 top-8 flex items-center justify-center bg-bg z-20">
                     <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
-                {error && (
-                  <div className="absolute inset-0 top-8 flex items-center justify-center bg-bg z-20 p-6 text-center">
-                    <p className="text-text-muted text-sm">
-                      The site blocks iframe display.
-                    </p>
-                  </div>
-                )}
-                <iframe
-                  id="device-iframe"
-                  src={url}
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  loading="lazy"
-                  onLoad={handleLoad}
-                  onError={handleError}
-                  className="w-full h-[520px] border-none bg-white block"
-                  title="Preview"
-                />
+                {blocked && blockedPlaceholder}
+                {renderIframe(`w-full h-[520px] border-none bg-white block ${blocked ? "invisible absolute" : ""}`)}
               </div>
             )}
           </>

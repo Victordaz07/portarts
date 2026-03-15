@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { ExternalLink } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface ReadmeViewerProps {
@@ -8,7 +11,8 @@ interface ReadmeViewerProps {
 }
 
 export function ReadmeViewer({ repo }: ReadmeViewerProps) {
-  const [html, setHtml] = useState<string | null>(null);
+  const [content, setContent] = useState<string | null>(null);
+  const [format, setFormat] = useState<"html" | "markdown">("html");
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
@@ -23,8 +27,20 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
         if (!res.ok) throw new Error("not found");
         return res.text();
       })
-      .then((content) => {
-        setHtml(content);
+      .then(async (html) => {
+        // Some repos/pages can return an effectively empty HTML payload.
+        if (!html || html.trim().length < 40) {
+          const raw = await fetch(
+            `https://raw.githubusercontent.com/${repo}/main/README.md`
+          );
+          if (!raw.ok) throw new Error("raw readme not found");
+          const markdown = await raw.text();
+          setContent(markdown);
+          setFormat("markdown");
+        } else {
+          setContent(html);
+          setFormat("html");
+        }
         setFailed(false);
       })
       .catch(() => setFailed(true))
@@ -32,7 +48,7 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
   }, [repo]);
 
   useEffect(() => {
-    if (!html) return;
+    if (!content || format !== "html") return;
     const container = document.getElementById("readme-container");
     if (!container) return;
 
@@ -42,7 +58,7 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
         img.src = `https://raw.githubusercontent.com/${repo}/main/${src.replace(/^\//, "")}`;
       }
     });
-  }, [html, repo]);
+  }, [content, format, repo]);
 
   if (loading) {
     return (
@@ -57,7 +73,29 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
     );
   }
 
-  if (failed || !html) return null;
+  if (failed || !content) {
+    return (
+      <>
+        <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
+          📄 README
+        </h2>
+        <div className="bg-bg-raised border border-border rounded-card p-6">
+          <p className="text-text-secondary text-sm mb-3">
+            No se pudo cargar el README en línea para este repositorio.
+          </p>
+          <a
+            href={`https://github.com/${repo}#readme`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium no-underline"
+          >
+            Ver README en GitHub
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -65,11 +103,19 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
         📄 README
       </h2>
       <div className="bg-bg-raised border border-border rounded-card p-6 max-h-[500px] overflow-y-auto">
-        <div
-          id="readme-container"
-          className="readme-content prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        {format === "html" ? (
+          <div
+            id="readme-container"
+            className="readme-content prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        ) : (
+          <div className="readme-content prose max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {content}
+            </ReactMarkdown>
+          </div>
+        )}
       </div>
     </>
   );

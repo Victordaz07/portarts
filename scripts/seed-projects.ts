@@ -73,6 +73,26 @@ const projects = [
       type: "desktop",
       allowFullscreen: true,
     },
+    previews: [
+      {
+        url: "https://familydash.net",
+        type: "desktop",
+        label: "Landing Page",
+        allowFullscreen: true,
+      },
+      {
+        url: "https://familydash.net/login",
+        type: "phone",
+        label: "Live App",
+        allowFullscreen: true,
+      },
+    ],
+    demoCredentials: {
+      url: "https://familydash.net/login",
+      email: "demo@familydash.net",
+      password: "Demo2026!",
+      disclaimer: "Demo account — data resets periodically",
+    },
     githubRepo: "FamilyDash",
     githubUrl: "https://github.com/Victordaz07/FamilyDash",
     metadata: {

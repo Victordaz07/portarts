@@ -1,5 +1,3 @@
-import type { Timestamp } from "firebase/firestore";
-
 export interface PortfolioConfig {
   name: string;
   title: string;
@@ -53,6 +51,18 @@ export interface Project {
     type: DeviceType;
     allowFullscreen?: boolean;
   };
+  previews?: Array<{
+    url: string;
+    type: DeviceType;
+    label: string;
+    allowFullscreen?: boolean;
+  }>;
+  demoCredentials?: {
+    url: string;
+    email: string;
+    password: string;
+    disclaimer?: string;
+  };
   githubRepo?: string;
   githubUrl?: string;
   metadata?: Record<string, string>;
@@ -78,7 +88,7 @@ export interface Project {
     appStore?: string;
     playStore?: string;
   };
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt?: string;
+  updatedAt?: string;
   published: boolean;
 }

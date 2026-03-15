@@ -13,9 +13,22 @@ import {
   limit,
   serverTimestamp,
   writeBatch,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { PortfolioConfig, Project } from "./types";
+
+function serializeDoc(data: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value instanceof Timestamp) {
+      result[key] = value.toDate().toISOString();
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
 
 export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
   const snap = await getDoc(doc(db, "config", "portfolio"));
@@ -31,7 +44,7 @@ export async function getPublishedProjects(): Promise<Project[]> {
       orderBy("order", "asc")
     );
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
+    return snap.docs.map((d) => ({ id: d.id, ...serializeDoc(d.data()) } as Project));
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("index") && (msg.includes("building") || msg.includes("required"))) {
@@ -50,7 +63,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     );
     const snap = await getDocs(q);
     if (snap.empty) return null;
-    return { id: snap.docs[0].id, ...snap.docs[0].data() } as Project;
+    return { id: snap.docs[0].id, ...serializeDoc(snap.docs[0].data()) } as Project;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("index") && (msg.includes("building") || msg.includes("required"))) {
@@ -67,14 +80,14 @@ export async function getAllProjects(): Promise<Project[]> {
     orderBy("order", "asc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
+  return snap.docs.map((d) => ({ id: d.id, ...serializeDoc(d.data()) } as Project));
 }
 
 // Admin: get project by ID
 export async function getProjectById(id: string): Promise<Project | null> {
   const snap = await getDoc(doc(db, "projects", id));
   if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() } as Project;
+  return { id: snap.id, ...serializeDoc(snap.data()) } as Project;
 }
 
 // Admin: check if slug exists (excluding given id)
