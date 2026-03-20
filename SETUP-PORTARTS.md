@@ -58,6 +58,20 @@ Copiar estos archivos en la raíz del proyecto:
    - Copiar el Client ID y Client Secret que GitHub te da
    - Pegar ambos en Firebase Authentication → GitHub provider
 
+### 2.3.1 Dominios autorizados (obligatorio en Vercel)
+
+Si al abrir el admin ves **`auth/unauthorized-domain`** en la consola, Firebase no permite OAuth desde esa URL.
+
+1. Firebase Console → **Authentication** → pestaña **Settings** (Configuración) → **Authorized domains**.
+2. Pulsa **Add domain** y añade **todas** las URLs desde las que uses el sitio, por ejemplo:
+   - `localhost` (suele venir por defecto)
+   - Tu proyecto en Vercel: `tu-app.vercel.app`
+   - Cada **deployment preview** si los usas: p. ej. `portarts-okreppage-victor-ruizs-projects-2df6e66a.vercel.app` (el subdominio exacto sale en la barra de direcciones o en el mensaje de error de la consola).
+   - Tu dominio personalizado si lo tienes: `tudominio.com`
+3. Guarda y **recarga** la página del admin; vuelve a probar GitHub / Google.
+
+> **Tip:** En producción suele bastar con `tu-proyecto.vercel.app` y tu dominio final. Los previews de Vercel tienen un hostname distinto cada vez: o los añades cuando fallen, o trabajas el admin solo en la URL principal.
+
 ### 2.4 Activar Firestore
 1. Build → Firestore Database → "Crear base de datos"
 2. Modo producción
@@ -119,6 +133,11 @@ Una vez que Victor haga login con GitHub por primera vez, necesita:
 
 > **IMPORTANTE:** El UID lo encuentras en Firebase Console → Authentication → Users → copiar el UID de tu cuenta.
 
+### ¿El portfolio en Vercel se ve “vacío”?
+
+- El servidor lee Firestore con **Firebase Admin** si existe **`FIREBASE_SERVICE_ACCOUNT_JSON`** en Vercel (Variables de entorno). Sin eso, el fallback puede fallar por reglas y verás poco o nada en la home.
+- Comprueba en **Firestore** que existan el documento **`config/portfolio`** y proyectos con **`published: true`** (como en el JSON de arriba).
+
 ---
 
 ## PASO 3: FIREBASE CLI
@@ -163,18 +182,15 @@ service cloud.firestore {
 }
 ```
 
-**`storage.rules`** — Reemplazar con:
-```
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /projects/{projectId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
-```
+**`storage.rules`** — Usa el archivo `storage.rules` del repo (claim `portfolioAdmin`, no `firestore.get()`).
+
+En el **plan Spark (gratuito)**, Firebase **no permite** leer Firestore dentro de reglas de Storage, así que las subidas fallan si solo compruebas `allowedAdmins` ahí. Solución en este proyecto:
+
+1. Tu UID sigue en `config/portfolio.allowedAdmins` (Firestore + panel admin).
+2. Ejecuta **`npm run sync-admin-claims`** con `serviceAccountKey.json` en la raíz (o credenciales por env), **o** en **Admin → Settings** pulsa **«Sincronizar permisos de Storage»** (requiere `FIREBASE_SERVICE_ACCOUNT_JSON` en el servidor, p. ej. Vercel).
+3. **Cierra sesión y vuelve a entrar** (o el botón ya fuerza `getIdToken(true)`) para que el token incluya el claim.
+
+Si pasas a **Blaze**, podrías volver a reglas basadas en `firestore.get()`, pero no es obligatorio si usas los claims.
 
 ---
 
