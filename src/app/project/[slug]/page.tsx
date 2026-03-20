@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProjectBySlug } from "@/lib/firestore";
+import { getProjectBySlug } from "@/lib/firestore-server";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { DemoCredentials } from "@/components/project/DemoCredentials";
 import { ProjectHero } from "@/components/project/ProjectHero";
@@ -82,7 +82,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
         {previewsToRender.length > 0 ? (
           previewsToRender.map((p, i) => (
-            <section key={p.url} className="reveal mb-14">
+            <section key={`preview-${i}`} className="reveal mb-14">
               <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">
                 🖥 {p.label}
               </h2>

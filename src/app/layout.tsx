@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Suspense } from "react";
+import { AppShell } from "@/components/layout/AppShell";
 import { AuthProvider } from "@/context/AuthContext";
-import { getPortfolioConfig } from "@/lib/firestore";
+import { getPortfolioConfig } from "@/lib/firestore-server";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +41,9 @@ export default async function RootLayout({
     >
       <body className="font-body antialiased bg-bg text-text-primary">
         <AuthProvider>
-          <Navbar />
-          <div className="relative z-10 max-w-[1240px] mx-auto px-4 md:px-12">
-            <main className="pt-20">{children}</main>
-            <Footer name="Victor Ruiz" />
-          </div>
+          <Suspense fallback={<div className="min-h-screen bg-bg" aria-hidden />}>
+            <AppShell>{children}</AppShell>
+          </Suspense>
         </AuthProvider>
       </body>
     </html>

@@ -1,4 +1,7 @@
-import { getPortfolioConfig, getPublishedProjects } from "@/lib/firestore";
+import {
+  getPortfolioConfig,
+  getPublishedProjects,
+} from "@/lib/firestore-server";
 
 export const dynamic = "force-dynamic";
 import { Hero } from "@/components/home/Hero";
