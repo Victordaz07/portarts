@@ -4,6 +4,15 @@ import { useState, useRef } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 
+function isFirebaseError(err: unknown): err is { code: string; message?: string } {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    typeof (err as { code: unknown }).code === "string"
+  );
+}
+
 async function compressImage(
   file: File,
   maxWidth = 1200,
@@ -42,21 +51,26 @@ interface ImageUploaderProps {
   projectId: string;
   onUpload: (url: string, caption: string) => void;
   disabled?: boolean;
+  /** Distinct id when several uploaders share one form (label htmlFor + input id) */
+  inputId?: string;
 }
 
 export function ImageUploader({
   projectId,
   onUpload,
   disabled = false,
+  inputId = "gallery-upload",
 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !projectId) return;
     setUploading(true);
+    setError(null);
     try {
       let blob: Blob = file;
       if (file.size > 500 * 1024) {
@@ -73,39 +87,55 @@ export function ImageUploader({
       if (inputRef.current) inputRef.current.value = "";
     } catch (err) {
       console.error(err);
+      if (isFirebaseError(err) && err.code === "storage/unauthorized") {
+        setError(
+          "Storage denegado: en plan Spark, Firebase no permite leer Firestore desde reglas de Storage. " +
+            "Ve a Admin → Settings → «Sincronizar permisos de Storage» (o ejecuta npm run sync-admin-claims con la cuenta de servicio), " +
+            "luego cierra sesión y vuelve a entrar para refrescar el token."
+        );
+      } else {
+        setError(err instanceof Error ? err.message : "Error al subir la imagen");
+      }
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="flex gap-2 flex-wrap">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFile}
-        disabled={disabled || uploading}
-        className="hidden"
-        id="gallery-upload"
-      />
-      <label
-        htmlFor="gallery-upload"
-        className={`px-4 py-2 rounded-lg border border-border text-sm cursor-pointer transition-colors ${
-          disabled || uploading
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:border-accent hover:bg-accent-dim"
-        }`}
-      >
-        {uploading ? "Uploading…" : "+ Upload image"}
-      </label>
-      <input
-        type="text"
-        placeholder="Caption (optional)"
-        value={caption}
-        onChange={(e) => setCaption(e.target.value)}
-        className="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text-primary w-40"
-      />
+    <div className="space-y-2">
+      {error ? (
+        <p className="text-xs text-rose bg-rose/10 border border-rose/30 rounded-lg px-3 py-2 leading-snug">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex gap-2 flex-wrap">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFile}
+          disabled={disabled || uploading}
+          className="hidden"
+          id={inputId}
+        />
+        <label
+          htmlFor={inputId}
+          className={`px-4 py-2 rounded-lg border border-border text-sm cursor-pointer transition-colors ${
+            disabled || uploading
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:border-accent hover:bg-accent-dim"
+          }`}
+        >
+          {uploading ? "Uploading…" : "+ Upload image"}
+        </label>
+        <input
+          type="text"
+          placeholder="Caption (optional)"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          className="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text-primary w-40"
+        />
+      </div>
     </div>
   );
 }

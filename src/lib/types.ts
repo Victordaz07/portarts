@@ -46,6 +46,12 @@ export interface Project {
   tags?: string[];
   theme?: ProjectTheme;
   themeColor?: string;
+  /** Hero image on the homepage project card; overrides first gallery image when set */
+  coverImage?: string;
+  /** Optional brand mark on the card header (URL, e.g. Firebase Storage) */
+  logoUrl?: string;
+  /** When false, the project name is not drawn on the card header (use when the cover art already includes the title). Default: true */
+  showTitleOnCard?: boolean;
   preview?: {
     url: string;
     type: DeviceType;

@@ -6,18 +6,21 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 interface CollapsibleSectionProps {
   title: string;
   defaultOpen?: boolean;
+  /** Anchor for in-page links (e.g. from sidebar hints) */
+  id?: string;
   children: React.ReactNode;
 }
 
 export function CollapsibleSection({
   title,
   defaultOpen = true,
+  id,
   children,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-border rounded-card overflow-hidden">
+    <div id={id} className="border border-border rounded-card overflow-hidden scroll-mt-24">
       <button
         type="button"
         onClick={() => setOpen(!open)}

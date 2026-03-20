@@ -9,6 +9,8 @@ interface DevicePreviewProps {
   type: DeviceType;
   allowFullscreen?: boolean;
   projectName?: string;
+  /** Override root spacing (e.g. `mb-6` when stacking several previews) */
+  className?: string;
 }
 
 export function DevicePreview({
@@ -16,6 +18,7 @@ export function DevicePreview({
   type: initialType,
   allowFullscreen = true,
   projectName,
+  className,
 }: DevicePreviewProps) {
   const [url, setUrl] = useState(initialUrl);
   const [deviceType, setDeviceType] = useState<DeviceType>(initialType);
@@ -119,7 +122,7 @@ export function DevicePreview({
   );
 
   return (
-    <div className="mb-14">
+    <div className={className ?? "mb-14"}>
       <div className="flex items-center gap-2 mb-5 flex-wrap">
         <button
           type="button"

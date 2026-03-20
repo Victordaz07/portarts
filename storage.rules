@@ -1,10 +1,11 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // firestore.get() en reglas de Storage solo funciona en plan Blaze. En Spark falla siempre.
+    // Usamos custom claim portfolioAdmin (sincronizado con allowedAdmins vía API o scripts/sync-admin-claims.ts).
     match /projects/{projectId}/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null &&
-        firestore.get(/databases/(default)/documents/config/portfolio).data.allowedAdmins.hasAny([request.auth.uid]);
+      allow write: if request.auth != null && request.auth.token.portfolioAdmin == true;
     }
   }
 }

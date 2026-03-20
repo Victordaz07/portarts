@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { getPortfolioConfig, updatePortfolioConfig } from "@/lib/firestore";
+import { auth } from "@/lib/firebase";
 import type { PortfolioConfig } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -13,6 +14,10 @@ import { HomePreview } from "@/components/admin/HomePreview";
 export default function AdminSettingsPage() {
   const [config, setConfig] = useState<PortfolioConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncClaimsStatus, setSyncClaimsStatus] = useState<
+    "idle" | "syncing" | "ok" | "error"
+  >("idle");
+  const [syncClaimsMessage, setSyncClaimsMessage] = useState("");
   const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const isFirstRun = useRef(true);
   const prevConfigRef = useRef<string>("");
@@ -112,6 +117,44 @@ export default function AdminSettingsPage() {
     setConfig({ ...config, allowedAdmins: uids });
   };
 
+  const syncStorageClaims = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      setSyncClaimsStatus("error");
+      setSyncClaimsMessage("Inicia sesión en el panel admin primero.");
+      return;
+    }
+    setSyncClaimsStatus("syncing");
+    setSyncClaimsMessage("");
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch("/api/admin/sync-admin-claims", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        ok?: boolean;
+      };
+      if (!res.ok) {
+        setSyncClaimsStatus("error");
+        setSyncClaimsMessage(
+          body.error ??
+            `Error ${res.status}. En local suele faltar FIREBASE_SERVICE_ACCOUNT_JSON; usa npm run sync-admin-claims.`
+        );
+        return;
+      }
+      await user.getIdToken(true);
+      setSyncClaimsStatus("ok");
+      setSyncClaimsMessage(
+        "Listo. Token actualizado: ya puedes subir imágenes a Storage. Si fallara, cierra sesión y entra otra vez."
+      );
+    } catch (e) {
+      setSyncClaimsStatus("error");
+      setSyncClaimsMessage(e instanceof Error ? e.message : "Error de red");
+    }
+  };
+
   const handleSave = async () => {
     if (!config) return;
     setAutosaveStatus("saving");
@@ -137,8 +180,8 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="flex gap-8">
-      <div className="flex-1 min-w-0">
+    <div className="flex flex-col xl:flex-row gap-8 xl:gap-10 w-full items-start">
+      <div className="flex-1 min-w-0 w-full">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-display text-3xl">Settings</h1>
           <div className="flex items-center gap-3">
@@ -285,7 +328,13 @@ export default function AdminSettingsPage() {
           </CollapsibleSection>
 
           <CollapsibleSection title="Admin">
-            <div className="space-y-2">
+            <div className="space-y-4">
+              <p className="text-xs text-text-muted leading-relaxed">
+                Las subidas a Firebase Storage usan el permiso{" "}
+                <code className="text-text-secondary bg-bg-hover px-1 rounded">portfolioAdmin</code> en tu
+                cuenta (no basta con estar en la lista para Firestore en plan gratuito). Tras cambiar UIDs o
+                si Storage rechaza subidas, pulsa sincronizar.
+              </p>
               <label className="block text-xs text-text-secondary uppercase tracking-wider">
                 Allowed UIDs (comma or space separated)
               </label>
@@ -295,6 +344,25 @@ export default function AdminSettingsPage() {
                 rows={3}
                 placeholder="uid1, uid2"
               />
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={syncStorageClaims}
+                  disabled={syncClaimsStatus === "syncing"}
+                >
+                  {syncClaimsStatus === "syncing"
+                    ? "Sincronizando…"
+                    : "Sincronizar permisos de Storage"}
+                </Button>
+                {syncClaimsStatus === "ok" && (
+                  <span className="text-xs text-green">{syncClaimsMessage}</span>
+                )}
+                {syncClaimsStatus === "error" && (
+                  <span className="text-xs text-rose max-w-md">{syncClaimsMessage}</span>
+                )}
+              </div>
             </div>
           </CollapsibleSection>
 
@@ -318,12 +386,12 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="hidden lg:block w-72 shrink-0">
-        <div className="sticky top-8">
+      <div className="w-full max-w-[min(100%,380px)] xl:max-w-[min(100%,440px)] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
+        <div>
           <div className="text-xs text-text-muted uppercase tracking-wider mb-2">
             Preview
           </div>
-          <div className="border border-border rounded-card overflow-hidden bg-bg aspect-[9/16] max-h-[500px] relative">
+          <div className="border border-border rounded-card overflow-hidden bg-bg aspect-9/16 max-h-[min(72vh,560px)] xl:max-h-[min(80vh,640px)] relative mx-auto xl:mx-0">
             <div className="absolute inset-0 overflow-auto">
               <HomePreview config={config} />
             </div>

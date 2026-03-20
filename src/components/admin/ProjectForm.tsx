@@ -10,7 +10,52 @@ import { ImageUploader } from "./ImageUploader";
 import { SortableList } from "./SortableList";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { isSlugUnique } from "@/lib/firestore";
-import type { Project, ProjectTheme, ProjectStatusColor } from "@/lib/types";
+import type {
+  Project,
+  ProjectTheme,
+  ProjectStatusColor,
+  DeviceType,
+} from "@/lib/types";
+
+const PREVIEW_SLOT_COUNT = 3;
+
+type PreviewSlot = { label: string; url: string; type: DeviceType };
+
+function initialPreviewSlots(initial?: Partial<Project>): PreviewSlot[] {
+  const fromArray = (initial?.previews ?? [])
+    .slice(0, PREVIEW_SLOT_COUNT)
+    .map((p) => ({
+      label: (p.label ?? "").trim(),
+      url: (p.url ?? "").trim(),
+      type: (p.type ?? "desktop") as DeviceType,
+    }));
+  if (fromArray.length > 0) {
+    while (fromArray.length < PREVIEW_SLOT_COUNT) {
+      fromArray.push({ label: "", url: "", type: "desktop" });
+    }
+    return fromArray;
+  }
+  return [
+    {
+      label: "",
+      url: (initial?.preview?.url ?? "").trim(),
+      type: (initial?.preview?.type ?? "desktop") as DeviceType,
+    },
+    { label: "", url: "", type: "desktop" },
+    { label: "", url: "", type: "desktop" },
+  ];
+}
+
+function buildPreviewPayload(slots: PreviewSlot[]): NonNullable<Project["previews"]> {
+  return slots
+    .map((s, i) => ({
+      label: s.label.trim() || `Vista ${i + 1}`,
+      url: s.url.trim(),
+      type: s.type,
+      allowFullscreen: true as const,
+    }))
+    .filter((p) => p.url.length > 0);
+}
 
 const THEMES: { value: ProjectTheme; label: string }[] = [
   { value: "fleet", label: "Fleet" },
@@ -80,9 +125,8 @@ export function ProjectForm({
     (initial?.theme as ProjectTheme) ?? "default"
   );
   const [themeColor, setThemeColor] = useState(initial?.themeColor ?? "#e8c547");
-  const [previewUrl, setPreviewUrl] = useState(initial?.preview?.url ?? "");
-  const [previewType, setPreviewType] = useState<"phone" | "tablet" | "desktop">(
-    initial?.preview?.type ?? "desktop"
+  const [previewSlots, setPreviewSlots] = useState<PreviewSlot[]>(() =>
+    initialPreviewSlots(initial)
   );
   const [githubRepo, setGithubRepo] = useState(initial?.githubRepo ?? "");
   const [metadataEntries, setMetadataEntries] = useState<[string, string][]>(
@@ -101,6 +145,11 @@ export function ProjectForm({
   const [gallery, setGallery] = useState(
     initial?.gallery ?? []
   );
+  const [coverImage, setCoverImage] = useState(initial?.coverImage ?? "");
+  const [logoUrl, setLogoUrl] = useState(initial?.logoUrl ?? "");
+  const [showTitleOnCard, setShowTitleOnCard] = useState(
+    initial?.showTitleOnCard !== false
+  );
   const [links, setLinks] = useState(initial?.links ?? {});
   const [saving, setSaving] = useState(false);
   const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
@@ -111,7 +160,10 @@ export function ProjectForm({
     if (name && !initial?.slug) setSlug(slugify(name));
   }, [name, initial?.slug]);
 
-  const getFormData = useCallback((): ProjectFormData => ({
+  const getFormData = useCallback((): ProjectFormData => {
+    const previews = buildPreviewPayload(previewSlots);
+    const primary = previews[0];
+    return {
     slug,
     name,
     tagline,
@@ -124,7 +176,10 @@ export function ProjectForm({
     tags,
     theme,
     themeColor: theme === "custom" ? themeColor : undefined,
-    preview: { url: previewUrl, type: previewType, allowFullscreen: true },
+    preview: primary
+      ? { url: primary.url, type: primary.type, allowFullscreen: true }
+      : { url: "", type: "desktop", allowFullscreen: true },
+    previews,
     githubRepo,
     githubUrl: githubRepo ? `https://github.com/${githubRepo}` : "",
     metadata: Object.fromEntries(metadataEntries.filter(([k]) => k.trim())),
@@ -132,11 +187,16 @@ export function ProjectForm({
     techStack,
     timeline,
     gallery,
+    coverImage: coverImage.trim() || undefined,
+    logoUrl: logoUrl.trim() || undefined,
+    showTitleOnCard,
     links,
-  }), [
+    };
+  }, [
     slug, name, tagline, description, fullDescription, featured, published,
-    statusText, statusColor, tags, theme, themeColor, previewUrl, previewType,
-    githubRepo, metadataEntries, features, techStack, timeline, gallery, links,
+    statusText, statusColor, tags, theme, themeColor, previewSlots,
+    githubRepo, metadataEntries, features, techStack, timeline, gallery,
+    coverImage, logoUrl, showTitleOnCard, links,
     initial?.order,
   ]);
 
@@ -156,16 +216,7 @@ export function ProjectForm({
     const timer = setTimeout(async () => {
       setAutosaveStatus("saving");
       try {
-        const data: ProjectFormData = {
-          slug, name, tagline, description, fullDescription, featured, published,
-          order: initial?.order ?? 0,
-          status: { text: statusText || "In development", color: statusColor },
-          tags, theme, themeColor: theme === "custom" ? themeColor : undefined,
-          preview: { url: previewUrl, type: previewType, allowFullscreen: true },
-          githubRepo, githubUrl: githubRepo ? `https://github.com/${githubRepo}` : "",
-          metadata: Object.fromEntries(metadataEntries.filter(([k]) => k.trim())),
-          features, techStack, timeline, gallery, links,
-        };
+        const data = getFormData();
         await onAutosave(data);
         setAutosaveStatus("saved");
       } catch {
@@ -175,9 +226,10 @@ export function ProjectForm({
     return () => clearTimeout(timer);
   }, [
     slug, name, tagline, description, fullDescription, featured, published,
-    statusText, statusColor, tags, theme, themeColor, previewUrl, previewType,
-    githubRepo, metadataEntries, features, techStack, timeline, gallery, links,
-    projectId, onAutosave, initial?.order,
+    statusText, statusColor, tags, theme, themeColor, previewSlots,
+    githubRepo, metadataEntries, features, techStack, timeline, gallery,
+    coverImage, logoUrl, showTitleOnCard, links,
+    projectId, onAutosave, getFormData, initial?.order,
   ]);
 
   useEffect(() => {
@@ -244,6 +296,17 @@ export function ProjectForm({
   const removeMetadata = (i: number) =>
     setMetadataEntries(metadataEntries.filter((_, j) => j !== i));
 
+  const updatePreviewSlot = (
+    index: number,
+    patch: Partial<PreviewSlot>
+  ) => {
+    setPreviewSlots((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], ...patch };
+      return next;
+    });
+  };
+
   const handleGalleryUpload = (url: string, caption: string) => {
     setGallery([...gallery, { url, caption }]);
   };
@@ -264,8 +327,8 @@ export function ProjectForm({
   };
 
   return (
-    <div className="flex gap-8 flex-col lg:flex-row">
-      <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-4 max-w-2xl">
+    <div className="grid w-full items-start gap-8 lg:gap-10 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(280px,min(40vw,460px))] 2xl:[grid-template-columns:minmax(0,1fr)_minmax(300px,min(38vw,500px))]">
+      <form onSubmit={handleSubmit} className="min-w-0 w-full max-w-4xl xl:max-w-none space-y-4">
         {projectId && (
           <div className="flex items-center gap-2 text-sm mb-4">
             {autosaveStatus === "saved" && (
@@ -357,10 +420,49 @@ export function ProjectForm({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Preview" defaultOpen>
+        <CollapsibleSection title="Live preview" defaultOpen>
+          <p className="text-sm text-text-muted mb-4 leading-relaxed">
+            Hasta tres URLs en iframe (como en familydash): cada una puede apuntar a una ruta distinta
+            de tu app desplegada. En la ficha pública se mostrarán como secciones separadas. Las filas
+            sin URL se ignoran al guardar.
+          </p>
           <div className="space-y-4">
-            <Input label="Preview URL" value={previewUrl} onChange={(e) => setPreviewUrl(e.target.value)} placeholder="https://your-app.vercel.app" />
-            <Select label="Device type" value={previewType} onChange={(e) => setPreviewType(e.target.value as "phone" | "tablet" | "desktop")} options={[{ value: "phone", label: "Phone" }, { value: "tablet", label: "Tablet" }, { value: "desktop", label: "Desktop" }]} />
+            {previewSlots.map((slot, i) => (
+              <div
+                key={i}
+                className="rounded-card border border-border bg-bg-card/40 p-4 space-y-3"
+              >
+                <div className="text-xs font-mono text-text-muted uppercase tracking-wider">
+                  Vista {i + 1}
+                </div>
+                <Input
+                  label="Título en la ficha"
+                  value={slot.label}
+                  onChange={(e) => updatePreviewSlot(i, { label: e.target.value })}
+                  placeholder="Ej. Landing, App en vivo, Panel admin"
+                />
+                <Input
+                  label="URL"
+                  value={slot.url}
+                  onChange={(e) => updatePreviewSlot(i, { url: e.target.value })}
+                  placeholder="https://tu-app.vercel.app/ruta"
+                />
+                <Select
+                  label="Dispositivo inicial"
+                  value={slot.type}
+                  onChange={(e) =>
+                    updatePreviewSlot(i, {
+                      type: e.target.value as DeviceType,
+                    })
+                  }
+                  options={[
+                    { value: "phone", label: "Phone" },
+                    { value: "tablet", label: "Tablet" },
+                    { value: "desktop", label: "Desktop" },
+                  ]}
+                />
+              </div>
+            ))}
           </div>
         </CollapsibleSection>
 
@@ -437,7 +539,77 @@ export function ProjectForm({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Gallery">
+        <CollapsibleSection id="edit-homepage-card" title="Homepage card">
+          <p className="text-text-muted text-sm mb-4">
+            <strong className="text-text-secondary">Edita la cabecera de la tarjeta aquí.</strong> Portada
+            para la cuadrícula de proyectos en la home. Si la dejas vacía, se usa la{" "}
+            <strong>primera imagen de Gallery</strong>. El logo es opcional. Puedes ocultar el nombre del
+            proyecto sobre la imagen si ya va en el diseño.
+          </p>
+          {projectId ? (
+            <div className="space-y-2 mb-4">
+              <label className="block text-xs text-text-secondary uppercase tracking-wider">
+                Subir portada (cabecera de la tarjeta)
+              </label>
+              <ImageUploader
+                projectId={projectId}
+                inputId="project-card-cover-upload"
+                onUpload={(url) => setCoverImage(url)}
+              />
+            </div>
+          ) : (
+            <p className="text-text-muted text-sm mb-4">
+              Guarda el proyecto primero para poder subir una portada dedicada.
+            </p>
+          )}
+          {coverImage ? (
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverImage}
+                alt=""
+                className="h-24 w-full max-w-sm object-cover rounded-lg border border-border"
+              />
+              <Button type="button" variant="secondary" size="sm" onClick={() => setCoverImage("")}>
+                Quitar portada
+              </Button>
+            </div>
+          ) : null}
+          <Input
+            label="URL del logo (opcional)"
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            placeholder="https://…"
+          />
+          {projectId ? (
+            <div className="space-y-2 mt-4">
+              <label className="block text-xs text-text-secondary uppercase tracking-wider">
+                O subir logo
+              </label>
+              <ImageUploader
+                projectId={projectId}
+                inputId="project-card-logo-upload"
+                onUpload={(url) => setLogoUrl(url)}
+              />
+            </div>
+          ) : null}
+          <label className="flex items-start gap-3 mt-4 cursor-pointer max-w-lg">
+            <input
+              type="checkbox"
+              checked={showTitleOnCard}
+              onChange={(e) => setShowTitleOnCard(e.target.checked)}
+              className="rounded mt-1 shrink-0"
+            />
+            <span className="text-sm text-text-secondary leading-snug">
+              <span className="text-text-primary font-medium block mb-0.5">
+                Mostrar nombre del proyecto sobre la portada
+              </span>
+              Desactívalo si tu imagen ya incluye el título o marca (evita texto duplicado).
+            </span>
+          </label>
+        </CollapsibleSection>
+
+        <CollapsibleSection id="edit-gallery" title="Gallery">
           {projectId && <ImageUploader projectId={projectId} onUpload={handleGalleryUpload} />}
           {!projectId && <p className="text-text-muted text-sm">Save the project first to upload images.</p>}
           <div className="space-y-2 mt-2">
@@ -476,26 +648,156 @@ export function ProjectForm({
         </div>
       </form>
 
-      <div className="lg:w-[400px] shrink-0 space-y-6">
-        <div className="sticky top-8">
-          <h3 className="font-display text-lg mb-4">Live preview</h3>
-          <div className="bg-bg-card border border-border rounded-card-lg p-4">
-            <DevicePreview url={previewUrl} type={previewType} allowFullscreen={false} />
+      <aside
+        id="admin-project-previews"
+        aria-label="Vistas previas del proyecto"
+        className="min-w-0 w-full space-y-6 xl:pb-2"
+      >
+        <header className="space-y-1 border-b border-border pb-4">
+          <h3 className="font-display text-lg text-text-primary">Vistas previas</h3>
+          <p className="text-xs text-text-muted leading-relaxed">
+            Columna derecha fija en el layout: live, tarjeta del inicio y galería. Usa la misma barra de
+            desplazamiento del panel (sin scroll interno aquí).
+          </p>
+        </header>
+
+        <section className="rounded-card-lg border border-border bg-bg-card/90 p-3 sm:p-4 shadow-sm">
+          <h4 className="text-xs font-mono uppercase tracking-wider text-text-muted mb-3">
+            Live (iframe)
+          </h4>
+          <div className="space-y-6">
+            {previewSlots.some((s) => s.url.trim()) ? (
+              previewSlots.map((slot, i) =>
+                slot.url.trim() ? (
+                  <div key={i}>
+                    {slot.label.trim() ? (
+                      <p className="text-xs text-text-muted uppercase tracking-wider mb-2">
+                        {slot.label.trim()}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-text-muted uppercase tracking-wider mb-2">
+                        Vista {i + 1}
+                      </p>
+                    )}
+                    <DevicePreview
+                      url={slot.url}
+                      type={slot.type}
+                      allowFullscreen={false}
+                      className="mb-0"
+                    />
+                  </div>
+                ) : null
+              )
+            ) : (
+              <DevicePreview url="" type="desktop" allowFullscreen={false} className="mb-0" />
+            )}
           </div>
-          <div className="mt-4">
-            <h4 className="text-sm text-text-muted mb-2">Card view</h4>
-            <div
-              className="rounded-card-lg overflow-hidden border border-border aspect-video"
-              style={{ background: theme === "custom" ? themeColor : THEME_PREVIEW[theme] }}
+        </section>
+
+        <section className="rounded-card-lg border border-border bg-bg-card/90 p-3 sm:p-4 shadow-sm">
+          <h4 className="text-xs font-mono uppercase tracking-wider text-text-muted mb-1">
+            Tarjeta en el inicio
+          </h4>
+          <p className="text-xs text-text-muted leading-snug mb-3">
+            Solo lectura. Edita en{" "}
+            <a
+              href="#edit-homepage-card"
+              className="text-accent underline underline-offset-2 hover:opacity-90"
             >
-              <div className="p-4 h-full flex flex-col justify-end">
-                <span className="text-xs text-text-secondary">{tagline || "Tagline"}</span>
-                <h3 className="font-display text-xl text-text-primary">{name || "Name"}</h3>
+              Homepage card
+            </a>{" "}
+            o en{" "}
+            <a href="#edit-gallery" className="text-accent underline underline-offset-2 hover:opacity-90">
+              Gallery
+            </a>
+            .
+          </p>
+          {(() => {
+            const previewCover =
+              coverImage.trim() || gallery[0]?.url?.trim() || "";
+            const fallbackBg =
+              theme === "custom" ? themeColor : THEME_PREVIEW[theme];
+            return (
+              <div className="rounded-card-lg overflow-hidden border border-border aspect-video relative">
+                {previewCover ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewCover}
+                      alt=""
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                    <div
+                      className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-black/10"
+                      aria-hidden
+                    />
+                  </>
+                ) : (
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: fallbackBg }}
+                  />
+                )}
+                <div className="relative z-10 p-4 h-full min-h-[120px] flex flex-col justify-end items-center text-center gap-1">
+                  {logoUrl.trim() ? (
+                    <div className="mb-1 h-9 w-9 rounded-lg bg-white/15 p-0.5 ring-1 ring-white/30">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={logoUrl.trim()}
+                        alt=""
+                        className="size-full object-contain"
+                      />
+                    </div>
+                  ) : null}
+                  <span className="text-[10px] text-white/80 drop-shadow-sm">
+                    {tagline || "Tagline"}
+                  </span>
+                  {showTitleOnCard ? (
+                    <h3 className="font-display text-lg text-white drop-shadow-md">
+                      {name || "Name"}
+                    </h3>
+                  ) : (
+                    <span className="text-[10px] text-white/50 italic">
+                      (sin título en cabecera)
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            );
+          })()}
+        </section>
+
+        <section className="rounded-card-lg border border-border bg-bg-card/90 p-3 sm:p-4 shadow-sm">
+          <h4 className="text-xs font-mono uppercase tracking-wider text-text-muted mb-3">
+            Galería
+          </h4>
+          {gallery.length === 0 ? (
+            <p className="text-xs text-text-muted leading-relaxed">
+              Sin imágenes aún. Añádelas en la sección{" "}
+              <a href="#edit-gallery" className="text-accent underline underline-offset-2">
+                Gallery
+              </a>
+              .
+            </p>
+          ) : (
+            <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {gallery.map((g, i) => (
+                <li
+                  key={`${g.url}-${i}`}
+                  className="aspect-square overflow-hidden rounded-lg border border-border bg-bg"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={g.url}
+                    alt={g.caption || `Imagen ${i + 1}`}
+                    className="size-full object-cover"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </aside>
     </div>
   );
 }

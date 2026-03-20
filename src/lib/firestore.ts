@@ -14,9 +14,30 @@ import {
   serverTimestamp,
   writeBatch,
   Timestamp,
+  FieldValue,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { PortfolioConfig, Project } from "./types";
+
+/** Firestore rejects `undefined` anywhere in the payload (e.g. themeColor when theme !== custom). */
+function deepOmitUndefined(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  if (value === null || typeof value !== "object") return value;
+  if (value instanceof FieldValue) return value;
+  if (value instanceof Timestamp) return value;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => deepOmitUndefined(item))
+      .filter((item) => item !== undefined);
+  }
+  const obj = value as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    const cleaned = deepOmitUndefined(v);
+    if (cleaned !== undefined) out[k] = cleaned;
+  }
+  return out;
+}
 
 function serializeDoc(data: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -115,21 +136,23 @@ export async function isSlugUnique(slug: string, excludeId?: string): Promise<bo
 
 // Admin: create project
 export async function createProject(data: Omit<Project, "id" | "createdAt" | "updatedAt">) {
-  const ref = await addDoc(collection(db, "projects"), {
+  const payload = deepOmitUndefined({
     ...data,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
+  }) as Record<string, unknown>;
+  const ref = await addDoc(collection(db, "projects"), payload);
   return ref.id;
 }
 
 // Admin: update project
 export async function updateProject(id: string, data: Partial<Project>) {
   const { id: _id, createdAt, updatedAt, ...rest } = data as Project;
-  await updateDoc(doc(db, "projects", id), {
+  const payload = deepOmitUndefined({
     ...rest,
     updatedAt: serverTimestamp(),
-  });
+  }) as Record<string, unknown>;
+  await updateDoc(doc(db, "projects", id), payload);
 }
 
 // Admin: delete project
@@ -148,5 +171,6 @@ export async function reorderProjects(orderedIds: string[]) {
 
 // Admin: update portfolio config
 export async function updatePortfolioConfig(data: Partial<PortfolioConfig>) {
-  await setDoc(doc(db, "config", "portfolio"), data, { merge: true });
+  const payload = deepOmitUndefined(data) as Record<string, unknown>;
+  await setDoc(doc(db, "config", "portfolio"), payload, { merge: true });
 }

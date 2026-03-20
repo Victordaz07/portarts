@@ -72,6 +72,7 @@ export default function EditProjectPage() {
         Edit: {project.name}
       </h1>
       <ProjectForm
+        key={id}
         initial={project}
         projectId={id}
         onSubmit={handleSubmit}

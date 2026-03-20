@@ -172,7 +172,7 @@ body {
 /* Desktop */
 .device-desktop {
   width: 100%;
-  max-width: 900px;
+  max-width: min(900px, 100%);
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #d1d5db;
