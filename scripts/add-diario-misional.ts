@@ -18,14 +18,15 @@ function initAdmin() {
 initAdmin();
 const db = getFirestore();
 
+/** Keep in sync with scripts/seed-projects.ts — Mission Diary (slug: diario-misional). */
 const project = {
   slug: "diario-misional",
-  name: "Diario Misional",
-  tagline: "Tu experiencia misionera, organizada en una sola app.",
+  name: "Mission Diary",
+  tagline: "Your missionary journey, organized in one app.",
   description:
-    "Aplicación web completa para misioneros con diario personal, traslados, recursos, portal familiar y sistema de patrocinio con pagos integrados.",
+    "Full-stack web app for missionaries: personal journal, transfers, resources, a family portal, and sponsorship with integrated payments.",
   fullDescription:
-    "Diario Misional es una plataforma web profesional enfocada en acompañar toda la experiencia misionera de principio a fin. Incluye diario personal, gestión de traslados, galería de fotos, recursos misionales, seguimiento por etapas y un portal familiar seguro.\n\nEl sistema incorpora autenticación con Firebase, soporte multilenguaje (Español, Inglés y Portugués), experiencia PWA y un módulo de patrocinio con Stripe para pagos reales. Fue construido con arquitectura full-stack moderna sobre Next.js + TypeScript, priorizando claridad de producto, seguridad y rendimiento.",
+    "Mission Diary is a production web platform built to support the full missionary lifecycle—from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase with a focus on product clarity, security, and performance.",
   featured: true,
   order: 4,
   published: true,
@@ -47,44 +48,44 @@ const project = {
     Stack: "Next.js + TypeScript + Firebase",
     Auth: "Email, Google, Apple ID",
     Payments: "Stripe",
-    i18n: "ES / EN / PT",
+    i18n: "Spanish / English / Portuguese",
     Status: "Production",
   },
   features: [
     {
-      title: "Diario personal completo",
+      title: "Full personal journal",
       description:
-        "Entradas diarias con organizacion y seguimiento para documentar la experiencia misional.",
+        "Daily entries with structure and tracking to document the missionary experience.",
       icon: "BookOpen",
     },
     {
-      title: "Gestion de traslados y etapas",
+      title: "Transfers and stages",
       description:
-        "Historial de areas y companeros, con progreso estructurado por etapas.",
+        "History of areas and companions with structured progress across mission stages.",
       icon: "MapPinned",
     },
     {
-      title: "Portal familiar seguro",
+      title: "Secure family portal",
       description:
-        "Acceso de solo lectura para familiares con contenido compartido y controlado.",
+        "Read-only access for family members with shared, permissioned content.",
       icon: "Users",
     },
     {
-      title: "Patrocinio con Stripe",
+      title: "Stripe sponsorship",
       description:
-        "Planes de patrocinio y gestion de suscripciones con pagos reales.",
+        "Sponsorship plans and subscription management with real payments.",
       icon: "CreditCard",
     },
     {
-      title: "Multilenguaje",
+      title: "Multilingual UI",
       description:
-        "Interfaz internacionalizada con soporte para Espanol, Ingles y Portugues.",
+        "Internationalized interface with Spanish, English, and Portuguese support.",
       icon: "Languages",
     },
     {
-      title: "PWA lista para movil",
+      title: "Mobile-ready PWA",
       description:
-        "Instalable y optimizada para uso diario en dispositivos moviles.",
+        "Installable and tuned for everyday use on phones and tablets.",
       icon: "Smartphone",
     },
   ],
@@ -102,21 +103,21 @@ const project = {
   timeline: [
     {
       date: "2024",
-      title: "Base del producto",
+      title: "Product foundation",
       description:
-        "Se construyen los modulos nucleo: autenticacion, diario y estructura principal.",
+        "Core modules shipped: authentication, journal, and main app structure.",
     },
     {
       date: "2025",
-      title: "Expansion de funcionalidades",
+      title: "Feature expansion",
       description:
-        "Se agregan portal familiar, internacionalizacion y mejoras de arquitectura.",
+        "Family portal, internationalization, and architecture improvements.",
     },
     {
       date: "2026",
-      title: "Produccion y despliegue",
+      title: "Production and launch",
       description:
-        "Sistema de patrocinio con Stripe y despliegue estable en Vercel.",
+        "Stripe sponsorship flow and stable deployment on Vercel.",
     },
   ],
   links: {
@@ -145,6 +146,6 @@ async function run() {
 }
 
 run().catch((err) => {
-  console.error("❌ Failed to upsert Diario Misional:", err);
+  console.error("❌ Failed to upsert Mission Diary:", err);
   process.exit(1);
 });
