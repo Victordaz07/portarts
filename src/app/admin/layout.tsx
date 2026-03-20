@@ -4,7 +4,9 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 function LoginPage() {
   const { signInWithGitHub, signInWithGoogle } = useAuth();
@@ -77,6 +79,42 @@ function LoginPage() {
 function UnauthorizedPage({ uid }: { uid: string }) {
   const { signOut, signInWithGitHub, signInWithGoogle } = useAuth();
   const [pending, setPending] = useState<"none" | "github" | "google" | "signout">("none");
+  const [allowedFromDb, setAllowedFromDb] = useState<string[] | null>(null);
+  const [configCheckError, setConfigCheckError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, "config", "portfolio"));
+        if (cancelled) return;
+        if (!snap.exists()) {
+          setAllowedFromDb([]);
+          setConfigCheckError("No existe el documento config/portfolio en Firestore.");
+          return;
+        }
+        const raw = snap.data()?.allowedAdmins;
+        const list = Array.isArray(raw)
+          ? raw.filter((x): x is string => typeof x === "string")
+          : [];
+        setAllowedFromDb(list);
+        setConfigCheckError(null);
+      } catch (e) {
+        if (!cancelled) {
+          setAllowedFromDb(null);
+          setConfigCheckError(
+            e instanceof Error ? e.message : "No se pudo leer Firestore."
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [uid]);
+
+  const uidIsListed =
+    allowedFromDb !== null && allowedFromDb.includes(uid);
 
   const copyUid = () => {
     navigator.clipboard.writeText(uid);
@@ -142,6 +180,54 @@ function UnauthorizedPage({ uid }: { uid: string }) {
             </button>
           </div>
         </div>
+
+        <div className="mb-6 p-4 border border-border rounded-lg text-left space-y-3">
+          <p className="text-xs text-text-muted uppercase tracking-wider">
+            Check vs Firestore (read-only)
+          </p>
+          {configCheckError && (
+            <p className="text-sm text-rose">{configCheckError}</p>
+          )}
+          {allowedFromDb !== null && !configCheckError && (
+            <>
+              <p className="text-sm text-text-secondary">
+                <span className="font-medium text-text-primary">
+                  Your UID is in allowedAdmins:
+                </span>{" "}
+                {uidIsListed ? (
+                  <span className="text-green font-medium">Yes</span>
+                ) : (
+                  <span className="text-rose font-medium">
+                    No — likely a different account or outdated list
+                  </span>
+                )}
+              </p>
+              <div>
+                <p className="text-xs text-text-muted mb-1">
+                  UIDs currently stored in allowedAdmins ({allowedFromDb.length}):
+                </p>
+                {allowedFromDb.length === 0 ? (
+                  <p className="text-sm text-rose">Array is empty — add at least one UID.</p>
+                ) : (
+                  <ul className="text-xs font-mono text-text-secondary space-y-1 break-all">
+                    {allowedFromDb.map((u) => (
+                      <li key={u}>
+                        {u}
+                        {u === uid ? (
+                          <span className="text-green ml-2">← matches session</span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </>
+          )}
+          {allowedFromDb === null && !configCheckError && (
+            <p className="text-sm text-text-muted">Loading Firestore…</p>
+          )}
+        </div>
+
         <p className="text-text-muted text-sm mb-6">
           In Firebase Console → Firestore → config → portfolio → allowedAdmins (array) → add this UID.
         </p>
@@ -213,9 +299,11 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full flex-col md:flex-row">
       <AdminSidebar />
-      <main className="flex-1 p-8 overflow-auto">{children}</main>
+      <main className="flex-1 min-w-0 w-full overflow-auto px-4 py-6 sm:px-6 sm:py-7 lg:px-8 lg:py-8 xl:px-10 xl:py-9">
+        {children}
+      </main>
     </div>
   );
 }
