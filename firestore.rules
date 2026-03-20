@@ -8,10 +8,15 @@ service cloud.firestore {
     }
 
     match /projects/{projectId} {
-      allow read: if resource.data.published == true || isAdmin();
+      // Public read: boolean true (canonical) or legacy string/number from imports
+      allow read: if isPublishedPublic(resource.data.published) || isAdmin();
       allow create: if isAdmin() && validProject();
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    function isPublishedPublic(p) {
+      return p == true || p == "true" || p == 1;
     }
 
     function isAdmin() {

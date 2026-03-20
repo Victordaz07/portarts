@@ -83,18 +83,23 @@ Si al abrir el admin ves **`auth/unauthorized-domain`** en la consola, Firebase 
 
 ### 2.6 Crear `.env.local`
 
+Copia los valores desde Firebase Console → Configuración del proyecto → Tus apps (Web). **No subas** `.env.local` al repo.
+
 ```bash
 # En la raíz del proyecto portarts/
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyACDzhUDmTgqt7-Rax_sSvJ-FnB--y4dq0
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=portarts.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=portarts
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=portarts.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=577817045908
-NEXT_PUBLIC_FIREBASE_APP_ID=1:577817045908:web:9185df2480ce633c283d81
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-BGLBCSHRLH
+NEXT_PUBLIC_FIREBASE_API_KEY=tu_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu-proyecto-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=tu_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=opcional
 
-# Opcional — para más rate limit en GitHub API
-GITHUB_TOKEN=ghp_xxxxxxx
+# Producción / Vercel — JSON completo de cuenta de servicio (una variable, sin romper el JSON)
+FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+
+# Opcional — más rate limit en GitHub API
+GITHUB_TOKEN=
 ```
 
 ### 2.7 Seed inicial de Firestore (DESPUÉS del primer login)
@@ -137,6 +142,9 @@ Una vez que Victor haga login con GitHub por primera vez, necesita:
 
 - El servidor lee Firestore con **Firebase Admin** si existe **`FIREBASE_SERVICE_ACCOUNT_JSON`** en Vercel (Variables de entorno). Sin eso, el fallback puede fallar por reglas y verás poco o nada en la home.
 - Comprueba en **Firestore** que existan el documento **`config/portfolio`** y proyectos con **`published: true`** (como en el JSON de arriba).
+- Si en local ves un error tipo **“Unable to detect a Project Id”**: falta **`NEXT_PUBLIC_FIREBASE_PROJECT_ID`** o el JSON de servicio sin **`project_id`**. Tras corregir variables, borra caché y reinicia: `npm run clean && npm run dev`.
+- **Índices compuestos**: despliega los de `firestore.indexes.json` con `firebase deploy --only firestore:indexes`. Si un índice está “building”, la home puede listar vacío unos minutos.
+- **Reglas**: despliega `firestore.rules` (`firebase deploy --only firestore:rules`). Las reglas actuales permiten lectura pública de proyectos con `published == true` o valores legacy (`"true"`, `1`); los **nuevos** documentos deben seguir usando **boolean** (`validProject`).
 
 ---
 
@@ -161,26 +169,22 @@ firebase init
 
 ### Archivos de Firebase que se generan:
 
-**`firestore.rules`** — Reemplazar con:
+**`firestore.rules`** — Usa el archivo [`firestore.rules`](firestore.rules) del repo (resumen):
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /config/{docId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /projects/{projectId} {
-      allow read: if resource.data.published == true || isAdmin();
-      allow create, update, delete: if isAdmin();
-    }
-    function isAdmin() {
-      return request.auth != null &&
-        request.auth.uid in get(/databases/$(database)/documents/config/portfolio).data.allowedAdmins;
-    }
-  }
+match /config/{docId} {
+  allow read: if true;
+  allow write: if isAdmin() && docId == "portfolio";
+}
+match /projects/{projectId} {
+  allow read: if isPublishedPublic(resource.data.published) || isAdmin();
+  allow create: if isAdmin() && validProject();
+  allow update, delete: if isAdmin();
+}
+function isPublishedPublic(p) {
+  return p == true || p == "true" || p == 1;
 }
 ```
+Despliega con `firebase deploy --only firestore:rules`.
 
 **`storage.rules`** — Usa el archivo `storage.rules` del repo (claim `portfolioAdmin`, no `firestore.get()`).
 

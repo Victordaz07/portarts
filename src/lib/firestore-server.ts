@@ -1,4 +1,6 @@
+import { cache } from "react";
 import { Timestamp as AdminTimestamp } from "firebase-admin/firestore";
+import type { QuerySnapshot } from "firebase/firestore";
 import {
   doc,
   getDoc,
@@ -17,6 +19,8 @@ import type { PortfolioConfig, Project } from "@/lib/types";
  * Firestore reads for Server Components only.
  * Prefers Firebase Admin (bypasses rules, works on Vercel). Falls back to the web SDK if Admin is not configured.
  * Do not import this file from client components.
+ *
+ * Exported getters are wrapped in `react/cache` so layout + page in the same request dedupe reads.
  */
 
 function serializeClientFirestoreDoc(
@@ -79,7 +83,113 @@ function sortProjectsByOrder(projects: Project[]): Project[] {
   });
 }
 
-export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
+function ingestClientProjects(snap: QuerySnapshot, byId: Map<string, Project>) {
+  for (const d of snap.docs) {
+    if (byId.has(d.id)) continue;
+    if (!isPublishedRaw(d.data().published)) continue;
+    byId.set(d.id, {
+      id: d.id,
+      ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
+    } as Project);
+  }
+}
+
+/**
+ * Anonymous client SDK: rules require equality on `published`; merge boolean, string, and legacy numeric.
+ */
+async function fetchPublishedProjectsViaClientSdk(): Promise<Project[]> {
+  const byId = new Map<string, Project>();
+
+  try {
+    const q = query(
+      collection(db, "projects"),
+      where("published", "==", true),
+      orderBy("order", "asc")
+    );
+    ingestClientProjects(await getDocs(q), byId);
+  } catch (e) {
+    if (isIndexBuildingError(e)) return [];
+    console.warn(
+      "[firestore-server] getPublishedProjects client compound (true) failed, trying published-only",
+      e
+    );
+    try {
+      ingestClientProjects(
+        await getDocs(
+          query(collection(db, "projects"), where("published", "==", true))
+        ),
+        byId
+      );
+    } catch (e2) {
+      console.error("[firestore-server] getPublishedProjects (client true)", e2);
+    }
+  }
+
+  for (const publishedVal of ["true", 1] as const) {
+    try {
+      const qOrd = query(
+        collection(db, "projects"),
+        where("published", "==", publishedVal),
+        orderBy("order", "asc")
+      );
+      ingestClientProjects(await getDocs(qOrd), byId);
+    } catch (e) {
+      if (isIndexBuildingError(e)) return [];
+      try {
+        ingestClientProjects(
+          await getDocs(
+            query(
+              collection(db, "projects"),
+              where("published", "==", publishedVal)
+            )
+          ),
+          byId
+        );
+      } catch (e2) {
+        console.warn(
+          "[firestore-server] getPublishedProjects legacy published value",
+          publishedVal,
+          e2
+        );
+      }
+    }
+  }
+
+  return sortProjectsByOrder([...byId.values()]);
+}
+
+async function fetchProjectBySlugViaClientSdk(
+  slug: string
+): Promise<Project | null> {
+  const attempts: Array<boolean | string | number> = [true, "true", 1];
+  for (const publishedVal of attempts) {
+    try {
+      const q = query(
+        collection(db, "projects"),
+        where("slug", "==", slug),
+        where("published", "==", publishedVal)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) continue;
+      const d = snap.docs[0];
+      if (!isPublishedRaw(d.data().published)) continue;
+      return {
+        id: d.id,
+        ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
+      } as Project;
+    } catch (e) {
+      if (isIndexBuildingError(e)) return null;
+      console.warn(
+        "[firestore-server] getProjectBySlug client slug attempt",
+        publishedVal,
+        e
+      );
+    }
+  }
+  return null;
+}
+
+async function loadPortfolioConfig(): Promise<PortfolioConfig | null> {
   const adb = getAdminFirestoreOrNull();
   if (adb) {
     try {
@@ -102,13 +212,7 @@ export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
   }
 }
 
-/**
- * Lists published projects for the public home page.
- * - **Admin SDK:** bypasses rules; orderBy(order) + in-memory filter (supports string "true").
- * - **Client SDK (unauthenticated server):** must use `where('published','==',true)` so Firestore
- *   security rules allow the query (listing all projects by order only is rejected for anon).
- */
-export async function getPublishedProjects(): Promise<Project[]> {
+async function loadPublishedProjects(): Promise<Project[]> {
   const adb = getAdminFirestoreOrNull();
   if (adb) {
     try {
@@ -147,45 +251,10 @@ export async function getPublishedProjects(): Promise<Project[]> {
     }
   }
 
-  try {
-    const q = query(
-      collection(db, "projects"),
-      where("published", "==", true),
-      orderBy("order", "asc")
-    );
-    const snap = await getDocs(q);
-    return snap.docs.map(
-      (d) =>
-        ({
-          id: d.id,
-          ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
-        }) as Project
-    );
-  } catch (e) {
-    if (isIndexBuildingError(e)) return [];
-    console.warn(
-      "[firestore-server] getPublishedProjects client compound query failed, trying published-only",
-      e
-    );
-    try {
-      const q2 = query(collection(db, "projects"), where("published", "==", true));
-      const snap = await getDocs(q2);
-      const list = snap.docs.map(
-        (d) =>
-          ({
-            id: d.id,
-            ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
-          }) as Project
-      );
-      return sortProjectsByOrder(list);
-    } catch (e2) {
-      console.error("[firestore-server] getPublishedProjects (client fallback)", e2);
-      return [];
-    }
-  }
+  return fetchPublishedProjectsViaClientSdk();
 }
 
-export async function getProjectBySlug(slug: string): Promise<Project | null> {
+async function loadProjectBySlug(slug: string): Promise<Project | null> {
   const adb = getAdminFirestoreOrNull();
   if (adb) {
     try {
@@ -208,23 +277,21 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     }
   }
 
-  try {
-    const q = query(
-      collection(db, "projects"),
-      where("slug", "==", slug),
-      where("published", "==", true)
-    );
-    const snap = await getDocs(q);
-    if (snap.empty) return null;
-    return {
-      id: snap.docs[0].id,
-      ...serializeClientFirestoreDoc(
-        snap.docs[0].data() as Record<string, unknown>
-      ),
-    } as Project;
-  } catch (e) {
-    if (isIndexBuildingError(e)) return null;
-    console.error("[firestore-server] getProjectBySlug (client fallback)", e);
-    return null;
-  }
+  return fetchProjectBySlugViaClientSdk(slug);
+}
+
+const getPortfolioConfigCached = cache(loadPortfolioConfig);
+const getPublishedProjectsCached = cache(loadPublishedProjects);
+const getProjectBySlugCached = cache(loadProjectBySlug);
+
+export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
+  return getPortfolioConfigCached();
+}
+
+export async function getPublishedProjects(): Promise<Project[]> {
+  return getPublishedProjectsCached();
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  return getProjectBySlugCached(slug);
 }

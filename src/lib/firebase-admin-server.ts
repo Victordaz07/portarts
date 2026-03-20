@@ -8,6 +8,7 @@ import {
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedAdminDb: Firestore | null | undefined;
+let warnedAdminUnavailable = false;
 
 function resolveProjectId(cred: unknown): string | undefined {
   const fromEnv = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim();
@@ -85,6 +86,12 @@ export function getAdminFirestoreOrNull(): Firestore | null {
   const app = getFirebaseAdminApp();
   if (!app) {
     cachedAdminDb = null;
+    if (!warnedAdminUnavailable && process.env.NODE_ENV === "production") {
+      warnedAdminUnavailable = true;
+      console.warn(
+        "[firebase-admin-server] Admin Firestore unavailable — server reads use the web SDK fallback. Set FIREBASE_SERVICE_ACCOUNT_JSON (and NEXT_PUBLIC_FIREBASE_PROJECT_ID) on the host."
+      );
+    }
     return null;
   }
   cachedAdminDb = getFirestore(app);
