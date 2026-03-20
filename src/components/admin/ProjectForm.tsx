@@ -420,52 +420,6 @@ export function ProjectForm({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Live preview" defaultOpen>
-          <p className="text-sm text-text-muted mb-4 leading-relaxed">
-            Hasta tres URLs en iframe (como en familydash): cada una puede apuntar a una ruta distinta
-            de tu app desplegada. En la ficha pública se mostrarán como secciones separadas. Las filas
-            sin URL se ignoran al guardar.
-          </p>
-          <div className="space-y-4">
-            {previewSlots.map((slot, i) => (
-              <div
-                key={i}
-                className="rounded-card border border-border bg-bg-card/40 p-4 space-y-3"
-              >
-                <div className="text-xs font-mono text-text-muted uppercase tracking-wider">
-                  Vista {i + 1}
-                </div>
-                <Input
-                  label="Título en la ficha"
-                  value={slot.label}
-                  onChange={(e) => updatePreviewSlot(i, { label: e.target.value })}
-                  placeholder="Ej. Landing, App en vivo, Panel admin"
-                />
-                <Input
-                  label="URL"
-                  value={slot.url}
-                  onChange={(e) => updatePreviewSlot(i, { url: e.target.value })}
-                  placeholder="https://tu-app.vercel.app/ruta"
-                />
-                <Select
-                  label="Dispositivo inicial"
-                  value={slot.type}
-                  onChange={(e) =>
-                    updatePreviewSlot(i, {
-                      type: e.target.value as DeviceType,
-                    })
-                  }
-                  options={[
-                    { value: "phone", label: "Phone" },
-                    { value: "tablet", label: "Tablet" },
-                    { value: "desktop", label: "Desktop" },
-                  ]}
-                />
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-
         <CollapsibleSection title="GitHub y metadata">
           <div className="space-y-4">
             <Input label="GitHub Repo (usuario/repo)" value={githubRepo} onChange={(e) => setGithubRepo(e.target.value)} placeholder="Victordaz07/portarts" />
@@ -628,7 +582,62 @@ export function ProjectForm({
           </div>
         </CollapsibleSection>
 
+        <CollapsibleSection title="Iframes en la ficha (hasta 3)" defaultOpen>
+          <p className="text-sm text-text-muted mb-4 leading-relaxed">
+            Estas URLs son las que se incrustan en la página pública del proyecto (vista previa en
+            móvil/tablet/desktop). No confundir con los enlaces de la sección siguiente:{" "}
+            <strong className="text-text-secondary">Links</strong> son solo botones externos (GitHub,
+            tiendas, etc.).
+          </p>
+          <p className="text-sm text-text-muted mb-4 leading-relaxed">
+            Hasta tres iframes: cada uno puede ser una ruta distinta de tu app desplegada. Las filas sin
+            URL se ignoran al guardar.
+          </p>
+          <div className="space-y-4">
+            {previewSlots.map((slot, i) => (
+              <div
+                key={i}
+                className="rounded-card border border-border bg-bg-card/40 p-4 space-y-3"
+              >
+                <div className="text-xs font-mono text-text-muted uppercase tracking-wider">
+                  Iframe {i + 1} / 3
+                </div>
+                <Input
+                  label="Título en la ficha"
+                  value={slot.label}
+                  onChange={(e) => updatePreviewSlot(i, { label: e.target.value })}
+                  placeholder="Ej. Landing, App en vivo, Panel admin"
+                />
+                <Input
+                  label="URL del iframe"
+                  value={slot.url}
+                  onChange={(e) => updatePreviewSlot(i, { url: e.target.value })}
+                  placeholder="https://tu-app.vercel.app/ruta"
+                />
+                <Select
+                  label="Dispositivo inicial"
+                  value={slot.type}
+                  onChange={(e) =>
+                    updatePreviewSlot(i, {
+                      type: e.target.value as DeviceType,
+                    })
+                  }
+                  options={[
+                    { value: "phone", label: "Phone" },
+                    { value: "tablet", label: "Tablet" },
+                    { value: "desktop", label: "Desktop" },
+                  ]}
+                />
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+
         <CollapsibleSection title="Links">
+          <p className="text-xs text-text-muted mb-3 leading-relaxed">
+            Enlaces externos (no son iframes). Los embeds van arriba en{" "}
+            <strong className="text-text-secondary">Iframes en la ficha</strong>.
+          </p>
           <div className="space-y-2">
             <Input label="Live" value={links.live ?? ""} onChange={(e) => setLinks({ ...links, live: e.target.value })} placeholder="https://..." />
             <Input label="GitHub" value={links.github ?? ""} onChange={(e) => setLinks({ ...links, github: e.target.value })} />
@@ -663,7 +672,7 @@ export function ProjectForm({
 
         <section className="rounded-card-lg border border-border bg-bg-card/90 p-3 sm:p-4 shadow-sm">
           <h4 className="text-xs font-mono uppercase tracking-wider text-text-muted mb-3">
-            Live (iframe)
+            Iframes (hasta 3)
           </h4>
           <div className="space-y-6">
             {previewSlots.some((s) => s.url.trim()) ? (
