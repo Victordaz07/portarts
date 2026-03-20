@@ -88,12 +88,16 @@ export default function AdminProjectsPage() {
                   type="button"
                   onClick={() => togglePublish(p)}
                   className="p-2 rounded-lg text-text-secondary hover:text-accent hover:bg-accent-dim transition-colors"
-                    title={p.published ? "Unpublish" : "Publish"}
+                  title={
+                    p.published
+                      ? "Visible on the home page — click to unpublish"
+                      : "Draft — click to publish"
+                  }
                 >
                   {p.published ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
                     <Eye className="w-4 h-4" />
+                  ) : (
+                    <EyeOff className="w-4 h-4" />
                   )}
                 </button>
                 <Link

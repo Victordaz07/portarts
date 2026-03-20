@@ -65,6 +65,20 @@ function isPublishedRaw(value: unknown): boolean {
   return false;
 }
 
+function sortProjectsByOrder(projects: Project[]): Project[] {
+  return [...projects].sort((a, b) => {
+    const ao =
+      typeof a.order === "number"
+        ? a.order
+        : Number.parseInt(String(a.order ?? 0), 10) || 0;
+    const bo =
+      typeof b.order === "number"
+        ? b.order
+        : Number.parseInt(String(b.order ?? 0), 10) || 0;
+    return ao - bo;
+  });
+}
+
 export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
   const adb = getAdminFirestoreOrNull();
   if (adb) {
@@ -90,9 +104,9 @@ export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
 
 /**
  * Lists published projects for the public home page.
- * Uses only `orderBy("order")` then filters in memory so we do not depend on a composite
- * (published + order) index — that query often returned [] on production when the index
- * was missing or `published` was stored as a string.
+ * - **Admin SDK:** bypasses rules; orderBy(order) + in-memory filter (supports string "true").
+ * - **Client SDK (unauthenticated server):** must use `where('published','==',true)` so Firestore
+ *   security rules allow the query (listing all projects by order only is rejected for anon).
  */
 export async function getPublishedProjects(): Promise<Project[]> {
   const adb = getAdminFirestoreOrNull();
@@ -110,27 +124,64 @@ export async function getPublishedProjects(): Promise<Project[]> {
         );
     } catch (e) {
       if (isIndexBuildingError(e)) return [];
-      console.error("[firestore-server] getPublishedProjects (admin)", e);
-      return [];
+      console.warn(
+        "[firestore-server] getPublishedProjects admin orderBy failed, falling back to full scan",
+        e
+      );
+      try {
+        const snapAll = await adb.collection("projects").get();
+        const list = snapAll.docs
+          .filter((d) => isPublishedRaw(d.data().published))
+          .map(
+            (d) =>
+              ({
+                id: d.id,
+                ...serializeAdminFirestoreDoc(d.data() as Record<string, unknown>),
+              }) as Project
+          );
+        return sortProjectsByOrder(list);
+      } catch (e2) {
+        console.error("[firestore-server] getPublishedProjects (admin fallback)", e2);
+        return [];
+      }
     }
   }
 
   try {
-    const q = query(collection(db, "projects"), orderBy("order", "asc"));
+    const q = query(
+      collection(db, "projects"),
+      where("published", "==", true),
+      orderBy("order", "asc")
+    );
     const snap = await getDocs(q);
-    return snap.docs
-      .filter((d) => isPublishedRaw(d.data().published))
-      .map(
+    return snap.docs.map(
+      (d) =>
+        ({
+          id: d.id,
+          ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
+        }) as Project
+    );
+  } catch (e) {
+    if (isIndexBuildingError(e)) return [];
+    console.warn(
+      "[firestore-server] getPublishedProjects client compound query failed, trying published-only",
+      e
+    );
+    try {
+      const q2 = query(collection(db, "projects"), where("published", "==", true));
+      const snap = await getDocs(q2);
+      const list = snap.docs.map(
         (d) =>
           ({
             id: d.id,
             ...serializeClientFirestoreDoc(d.data() as Record<string, unknown>),
           }) as Project
       );
-  } catch (e) {
-    if (isIndexBuildingError(e)) return [];
-    console.error("[firestore-server] getPublishedProjects (client fallback)", e);
-    return [];
+      return sortProjectsByOrder(list);
+    } catch (e2) {
+      console.error("[firestore-server] getPublishedProjects (client fallback)", e2);
+      return [];
+    }
   }
 }
 
@@ -158,14 +209,17 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
   }
 
   try {
-    const q = query(collection(db, "projects"), where("slug", "==", slug));
+    const q = query(
+      collection(db, "projects"),
+      where("slug", "==", slug),
+      where("published", "==", true)
+    );
     const snap = await getDocs(q);
-    const docSnap = snap.docs.find((d) => isPublishedRaw(d.data().published));
-    if (!docSnap) return null;
+    if (snap.empty) return null;
     return {
-      id: docSnap.id,
+      id: snap.docs[0].id,
       ...serializeClientFirestoreDoc(
-        docSnap.data() as Record<string, unknown>
+        snap.docs[0].data() as Record<string, unknown>
       ),
     } as Project;
   } catch (e) {

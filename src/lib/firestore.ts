@@ -57,37 +57,57 @@ export async function getPortfolioConfig(): Promise<PortfolioConfig | null> {
   return snap.data() as PortfolioConfig;
 }
 
-function isPublishedRaw(value: unknown): boolean {
-  if (value === true || value === 1) return true;
-  if (typeof value === "string" && value.trim().toLowerCase() === "true") {
-    return true;
-  }
-  return false;
+function sortProjectsByOrder(projects: Project[]): Project[] {
+  return [...projects].sort((a, b) => {
+    const ao =
+      typeof a.order === "number"
+        ? a.order
+        : Number.parseInt(String(a.order ?? 0), 10) || 0;
+    const bo =
+      typeof b.order === "number"
+        ? b.order
+        : Number.parseInt(String(b.order ?? 0), 10) || 0;
+    return ao - bo;
+  });
 }
 
 export async function getPublishedProjects(): Promise<Project[]> {
   try {
-    const q = query(collection(db, "projects"), orderBy("order", "asc"));
+    const q = query(
+      collection(db, "projects"),
+      where("published", "==", true),
+      orderBy("order", "asc")
+    );
     const snap = await getDocs(q);
-    return snap.docs
-      .filter((d) => isPublishedRaw(d.data().published))
-      .map((d) => ({ id: d.id, ...serializeDoc(d.data()) } as Project));
+    return snap.docs.map((d) => ({ id: d.id, ...serializeDoc(d.data()) } as Project));
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("index") && (msg.includes("building") || msg.includes("required"))) {
       return [];
     }
-    throw err;
+    try {
+      const q2 = query(collection(db, "projects"), where("published", "==", true));
+      const snap = await getDocs(q2);
+      const list = snap.docs.map(
+        (d) => ({ id: d.id, ...serializeDoc(d.data()) } as Project)
+      );
+      return sortProjectsByOrder(list);
+    } catch {
+      throw err;
+    }
   }
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {
-    const q = query(collection(db, "projects"), where("slug", "==", slug));
+    const q = query(
+      collection(db, "projects"),
+      where("slug", "==", slug),
+      where("published", "==", true)
+    );
     const snap = await getDocs(q);
-    const docSnap = snap.docs.find((d) => isPublishedRaw(d.data().published));
-    if (!docSnap) return null;
-    return { id: docSnap.id, ...serializeDoc(docSnap.data()) } as Project;
+    if (snap.empty) return null;
+    return { id: snap.docs[0].id, ...serializeDoc(snap.docs[0].data()) } as Project;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("index") && (msg.includes("building") || msg.includes("required"))) {

@@ -8,14 +8,9 @@ interface ProjectGridProps {
 export function ProjectGrid({ projects }: ProjectGridProps) {
   if (projects.length === 0) {
     return (
-      <div className="text-text-muted text-center py-12 space-y-2 max-w-md mx-auto">
-        <p>No published projects on the home page yet.</p>
-        <p className="text-sm text-text-secondary">
-          The logo links to this same page (<code className="text-xs bg-bg-hover px-1 rounded">/</code>
-          ). In <strong className="text-text-primary">Admin → Projects</strong>, open each project and
-          enable <strong className="text-text-primary">Published</strong> so it appears here.
-        </p>
-      </div>
+      <p className="text-text-muted text-center py-12">
+        No published projects yet.
+      </p>
     );
   }
 
