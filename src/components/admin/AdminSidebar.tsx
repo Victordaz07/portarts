@@ -54,7 +54,7 @@ export function AdminSidebar() {
       className={`flex shrink-0 border-border bg-bg-raised transition-[width] duration-200 ease-out
         flex-row w-full border-b p-3 sm:p-4 gap-2
         md:flex-col md:border-b-0 md:border-r md:py-3 md:px-2
-        ${collapsed ? "md:w-[4.25rem] md:px-1.5" : "md:w-56 md:px-3"}`}
+        ${collapsed ? "md:w-17 md:px-1.5" : "md:w-56 md:px-3"}`}
     >
       <div
         className={`hidden md:flex items-center shrink-0 gap-1 mb-2

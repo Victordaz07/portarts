@@ -327,7 +327,7 @@ export function ProjectForm({
   };
 
   return (
-    <div className="grid w-full items-start gap-8 lg:gap-10 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(280px,min(40vw,460px))] 2xl:[grid-template-columns:minmax(0,1fr)_minmax(300px,min(38vw,500px))]">
+    <div className="grid w-full items-start gap-8 lg:gap-10 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(280px,min(40vw,460px))] 2xl:grid-cols-[minmax(0,1fr)_minmax(300px,min(38vw,500px))]">
       <form onSubmit={handleSubmit} className="min-w-0 w-full max-w-4xl xl:max-w-none space-y-4">
         {projectId && (
           <div className="flex items-center gap-2 text-sm mb-4">
