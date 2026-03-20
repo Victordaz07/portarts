@@ -59,6 +59,11 @@ const projects = [
       "A private, ad-free web app that keeps families organized — tasks, schedules, shared lists, and communication in one place. Built for real daily use.",
     fullDescription:
       "FamilyDash started as a personal problem: too many group chats, missed tasks, and scattered schedules across a family of multiple members. Instead of patching it with consumer apps full of ads and tracking, I built the solution from scratch.\n\nIt's a Progressive Web App that works on any device, loads fast, and keeps all data private. Features include shared task management with assignments, family calendar, grocery and shopping lists, and a family feed for quick updates. My own family uses it daily.",
+    valueProps: {
+      problem: "Families lack structure and coordination.",
+      role: "Product design and full-stack development.",
+      outcome: "A centralized system for tasks, communication, and family management.",
+    },
     featured: true,
     order: 1,
     published: true,
@@ -192,6 +197,11 @@ const projects = [
       "A full-stack multi-role platform for a real food distribution business — managing clients, quotes, orders, delivery routes, invoicing, and online payments.",
     fullDescription:
       "What started as a simple website redesign turned into a complete business management system for a 15-year-old B2B food distribution company.\n\nThe platform handles the entire order lifecycle: from client quote requests to delivery confirmation and invoice payment via Stripe. Five distinct roles (Master, Admin, Sales, Delivery, Client) each have their own dashboard and permissions. Built a formal state machine for order transitions, automatic email notifications at every step, price locking to protect margin integrity, and an adjustment governance system for post-delivery discrepancies.\n\nThis is a real production system built for a real business, solving real operational problems.",
+    valueProps: {
+      problem: "The business managed orders, quotes, and deliveries with fragmented manual processes.",
+      role: "Full-stack architecture and implementation across roles, workflows, and payment integration.",
+      outcome: "A single operational platform that improves control, reduces errors, and speeds up fulfillment.",
+    },
     featured: true,
     order: 2,
     published: true,
@@ -307,6 +317,11 @@ const projects = [
       "A local-first PWA for religious discipleship — structured learning stages, community features, and a strict ethical design manifesto: no surveillance, no gamification, no manipulation.",
     fullDescription:
       "XtheGospel is a discipleship platform built with a clear ethical commitment: technology should serve community, not exploit it.\n\nThe app is local-first, meaning it works fully offline and doesn't require constant connectivity. Content is structured into four learning stages, each with a clear progression. The leadership module was intentionally removed after an ethical audit revealed it contained KPIs and surveillance systems that violated the project's own manifesto.\n\nEvery design decision goes through a question: does this serve the person, or does it serve engagement metrics? No gamification badges, no notification pressure, no dark patterns.",
+    valueProps: {
+      problem: "Discipleship tools often prioritize engagement metrics over people and community care.",
+      role: "Product direction, ethical UX decisions, and full-stack implementation with local-first architecture.",
+      outcome: "A faith-centered app that supports formation while preserving privacy, dignity, and trust.",
+    },
     featured: false,
     order: 3,
     published: true,
@@ -404,6 +419,11 @@ const projects = [
       "Full-stack web app for missionaries: personal journal, transfers, resources, a family portal, and sponsorship with integrated payments.",
     fullDescription:
       "Mission Diary is a production web platform built to support the full missionary lifecycle—from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase with a focus on product clarity, security, and performance.",
+    valueProps: {
+      problem: "Missionaries lacked one secure place to track progress, share updates, and manage support.",
+      role: "Product design and full-stack development for the end-to-end missionary experience.",
+      outcome: "A unified platform for journaling, family visibility, and sponsorship workflows in production.",
+    },
     featured: true,
     order: 4,
     published: true,

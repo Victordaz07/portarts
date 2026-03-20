@@ -113,6 +113,9 @@ export function ProjectForm({
   const [fullDescription, setFullDescription] = useState(
     initial?.fullDescription ?? ""
   );
+  const [problem, setProblem] = useState(initial?.valueProps?.problem ?? "");
+  const [role, setRole] = useState(initial?.valueProps?.role ?? "");
+  const [outcome, setOutcome] = useState(initial?.valueProps?.outcome ?? "");
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [published, setPublished] = useState(initial?.published ?? false);
   const [statusText, setStatusText] = useState(initial?.status?.text ?? "");
@@ -183,6 +186,14 @@ export function ProjectForm({
     githubRepo,
     githubUrl: githubRepo ? `https://github.com/${githubRepo}` : "",
     metadata: Object.fromEntries(metadataEntries.filter(([k]) => k.trim())),
+    valueProps:
+      problem.trim() || role.trim() || outcome.trim()
+        ? {
+            problem: problem.trim(),
+            role: role.trim(),
+            outcome: outcome.trim(),
+          }
+        : undefined,
     features,
     techStack,
     timeline,
@@ -193,7 +204,7 @@ export function ProjectForm({
     links,
     };
   }, [
-    slug, name, tagline, description, fullDescription, featured, published,
+    slug, name, tagline, description, fullDescription, problem, role, outcome, featured, published,
     statusText, statusColor, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
@@ -225,7 +236,7 @@ export function ProjectForm({
     }, 2000);
     return () => clearTimeout(timer);
   }, [
-    slug, name, tagline, description, fullDescription, featured, published,
+    slug, name, tagline, description, fullDescription, problem, role, outcome, featured, published,
     statusText, statusColor, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
@@ -361,6 +372,27 @@ export function ProjectForm({
             <Input label="Tagline" value={tagline} onChange={(e) => setTagline(e.target.value)} />
             <Input label="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
             <Textarea label="Full description" value={fullDescription} onChange={(e) => setFullDescription(e.target.value)} rows={4} />
+            <Textarea
+              label="Problem"
+              value={problem}
+              onChange={(e) => setProblem(e.target.value)}
+              rows={2}
+              placeholder="What problem does this project solve?"
+            />
+            <Textarea
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              rows={2}
+              placeholder="What was your role?"
+            />
+            <Textarea
+              label="Outcome"
+              value={outcome}
+              onChange={(e) => setOutcome(e.target.value)}
+              rows={2}
+              placeholder="What changed / what value was created?"
+            />
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="rounded" />

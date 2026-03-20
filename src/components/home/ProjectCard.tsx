@@ -61,6 +61,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const coverAlt = cover?.caption
     ? `${project.name}: ${cover.caption}`
     : `${project.name} — vista del proyecto`;
+  const problem = project.valueProps?.problem?.trim();
+  const role = project.valueProps?.role?.trim();
+  const outcome = project.valueProps?.outcome?.trim();
+  const hasValueProps = Boolean(problem || role || outcome);
 
   return (
     <Link
@@ -140,6 +144,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <p className="text-text-secondary text-[14px] leading-relaxed max-w-[420px]">
           {project.description}
         </p>
+        {hasValueProps ? (
+          <div className="mt-4 space-y-1 text-[13px] leading-relaxed text-text-secondary">
+            {problem ? (
+              <p>
+                <span className="font-semibold text-black">Problem:</span> {problem}
+              </p>
+            ) : null}
+            {role ? (
+              <p>
+                <span className="font-semibold text-black">Role:</span> {role}
+              </p>
+            ) : null}
+            {outcome ? (
+              <p>
+                <span className="font-semibold text-black">Outcome:</span> {outcome}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
           <div className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusColor}`}>
             {project.status?.text ?? "In development"}

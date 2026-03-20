@@ -72,6 +72,11 @@ export interface Project {
   githubRepo?: string;
   githubUrl?: string;
   metadata?: Record<string, string>;
+  valueProps?: {
+    problem?: string;
+    role?: string;
+    outcome?: string;
+  };
   features?: Array<{
     title: string;
     description: string;
