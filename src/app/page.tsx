@@ -1,78 +1,41 @@
+import { Suspense } from "react";
+import { HomeScrollReveal } from "@/components/home/HomeScrollReveal";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import {
-  getPortfolioConfig,
-  getPublishedProjects,
-} from "@/lib/firestore-server";
+  HomeHeroAsync,
+  HomeProjectsAsync,
+  HomeLowerAsync,
+} from "@/components/home/HomeAsyncSections";
 
 export const dynamic = "force-dynamic";
-import { Hero } from "@/components/home/Hero";
-import { ProjectGrid } from "@/components/home/ProjectGrid";
-import { TechMarquee } from "@/components/home/TechMarquee";
-import { GitHubRepos } from "@/components/home/GitHubRepos";
-import { AboutSection } from "@/components/home/AboutSection";
-import { CTASection } from "@/components/home/CTASection";
-import { HomeScrollReveal } from "@/components/home/HomeScrollReveal";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
-export default async function HomePage() {
-  const [config, projects] = await Promise.all([
-    getPortfolioConfig(),
-    getPublishedProjects(),
-  ]);
+function SectionSpinner({ minHeight }: { minHeight: string }) {
+  return (
+    <div
+      className={`${minHeight} flex items-center justify-center bg-white`}
+      aria-busy
+    >
+      <LoadingSpinner size="lg" />
+    </div>
+  );
+}
 
+export default function HomePage() {
   return (
     <HomeScrollReveal>
-      <section className="bg-white">
-        <Hero config={config} />
-      </section>
+      <Suspense fallback={<SectionSpinner minHeight="min-h-[260px]" />}>
+        <HomeHeroAsync />
+      </Suspense>
 
-      <section id="projects" className="pt-10 pb-14 bg-white">
-        <div className="reveal">
-          <ErrorBoundary section="proyectos">
-            <ProjectGrid projects={projects} />
-          </ErrorBoundary>
-        </div>
-      </section>
+      <Suspense fallback={<SectionSpinner minHeight="min-h-[200px]" />}>
+        <HomeProjectsAsync />
+      </Suspense>
 
-      <section id="marquee" className="bg-[#f9fafb]">
-        <div className="reveal">
-          <TechMarquee items={config?.techStack ?? []} />
-        </div>
-      </section>
-
-      <section id="github" className="pt-16 pb-14 bg-[#f9fafb]">
-        <div className="flex items-baseline gap-4 mb-11 reveal">
-          <span className="font-mono text-xs text-accent">02</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-black">GitHub</h2>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-        <div className="reveal">
-          <ErrorBoundary section="GitHub repos">
-            <GitHubRepos username={config?.githubUsername ?? ""} />
-          </ErrorBoundary>
-        </div>
-      </section>
-
-      <section id="about" className="pt-16 pb-14 bg-white">
-        <div className="flex items-baseline gap-4 mb-11 reveal">
-          <span className="font-mono text-xs text-accent">03</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-black">About me</h2>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-        <div className="reveal">
-          <ErrorBoundary section="sobre mí">
-            <AboutSection config={config} />
-          </ErrorBoundary>
-        </div>
-      </section>
-
-      <section id="contact" className="pt-6 pb-6 bg-white">
-        <div className="reveal">
-          <CTASection
-            email={config?.email}
-            socialLinks={config?.socialLinks}
-          />
-        </div>
-      </section>
+      <Suspense
+        fallback={<SectionSpinner minHeight="min-h-[320px] bg-[#f9fafb]" />}
+      >
+        <HomeLowerAsync />
+      </Suspense>
     </HomeScrollReveal>
   );
 }
