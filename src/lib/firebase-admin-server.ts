@@ -9,10 +9,27 @@ import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 let cachedAdminDb: Firestore | null | undefined;
 
+function resolveProjectId(cred: unknown): string | undefined {
+  const fromEnv = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim();
+  if (fromEnv) return fromEnv;
+  if (
+    typeof cred === "object" &&
+    cred !== null &&
+    "project_id" in cred &&
+    typeof (cred as { project_id: unknown }).project_id === "string"
+  ) {
+    const id = (cred as { project_id: string }).project_id.trim();
+    if (id) return id;
+  }
+  return undefined;
+}
+
 /**
  * Admin SDK for API routes (custom claims, etc.).
  * Set FIREBASE_SERVICE_ACCOUNT_JSON to the full JSON of a service account (Vercel/env),
  * or GOOGLE_APPLICATION_CREDENTIALS to a key file path (local).
+ *
+ * Firestore requires an explicit project id — set NEXT_PUBLIC_FIREBASE_PROJECT_ID or include project_id in the service account JSON.
  */
 export function getFirebaseAdminApp(): App | null {
   if (getApps().length > 0) {
@@ -22,16 +39,17 @@ export function getFirebaseAdminApp(): App | null {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (json?.trim()) {
     try {
-      const cred = JSON.parse(json);
+      const cred = JSON.parse(json) as unknown;
+      const projectId = resolveProjectId(cred);
+      if (!projectId) {
+        console.error(
+          "[firebase-admin-server] Missing project id: set NEXT_PUBLIC_FIREBASE_PROJECT_ID or project_id in FIREBASE_SERVICE_ACCOUNT_JSON"
+        );
+        return null;
+      }
       return initializeApp({
-        credential: cert(cred),
-        projectId:
-          (typeof cred === "object" &&
-            cred !== null &&
-            "project_id" in cred &&
-            typeof (cred as { project_id: unknown }).project_id === "string" &&
-            (cred as { project_id: string }).project_id) ||
-          process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        credential: cert(cred as Parameters<typeof cert>[0]),
+        projectId,
       });
     } catch (e) {
       console.error("[firebase-admin-server] Invalid FIREBASE_SERVICE_ACCOUNT_JSON", e);
@@ -39,10 +57,18 @@ export function getFirebaseAdminApp(): App | null {
     }
   }
 
+  const projectIdOnly = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim();
+  if (!projectIdOnly) {
+    console.error(
+      "[firebase-admin-server] Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID (required for applicationDefault / local Admin)"
+    );
+    return null;
+  }
+
   try {
     return initializeApp({
       credential: applicationDefault(),
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      projectId: projectIdOnly,
     });
   } catch {
     return null;

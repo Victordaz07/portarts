@@ -1,17 +1,41 @@
 import {
   signInWithPopup,
+  signInWithRedirect,
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, githubProvider, googleProvider, db } from "./firebase";
 
+function shouldUseRedirectInsteadOfPopup(e: unknown): boolean {
+  return (
+    e instanceof FirebaseError &&
+    (e.code === "auth/popup-blocked" ||
+      e.code === "auth/cancelled-popup-request")
+  );
+}
+
+async function signInWithPopupOrRedirect(
+  provider: typeof githubProvider
+): Promise<void> {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    if (shouldUseRedirectInsteadOfPopup(e)) {
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+    throw e;
+  }
+}
+
 export async function signInWithGitHub() {
-  return signInWithPopup(auth, githubProvider);
+  return signInWithPopupOrRedirect(githubProvider);
 }
 
 export async function signInWithGoogle() {
-  return signInWithPopup(auth, googleProvider);
+  return signInWithPopupOrRedirect(googleProvider);
 }
 
 export async function signOut() {

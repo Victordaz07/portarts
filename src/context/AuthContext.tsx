@@ -7,7 +7,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { getRedirectResult, onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
   isAdmin,
@@ -42,6 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAdminUser(false);
       }
       setLoading(false);
+    });
+    void getRedirectResult(auth).catch(() => {
+      /* redirect errors are surfaced via onAuthStateChanged or next sign-in */
     });
     return () => unsub();
   }, []);
