@@ -1,6 +1,11 @@
 "use client";
 
 import type { PortfolioConfig } from "@/lib/types";
+import {
+  resolveHeroHeadline,
+  resolveHeroSubtitle,
+} from "@/lib/hero-defaults";
+import { resolveTechStackItems } from "@/lib/tech-stack";
 
 interface HomePreviewProps {
   config: PortfolioConfig | null;
@@ -10,22 +15,28 @@ export function HomePreview({ config }: HomePreviewProps) {
   if (!config) return null;
   const about = config.about ?? [];
   const stats = config.stats ?? [];
+  const headline = resolveHeroHeadline(config.heroHeadline);
+  const subtitle = resolveHeroSubtitle(config.subtitle);
+  const techItems = resolveTechStackItems(config);
 
   return (
     <div className="text-[11px] leading-tight scale-[0.4] origin-top-left w-[250%] h-[250%] overflow-hidden pointer-events-none select-none">
       <div className="min-h-screen flex flex-col justify-center p-4">
-        <div className="flex items-center gap-1 px-2 py-0.5 bg-surface border border-border rounded-full text-text-secondary w-fit mb-3">
-          <span className="w-1 h-1 rounded-full bg-green animate-pulse" />
-          Available for projects
+        <div className="mb-3 flex w-full flex-wrap gap-1">
+          {techItems.map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-border bg-white px-1.5 py-0.5 text-[8px] text-text-secondary"
+            >
+              {item}
+            </span>
+          ))}
         </div>
-        <h1 className="font-display text-2xl font-normal leading-tight tracking-tight mb-2">
-          Creating <em className="text-accent not-italic">digital</em>{" "}
-          <span className="[-webkit-text-stroke:1px] [-webkit-text-fill-color:transparent]">
-            experiences
-          </span>
+        <h1 className="font-display text-2xl font-normal leading-tight tracking-tight mb-2 text-text-primary">
+          {headline}
         </h1>
-        <p className="text-text-secondary max-w-[200px] leading-snug font-light">
-          {config.subtitle || "Full-stack developer…"}
+        <p className="text-text-secondary max-w-[220px] leading-snug font-light text-[10px]">
+          {subtitle}
         </p>
       </div>
       <div className="p-4 space-y-2">
@@ -40,7 +51,7 @@ export function HomePreview({ config }: HomePreviewProps) {
         <div className="grid grid-cols-2 gap-1">
           {stats.slice(0, 4).map((s, i) => (
             <div key={i} className="p-2 bg-surface border border-border rounded">
-              <div className="font-display text-sm bg-gradient-to-br from-text-primary to-accent bg-clip-text text-transparent">
+              <div className="font-display text-sm bg-linear-to-br from-text-primary to-accent bg-clip-text text-transparent">
                 {s.value || "—"}
               </div>
               <div className="text-[8px] text-text-muted uppercase">{s.label || "—"}</div>

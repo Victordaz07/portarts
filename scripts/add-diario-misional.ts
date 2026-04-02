@@ -18,15 +18,25 @@ function initAdmin() {
 initAdmin();
 const db = getFirestore();
 
-/** Keep in sync with scripts/seed-projects.ts — Mission Diary (slug: diario-misional). */
+/** Keep in sync with scripts/seed-projects.ts — Missionary Journal (slug: diario-misional). */
 const project = {
   slug: "diario-misional",
-  name: "Mission Diary",
+  name: "Missionary Journal",
   tagline: "Your missionary journey, organized in one app.",
   description:
-    "Full-stack web app for missionaries: personal journal, transfers, resources, a family portal, and sponsorship with integrated payments.",
+    "A full-stack web app for missionaries — personal journal, transfer tracking, resource library, family portal, and an integrated sponsorship system with payments.",
   fullDescription:
-    "Mission Diary is a production web platform built to support the full missionary lifecycle—from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase with a focus on product clarity, security, and performance.",
+    "Missionary Journal is a production web platform for the full missionary lifecycle — from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase focused on product clarity, security, and performance.",
+  valueProps: {
+    problem: "Missionaries lack a centralized, structured way to document experiences, track progress, and preserve their mission journey.",
+    role: "Product design, concept development, and full-stack implementation.",
+    outcome: "A personal digital journal that allows missionaries to record experiences, organize transfers, store memories, and create a lasting mission record.",
+  },
+  kpis: [
+    { value: "5", label: "Core sections" },
+    { value: "100%", label: "PWA ready" },
+    { value: "1", label: "Unified platform" },
+  ],
   featured: true,
   order: 4,
   published: true,
@@ -146,6 +156,6 @@ async function run() {
 }
 
 run().catch((err) => {
-  console.error("❌ Failed to upsert Mission Diary:", err);
+  console.error("❌ Failed to upsert Missionary Journal:", err);
   process.exit(1);
 });

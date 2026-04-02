@@ -1,8 +1,11 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Pencil } from "lucide-react";
+import { KpiChips } from "@/components/KpiChips";
+import { cn } from "@/lib/cn";
 import type { Project, ProjectTheme } from "@/lib/types";
 
 const THEME_CLASSES: Record<ProjectTheme, string> = {
@@ -28,8 +31,15 @@ const VISUAL_GRADIENTS: Record<string, string> = {
   default: "bg-gradient-to-br from-[#334155] via-[#1d4ed8] to-[#0f172a]",
 };
 
-interface ProjectCardProps {
+export interface ProjectCardProps {
   project: Project;
+  /** Admin dashboard: tarjeta como en el landing + barra para editar */
+  variant?: "default" | "admin";
+  /** Pie admin en tema oscuro (lista de proyectos) */
+  adminFooterTone?: "light" | "dark";
+  /** Botones extra (p. ej. publicar / borrar) en el pie admin */
+  adminActionsSlot?: ReactNode;
+  className?: string;
 }
 
 function resolveCover(project: Project): { src: string; caption?: string } | null {
@@ -40,7 +50,13 @@ function resolveCover(project: Project): { src: string; caption?: string } | nul
   return null;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  variant = "default",
+  adminFooterTone = "light",
+  adminActionsSlot,
+  className,
+}: ProjectCardProps) {
   const themeClass = THEME_CLASSES[(project.theme ?? "default") as ProjectTheme] ?? "theme-default";
   const previewCollection = (
     project as Project & { previews?: Array<{ url?: string }> }
@@ -63,35 +79,39 @@ export function ProjectCard({ project }: ProjectCardProps) {
     : `${project.name} — vista del proyecto`;
   const problem = project.valueProps?.problem?.trim();
   const role = project.valueProps?.role?.trim();
-  const outcome = project.valueProps?.outcome?.trim();
-  const hasValueProps = Boolean(problem || role || outcome);
+  const hasProblemOrRole = Boolean(problem || role);
 
-  return (
-    <Link
-      href={`/project/${project.slug}`}
-      className="block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer transition-all duration-300 ease-smooth hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] group"
-    >
-      <div className="relative w-full h-[200px] overflow-hidden">
-        <div className="absolute inset-0 transition-transform duration-500 ease-smooth group-hover:scale-105">
-          {hasCover ? (
-            <>
-              <div className={`absolute inset-0 z-0 ${visualGradient} opacity-50`} aria-hidden />
-              <Image
-                src={cover.src}
-                alt={coverAlt}
-                fill
-                className="object-cover z-1"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={project.featured}
-                unoptimized
-              />
-            </>
-          ) : (
+  const publicHref = `/project/${project.slug}`;
+  const editHref = `/admin/projects/${project.id}/edit`;
+
+  const cardBody = (
+    <>
+      <div className="relative w-full h-[200px] overflow-hidden rounded-t-[12px]">
+        {hasCover ? (
+          <>
             <div
-              className={`absolute inset-0 z-0 ${hasLivePreview ? visualGradient : themeClass} opacity-95`}
+              className={`absolute inset-0 z-0 ${visualGradient} opacity-50`}
+              aria-hidden
             />
-          )}
-        </div>
+            <Image
+              src={cover.src}
+              alt={coverAlt}
+              fill
+              className={cn(
+                "object-cover z-1",
+                "transition-transform duration-500 ease-out",
+                "group-hover:scale-105",
+              )}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={project.featured}
+              unoptimized
+            />
+          </>
+        ) : (
+          <div
+            className={`absolute inset-0 z-0 ${hasLivePreview ? visualGradient : themeClass} opacity-95`}
+          />
+        )}
         <div
           className={
             showTitleOnCard || logoUrl
@@ -100,13 +120,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
           }
           aria-hidden
         />
+        <div
+          className="absolute inset-0 z-3 pointer-events-none bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+          aria-hidden
+        />
         {(logoUrl || showTitleOnCard) && (
-          <div className="absolute inset-0 z-3 flex flex-col items-center justify-center gap-3 px-4 text-center">
+          <div className="absolute inset-0 z-4 flex flex-col items-center justify-center gap-3 px-4 text-center pointer-events-none">
             {logoUrl ? (
               <div className="relative h-14 w-14 shrink-0 rounded-xl bg-white/15 p-1.5 ring-1 ring-white/25 shadow-lg backdrop-blur-sm">
                 <Image
                   src={logoUrl}
-                  alt=""
+                  alt={`${project.name} — logo`}
                   width={56}
                   height={56}
                   className="object-contain object-center size-full"
@@ -121,6 +145,28 @@ export function ProjectCard({ project }: ProjectCardProps) {
             ) : null}
           </div>
         )}
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 right-0 z-5 h-21 pointer-events-none",
+            "flex items-end justify-center pb-3",
+            "bg-linear-to-t from-black/50 via-black/10 to-transparent",
+            "opacity-0 transition-opacity duration-300 ease-out",
+            "group-hover:opacity-100",
+          )}
+        >
+          <span
+            className={cn(
+              "translate-y-1 text-sm font-medium",
+              "px-3.5 py-1.5 rounded-full",
+              "bg-white/95 text-black shadow-md",
+              "border border-white/40",
+              "transition-transform duration-300 ease-out",
+              "group-hover:translate-y-0",
+            )}
+          >
+            View project →
+          </span>
+        </div>
       </div>
       <div className="relative z-3 p-5">
         <div className="flex gap-2 flex-wrap mb-3">
@@ -138,13 +184,22 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </span>
           ))}
         </div>
-        <h3 className="text-black font-bold text-[20px] mb-2">
+        <h3
+          className={cn(
+            "text-black font-bold text-[20px] mb-2",
+            "transition-colors duration-200",
+            "group-hover:text-text-primary",
+          )}
+        >
           {project.name}
         </h3>
+        {project.kpis && project.kpis.length > 0 ? (
+          <KpiChips kpis={project.kpis} className="mt-3 mb-1" />
+        ) : null}
         <p className="text-text-secondary text-[14px] leading-relaxed max-w-[420px]">
           {project.description}
         </p>
-        {hasValueProps ? (
+        {hasProblemOrRole ? (
           <div className="mt-4 space-y-1 text-[13px] leading-relaxed text-text-secondary">
             {problem ? (
               <p>
@@ -154,11 +209,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
             {role ? (
               <p>
                 <span className="font-semibold text-black">Role:</span> {role}
-              </p>
-            ) : null}
-            {outcome ? (
-              <p>
-                <span className="font-semibold text-black">Outcome:</span> {outcome}
               </p>
             ) : null}
           </div>
@@ -172,6 +222,96 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </div>
       </div>
+    </>
+  );
+
+  if (variant === "admin") {
+    const footerDark = adminFooterTone === "dark";
+    return (
+      <div
+        className={cn(
+          "rounded-[12px] overflow-hidden border bg-white",
+          "group transition-all duration-300 ease-smooth",
+          "hover:-translate-y-1 hover:shadow-md",
+          footerDark
+            ? "border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.35)] hover:border-white/25"
+            : "border-border hover:border-border",
+          className,
+        )}
+      >
+        <Link href={publicHref} className="block cursor-pointer">
+          {cardBody}
+        </Link>
+        <div
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3",
+            footerDark
+              ? "border-white/10 bg-[#0f1419]/90 backdrop-blur-sm"
+              : "border-border bg-slate-50/90",
+          )}
+        >
+          <div className="min-w-0 flex-1">
+            <span
+              className={cn(
+                "text-xs truncate block",
+                footerDark ? "text-slate-400" : "text-slate-500",
+              )}
+            >
+              {project.published ? (
+                <span
+                  className={footerDark ? "text-emerald-400 font-medium" : "text-emerald-600 font-medium"}
+                >
+                  Published
+                </span>
+              ) : (
+                <span className={footerDark ? "text-amber-200/90" : undefined}>Draft</span>
+              )}
+              <span className={footerDark ? "text-slate-500" : "text-slate-400"}>
+                {" "}
+                · Vista pública
+              </span>
+            </span>
+            <span
+              className={cn(
+                "font-mono text-[10px] leading-tight mt-1 block truncate",
+                footerDark ? "text-slate-600" : "text-slate-400",
+              )}
+              title={project.slug}
+            >
+              /{project.slug}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+            {adminActionsSlot}
+            <Link
+              href={editHref}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium ring-1 transition-colors",
+                footerDark
+                  ? "bg-cyan-500/15 text-cyan-100 ring-cyan-400/30 hover:bg-cyan-500/25"
+                  : "bg-cyan-500/10 text-cyan-800 ring-cyan-500/25 hover:bg-cyan-500/20",
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden />
+              Edit
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={publicHref}
+      className={cn(
+        "block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer",
+        "group transition-all duration-300 ease-smooth",
+        "hover:-translate-y-1 hover:shadow-sm hover:border-border",
+      )}
+    >
+      {cardBody}
     </Link>
   );
 }

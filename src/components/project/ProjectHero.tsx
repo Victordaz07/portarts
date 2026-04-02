@@ -5,6 +5,11 @@ interface ProjectHeroProps {
 }
 
 export function ProjectHero({ project }: ProjectHeroProps) {
+  const problem = project.valueProps?.problem?.trim();
+  const role = project.valueProps?.role?.trim();
+  const outcome = project.valueProps?.outcome?.trim();
+  const hasValueProps = Boolean(problem || role || outcome);
+
   return (
     <div className="mb-12">
       <div className="flex gap-1 flex-wrap mb-3">
@@ -23,6 +28,48 @@ export function ProjectHero({ project }: ProjectHeroProps) {
       <p className="text-text-secondary text-base md:text-lg leading-relaxed font-light mb-5 max-w-3xl">
         {project.fullDescription || project.description}
       </p>
+      {hasValueProps ? (
+        <div className="mb-6 space-y-2 text-base leading-relaxed max-w-3xl">
+          {problem ? (
+            <p>
+              <span className="font-semibold text-text-primary">Problem:</span>{" "}
+              <span className="text-text-secondary">{problem}</span>
+            </p>
+          ) : null}
+          {role ? (
+            <p>
+              <span className="font-semibold text-text-primary">Role:</span>{" "}
+              <span className="text-text-secondary">{role}</span>
+            </p>
+          ) : null}
+          {outcome ? (
+            <p>
+              <span className="font-semibold text-text-primary">Outcome:</span>{" "}
+              <span className="text-text-secondary">{outcome}</span>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      {project.workflow ? (
+        <div className="mt-6 pt-6 border-t border-border/50">
+          <h3 className="text-xs font-medium uppercase tracking-wider text-text-muted mb-2">
+            Development process
+          </h3>
+          <p className="text-sm text-text-secondary leading-relaxed mb-3">
+            {project.workflow.summary}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {project.workflow.tools.map((tool) => (
+              <span
+                key={tool}
+                className="text-xs px-2 py-0.5 rounded-full border border-border/60 text-text-secondary"
+              >
+                {tool}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
       {project.metadata && Object.keys(project.metadata).length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {Object.entries(project.metadata).map(([key, value]) => (

@@ -218,9 +218,43 @@ export default function AdminSettingsPage() {
                 onChange={(e) => update("title", e.target.value)}
               />
               <Input
+                label="Hero headline (H1)"
+                value={config.heroHeadline ?? ""}
+                onChange={(e) => update("heroHeadline", e.target.value)}
+                placeholder="Frontend Developer building products people actually use"
+              />
+              <Input
                 label="Subtitle"
                 value={config.subtitle}
                 onChange={(e) => update("subtitle", e.target.value)}
+              />
+              <Textarea
+                label="Mini-bio — headline (Hero → Projects)"
+                value={config.miniBio?.headline ?? ""}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    miniBio: {
+                      headline: e.target.value,
+                      body: config.miniBio?.body ?? "",
+                    },
+                  })
+                }
+                rows={2}
+              />
+              <Textarea
+                label="Mini-bio — body"
+                value={config.miniBio?.body ?? ""}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    miniBio: {
+                      headline: config.miniBio?.headline ?? "",
+                      body: e.target.value,
+                    },
+                  })
+                }
+                rows={3}
               />
               <Input
                 label="Email"

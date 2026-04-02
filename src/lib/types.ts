@@ -1,6 +1,8 @@
 export interface PortfolioConfig {
   name: string;
   title: string;
+  /** Homepage hero H1; optional so existing Firestore docs keep working. */
+  heroHeadline?: string;
   subtitle: string;
   email: string;
   githubUsername: string;
@@ -16,6 +18,11 @@ export interface PortfolioConfig {
   allowedAdmins: string[];
   metaDescription?: string;
   ogImage?: string;
+  /** Mini-bio between Hero and Projects (optional; defaults in code). */
+  miniBio?: {
+    headline: string;
+    body: string;
+  };
 }
 
 export type ProjectTheme =
@@ -29,6 +36,14 @@ export type ProjectTheme =
 export type ProjectStatusColor = "green" | "yellow" | "blue" | "red";
 
 export type DeviceType = "phone" | "tablet" | "desktop";
+
+/** Optional KPI chips shown on project cards (max 3 in admin). */
+export type ProjectKpi = {
+  value: string;
+  label: string;
+  prefix?: string;
+  suffix?: string;
+};
 
 export interface Project {
   id: string;
@@ -77,6 +92,13 @@ export interface Project {
     role?: string;
     outcome?: string;
   };
+  /** Optional: AI-augmented Agile workflow narrative (set in Firestore). */
+  workflow?: {
+    tools: string[];
+    summary: string;
+  };
+  /** Shown on project cards; optional so legacy documents keep working. */
+  kpis?: ProjectKpi[];
   features?: Array<{
     title: string;
     description: string;

@@ -64,6 +64,16 @@ const projects = [
       role: "Product design and full-stack development.",
       outcome: "A centralized system for tasks, communication, and family management.",
     },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT", "Gemini"],
+      summary:
+        "Built with an AI-augmented Agile workflow. Cursor for component architecture and refactoring, Claude and GPT for logic audits and documentation, Gemini for API research. Sprints of focused work — reviewed, tested, owned by me.",
+    },
+    kpis: [
+      { value: "4", label: "Active families" },
+      { value: "2h", label: "Saved per week", prefix: "~" },
+      { value: "3", label: "Core modules shipped" },
+    ],
     featured: true,
     order: 1,
     published: true,
@@ -202,6 +212,16 @@ const projects = [
       role: "Full-stack architecture and implementation across roles, workflows, and payment integration.",
       outcome: "A single operational platform that improves control, reduces errors, and speeds up fulfillment.",
     },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT", "Gemini"],
+      summary:
+        "Designed and built on an Agile process with AI tooling — Cursor for full-stack scaffolding, Claude and GPT for system architecture audits and edge-case documentation, Gemini for business logic research. All decisions and tradeoffs mine.",
+    },
+    kpis: [
+      { value: "100%", label: "Orders digitized" },
+      { value: "3", label: "User roles built" },
+      { value: "0", label: "Manual errors", suffix: " errors" },
+    ],
     featured: true,
     order: 2,
     published: true,
@@ -322,6 +342,16 @@ const projects = [
       role: "Product direction, ethical UX decisions, and full-stack implementation with local-first architecture.",
       outcome: "A faith-centered app that supports formation while preserving privacy, dignity, and trust.",
     },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT"],
+      summary:
+        "Built on a deliberate Agile workflow with focused AI tooling — Cursor for local-first PWA architecture, Claude and GPT for ethical design audits and documentation. No Gemini — the ethical constraints required tighter tooling decisions.",
+    },
+    kpis: [
+      { value: "4", label: "Learning stages" },
+      { value: "0", label: "Gamification", suffix: " dark patterns" },
+      { value: "100%", label: "Local-first" },
+    ],
     featured: false,
     order: 3,
     published: true,
@@ -413,17 +443,27 @@ const projects = [
   // ──────────────────────────────────────────────────────────────────
   {
     slug: "diario-misional",
-    name: "Mission Diary",
+    name: "Missionary Journal",
     tagline: "Your missionary journey, organized in one app.",
     description:
-      "Full-stack web app for missionaries: personal journal, transfers, resources, a family portal, and sponsorship with integrated payments.",
+      "A full-stack web app for missionaries — personal journal, transfer tracking, resource library, family portal, and an integrated sponsorship system with payments.",
     fullDescription:
-      "Mission Diary is a production web platform built to support the full missionary lifecycle—from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase with a focus on product clarity, security, and performance.",
+      "Missionary Journal is a production web platform for the full missionary lifecycle — from start to finish. It includes a personal journal, transfer management, a photo gallery, mission resources, stage-based progress tracking, and a secure read-only family portal.\n\nThe stack uses Firebase authentication, internationalized UI (Spanish, English, and Portuguese), a PWA experience, and a Stripe-powered sponsorship module for real payments. It is implemented as a modern full-stack Next.js + TypeScript codebase focused on product clarity, security, and performance.",
     valueProps: {
-      problem: "Missionaries lacked one secure place to track progress, share updates, and manage support.",
-      role: "Product design and full-stack development for the end-to-end missionary experience.",
-      outcome: "A unified platform for journaling, family visibility, and sponsorship workflows in production.",
+      problem: "Missionaries lack a centralized, structured way to document experiences, track progress, and preserve their mission journey.",
+      role: "Product design, concept development, and full-stack implementation.",
+      outcome: "A personal digital journal that allows missionaries to record experiences, organize transfers, store memories, and create a lasting mission record.",
     },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT", "Gemini"],
+      summary:
+        "Agile process with AI-augmented development — Cursor for full-stack implementation, Claude and GPT for architecture reviews and documentation, Gemini for research on missionary workflows and sponsorship systems.",
+    },
+    kpis: [
+      { value: "5", label: "Core sections" },
+      { value: "100%", label: "PWA ready" },
+      { value: "1", label: "Unified platform" },
+    ],
     featured: true,
     order: 4,
     published: true,
@@ -529,33 +569,37 @@ const projects = [
 const portfolioConfig = {
   name: "Victor Ruiz",
   title: "Full-Stack Developer",
-  subtitle: "Building real products for real problems.",
+  heroHeadline: "Frontend Developer building products people actually use",
+  subtitle:
+    "9+ years in operations and logistics taught me how real systems fail. Now I build the interfaces that make them work.",
   email: "das.graphic1306@gmail.com", // ← CAMBIA ESTO
   githubUsername: "Victordaz07",
   about: [
-    "I'm a full-stack developer with 13 years of operational and logistics experience — including managing 4 distribution facilities for Honda R&D with 130+ people.",
-    "I build products that solve real problems: a family management app my family uses daily, a B2B distribution platform for a real catering business, a faith-based discipleship app built on ethical design principles.",
-    "I work across the full stack: React, Next.js, React Native, Firebase, Supabase, Prisma. I use AI-assisted development tools (Claude, Cursor) to ship faster without sacrificing quality.",
+    "Frontend Developer with 9+ years in operations and logistics. I build interfaces that solve real problems — not demos, not tutorials. Products my own family uses daily.",
+    "I work primarily with React, Next.js, and TypeScript. My focus is component architecture, performance, and the details that make an interface feel right. I ship clean, documented, production-ready code.",
+    "I run every project on an Agile workflow — sprint planning, version control discipline, documented decisions, and iterative delivery. Whether solo or in a team, the process is the same.",
+    "AI is part of my engineering stack, not a replacement for it. I use Cursor for architecture and refactoring at scale, Claude and GPT for logic audits and documentation, Gemini for research. Work that takes a month ships in three focused sessions — reviewed, tested, and owned by me end to end.",
   ],
+  miniBio: {
+    headline:
+      "From running warehouse operations to shipping production apps.",
+    body:
+      "9+ years managing teams and systems taught me that good software isn't about code — it's about solving the right problem. I bring that ops mindset to every interface I build.",
+  },
   stats: [
-    { value: "13+", label: "Years in operations" },
+    { value: "9+", label: "Years in operations" },
     { value: "3+", label: "Production apps" },
-    { value: "130+", label: "People managed" },
-    { value: "Full", label: "Stack developer" },
+    { value: "13+", label: "People managed" },
+    { value: "AI+", label: "Augmented workflow" },
   ],
   techStack: [
     "React",
     "Next.js",
-    "React Native",
     "TypeScript",
-    "Firebase",
-    "Supabase",
-    "Prisma",
-    "PostgreSQL",
     "Tailwind CSS",
-    "Stripe",
-    "Node.js",
+    "Firebase",
     "Figma",
+    "Framer Motion",
   ],
   socialLinks: {
     github: "https://github.com/Victordaz07",
@@ -563,7 +607,7 @@ const portfolioConfig = {
   },
   allowedAdmins: [], // ← AGREGA TU UID DE FIREBASE AQUÍ
   metaDescription:
-    "Victor Ruiz — Full-stack developer building real products with React, Next.js, Firebase, and Supabase.",
+    "Victor Ruiz — Frontend developer building real products with React, Next.js, TypeScript, Tailwind CSS, and Firebase.",
 };
 
 // ─── SEED ─────────────────────────────────────────────────────────────────────

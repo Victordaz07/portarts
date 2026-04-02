@@ -336,3 +336,17 @@ body {
   font-style: italic;
   margin: 10px 0;
 }
+
+/* Admin login — floating icon field */
+@keyframes admin-login-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+.admin-login-float {
+  animation: admin-login-float 9s ease-in-out infinite;
+}

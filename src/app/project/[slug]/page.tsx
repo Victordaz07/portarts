@@ -12,6 +12,18 @@ import { ReadmeViewer } from "@/components/project/ReadmeViewer";
 import { ProjectLinks } from "@/components/project/ProjectLinks";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ScrollReveal } from "@/components/project/ScrollReveal";
+import { BrowserMockup } from "@/components/BrowserMockup";
+import { MobileMockup } from "@/components/MobileMockup";
+import type { Project } from "@/lib/types";
+
+const MOBILE_MOCKUP_SLUGS = new Set(["familydash", "xthegospel"]);
+
+function resolveProjectHeroImage(project: Project): string | null {
+  const explicit = project.coverImage?.trim();
+  if (explicit) return explicit;
+  const first = project.gallery?.find((g) => g.url?.trim());
+  return first?.url?.trim() ?? null;
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -22,14 +34,38 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
-  if (!project)
-    return { title: "Project not found | PortArts" };
+  if (!project) {
+    return { title: "Project not found" };
+  }
+  const description =
+    project.description?.trim() || project.tagline?.trim() || "";
+  const coverUrl =
+    project.coverImage?.trim() ||
+    project.gallery?.find((g) => g.url?.trim())?.url?.trim();
+  const ogImages = coverUrl
+    ? [
+        {
+          url: coverUrl,
+          width: 1200,
+          height: 630,
+          alt: `${project.name} — screenshot`,
+        },
+      ]
+    : undefined;
+
   return {
-    title: `${project.name} | PortArts`,
-    description: project.description || project.tagline,
+    title: project.name,
+    description,
     openGraph: {
-      title: `${project.name} | PortArts`,
-      description: project.description || project.tagline,
+      title: `${project.name} | Victor Ruiz`,
+      description,
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.name} | Victor Ruiz`,
+      description,
+      images: coverUrl ? [coverUrl] : undefined,
     },
   };
 }
@@ -68,9 +104,12 @@ export default async function ProjectPage({ params }: PageProps) {
   const previewsToRender =
     explicitPreviews.length > 0 ? explicitPreviews : fallbackPreviews;
 
+  const heroImageUrl = resolveProjectHeroImage(project);
+  const useMobileMockup = MOBILE_MOCKUP_SLUGS.has(project.slug);
+
   return (
     <ScrollReveal>
-      <div>
+      <div data-analytics-section="project-page">
         <Link
           href="/"
           className="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-full text-sm text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-all mt-8 mb-9"
@@ -78,11 +117,35 @@ export default async function ProjectPage({ params }: PageProps) {
           ← Back to projects
         </Link>
 
-        <ProjectHero project={project} />
+        <div data-analytics-section="project-hero">
+          <ProjectHero project={project} />
+        </div>
+
+        {heroImageUrl ? (
+          <section className="reveal mb-12" data-analytics-section="project-media">
+            {useMobileMockup ? (
+              <MobileMockup
+                src={heroImageUrl}
+                alt={`${project.name} — app screenshot`}
+                className="my-8"
+              />
+            ) : (
+              <BrowserMockup
+                src={heroImageUrl}
+                alt={`${project.name} — screenshot`}
+                className="my-8"
+              />
+            )}
+          </section>
+        ) : null}
 
         {previewsToRender.length > 0 ? (
           previewsToRender.map((p, i) => (
-            <section key={`preview-${i}`} className="reveal mb-14">
+            <section
+              key={`preview-${i}`}
+              className="reveal mb-14"
+              data-analytics-section="project-interactive"
+            >
               <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">
                 🖥 {p.label}
               </h2>
@@ -100,7 +163,7 @@ export default async function ProjectPage({ params }: PageProps) {
             </section>
           ))
         ) : (
-          <section className="reveal mb-14">
+          <section className="reveal mb-14" data-analytics-section="project-interactive">
             <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">
               🖥 Interactive Preview
             </h2>
@@ -116,7 +179,7 @@ export default async function ProjectPage({ params }: PageProps) {
         )}
 
         {(project.features?.length ?? 0) > 0 && (
-          <section className="reveal mb-12">
+          <section className="reveal mb-12" data-analytics-section="project-details">
             <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
               Features
             </h2>
@@ -127,7 +190,7 @@ export default async function ProjectPage({ params }: PageProps) {
         )}
 
         {(project.techStack?.length ?? 0) > 0 && (
-          <section className="reveal mb-12">
+          <section className="reveal mb-12" data-analytics-section="project-details">
             <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
               Tech Stack
             </h2>
@@ -136,7 +199,7 @@ export default async function ProjectPage({ params }: PageProps) {
         )}
 
         {(project.timeline?.length ?? 0) > 0 && (
-          <section className="reveal mb-12">
+          <section className="reveal mb-12" data-analytics-section="project-details">
             <h2 className="font-display text-2xl mb-4 pb-2 border-b border-border">
               Timeline
             </h2>
@@ -147,7 +210,7 @@ export default async function ProjectPage({ params }: PageProps) {
         )}
 
         {githubFullRepo && (
-          <section className="reveal mb-12">
+          <section className="reveal mb-12" data-analytics-section="project-readme">
             <ErrorBoundary section="README">
               <ReadmeViewer repo={githubFullRepo} />
             </ErrorBoundary>
@@ -155,7 +218,7 @@ export default async function ProjectPage({ params }: PageProps) {
         )}
 
         {hasLinks && (
-          <section className="reveal">
+          <section className="reveal" data-analytics-section="project-links">
             <ProjectLinks links={project.links} />
           </section>
         )}

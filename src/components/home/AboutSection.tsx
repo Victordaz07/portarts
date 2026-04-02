@@ -1,4 +1,5 @@
 import type { PortfolioConfig } from "@/lib/types";
+import { ResumeButton } from "@/components/ResumeButton";
 
 interface AboutSectionProps {
   config: PortfolioConfig | null;
@@ -19,6 +20,9 @@ export function AboutSection({ config }: AboutSectionProps) {
             {paragraph}
           </p>
         ))}
+        <div className="mt-6 flex items-center gap-4">
+          <ResumeButton />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat, i) => (

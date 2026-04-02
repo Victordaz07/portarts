@@ -3,6 +3,7 @@ import { HomeScrollReveal } from "@/components/home/HomeScrollReveal";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import {
   HomeHeroAsync,
+  HomeMiniBioAsync,
   HomeProjectsAsync,
   HomeLowerAsync,
 } from "@/components/home/HomeAsyncSections";
@@ -25,6 +26,10 @@ export default function HomePage() {
     <HomeScrollReveal>
       <Suspense fallback={<SectionSpinner minHeight="min-h-[260px]" />}>
         <HomeHeroAsync />
+      </Suspense>
+
+      <Suspense fallback={<SectionSpinner minHeight="min-h-[80px]" />}>
+        <HomeMiniBioAsync />
       </Suspense>
 
       <Suspense fallback={<SectionSpinner minHeight="min-h-[200px]" />}>

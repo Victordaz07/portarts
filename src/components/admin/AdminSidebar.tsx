@@ -51,7 +51,7 @@ export function AdminSidebar() {
 
   return (
     <aside
-      className={`flex shrink-0 border-border bg-bg-raised transition-[width] duration-200 ease-out
+      className={`flex shrink-0 border-white/10 bg-[#0a0d12]/90 backdrop-blur-md transition-[width] duration-200 ease-out
         flex-row w-full border-b p-3 sm:p-4 gap-2
         md:flex-col md:border-b-0 md:border-r md:py-3 md:px-2
         ${collapsed ? "md:w-17 md:px-1.5" : "md:w-56 md:px-3"}`}
@@ -63,8 +63,8 @@ export function AdminSidebar() {
         <Link
           href="/"
           title="Ver portfolio"
-          className={`flex items-center gap-2 rounded-lg text-xs text-text-muted hover:text-accent transition-colors
-            ${collapsed ? "justify-center p-2.5 w-full hover:bg-bg-hover" : "px-2 py-1.5 flex-1 min-w-0"}`}
+          className={`flex items-center gap-2 rounded-lg text-xs text-slate-500 hover:text-cyan-300/90 transition-colors
+            ${collapsed ? "justify-center p-2.5 w-full hover:bg-white/5" : "px-2 py-1.5 flex-1 min-w-0"}`}
         >
           <Home className="w-4 h-4 shrink-0" />
           <span className={collapsed ? "sr-only" : "truncate"}>Ver portfolio</span>
@@ -75,7 +75,7 @@ export function AdminSidebar() {
           title={collapsed ? "Expandir menú" : "Minimizar menú"}
           aria-expanded={!collapsed}
           aria-label={collapsed ? "Expandir menú lateral" : "Minimizar menú lateral"}
-          className="flex items-center justify-center rounded-lg p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors shrink-0"
+          className="flex items-center justify-center rounded-lg p-2 text-slate-500 hover:text-slate-200 hover:bg-white/5 transition-colors shrink-0"
         >
           {collapsed ? (
             <PanelLeftOpen className="w-4 h-4" />
@@ -101,8 +101,8 @@ export function AdminSidebar() {
                 ${collapsed ? "md:justify-center md:px-2" : ""}
                 ${
                   isActive
-                    ? "bg-accent-dim border border-accent/20 text-accent"
-                    : "text-text-secondary hover:text-text-primary hover:bg-bg-hover border border-transparent"
+                    ? "bg-cyan-500/15 border border-cyan-500/30 text-cyan-200"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent"
                 }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -117,7 +117,7 @@ export function AdminSidebar() {
         onClick={() => signOut()}
         aria-label="Cerrar sesión"
         title="Cerrar sesión"
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-text-secondary hover:text-rose hover:bg-bg-hover transition-colors shrink-0
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-slate-500 hover:text-rose-300 hover:bg-rose-500/10 transition-colors shrink-0
           ${collapsed ? "md:justify-center md:px-2" : ""}`}
       >
         <LogOut className="w-4 h-4 shrink-0" />

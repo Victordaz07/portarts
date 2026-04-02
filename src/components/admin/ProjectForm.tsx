@@ -15,9 +15,35 @@ import type {
   ProjectTheme,
   ProjectStatusColor,
   DeviceType,
+  ProjectKpi,
 } from "@/lib/types";
 
 const PREVIEW_SLOT_COUNT = 3;
+
+function parseKpisJson(raw: string): ProjectKpi[] | undefined {
+  const t = raw.trim();
+  if (!t) return undefined;
+  try {
+    const parsed = JSON.parse(t) as unknown;
+    if (!Array.isArray(parsed)) return undefined;
+    const out: ProjectKpi[] = [];
+    for (const item of parsed.slice(0, 3)) {
+      if (typeof item !== "object" || item === null) continue;
+      const o = item as Record<string, unknown>;
+      if (typeof o.value !== "string" || typeof o.label !== "string") continue;
+      out.push({
+        value: o.value,
+        label: o.label,
+        ...(typeof o.prefix === "string" ? { prefix: o.prefix } : {}),
+        ...(typeof o.suffix === "string" ? { suffix: o.suffix } : {}),
+      });
+    }
+    return out.length > 0 ? out : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 
 type PreviewSlot = { label: string; url: string; type: DeviceType };
 
@@ -116,6 +142,9 @@ export function ProjectForm({
   const [problem, setProblem] = useState(initial?.valueProps?.problem ?? "");
   const [role, setRole] = useState(initial?.valueProps?.role ?? "");
   const [outcome, setOutcome] = useState(initial?.valueProps?.outcome ?? "");
+  const [kpisJson, setKpisJson] = useState(() =>
+    JSON.stringify(initial?.kpis ?? [], null, 2)
+  );
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [published, setPublished] = useState(initial?.published ?? false);
   const [statusText, setStatusText] = useState(initial?.status?.text ?? "");
@@ -163,6 +192,10 @@ export function ProjectForm({
     if (name && !initial?.slug) setSlug(slugify(name));
   }, [name, initial?.slug]);
 
+  useEffect(() => {
+    setKpisJson(JSON.stringify(initial?.kpis ?? [], null, 2));
+  }, [projectId]);
+
   const getFormData = useCallback((): ProjectFormData => {
     const previews = buildPreviewPayload(previewSlots);
     const primary = previews[0];
@@ -194,6 +227,7 @@ export function ProjectForm({
             outcome: outcome.trim(),
           }
         : undefined,
+    kpis: parseKpisJson(kpisJson),
     features,
     techStack,
     timeline,
@@ -204,7 +238,7 @@ export function ProjectForm({
     links,
     };
   }, [
-    slug, name, tagline, description, fullDescription, problem, role, outcome, featured, published,
+    slug, name, tagline, description, fullDescription, problem, role, outcome, kpisJson, featured, published,
     statusText, statusColor, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
@@ -236,7 +270,7 @@ export function ProjectForm({
     }, 2000);
     return () => clearTimeout(timer);
   }, [
-    slug, name, tagline, description, fullDescription, problem, role, outcome, featured, published,
+    slug, name, tagline, description, fullDescription, problem, role, outcome, kpisJson, featured, published,
     statusText, statusColor, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
@@ -392,6 +426,13 @@ export function ProjectForm({
               onChange={(e) => setOutcome(e.target.value)}
               rows={2}
               placeholder="What changed / what value was created?"
+            />
+            <Textarea
+              label="KPIs (JSON array, max 3)"
+              value={kpisJson}
+              onChange={(e) => setKpisJson(e.target.value)}
+              rows={6}
+              placeholder='[{"value":"4","label":"Active families"}]'
             />
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">

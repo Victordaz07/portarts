@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { PortfolioConfig, Project } from "./types";
+import type { AnalyticsDailyDoc } from "./analytics-types";
 
 /** Firestore rejects `undefined` anywhere in the payload (e.g. themeColor when theme !== custom). */
 function deepOmitUndefined(value: unknown): unknown {
@@ -196,4 +197,45 @@ export async function reorderProjects(orderedIds: string[]) {
 export async function updatePortfolioConfig(data: Partial<PortfolioConfig>) {
   const payload = deepOmitUndefined(data) as Record<string, unknown>;
   await setDoc(doc(db, "config", "portfolio"), payload, { merge: true });
+}
+
+/** Últimos `days` días de agregados (solo admins; reglas Firestore). */
+export async function getAnalyticsDailyRange(days: number): Promise<AnalyticsDailyDoc[]> {
+  const out: AnalyticsDailyDoc[] = [];
+  const todayUtc = new Date();
+  todayUtc.setUTCHours(0, 0, 0, 0);
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(todayUtc);
+    d.setUTCDate(d.getUTCDate() - i);
+    const id = d.toISOString().slice(0, 10);
+    const snap = await getDoc(doc(db, "analytics_daily", id));
+    if (!snap.exists()) continue;
+    const raw = snap.data() as Record<string, unknown>;
+    const sectionCounts =
+      raw.sectionCounts && typeof raw.sectionCounts === "object" && raw.sectionCounts !== null
+        ? (raw.sectionCounts as Record<string, number>)
+        : {};
+    const pathCounts =
+      raw.pathCounts && typeof raw.pathCounts === "object" && raw.pathCounts !== null
+        ? (raw.pathCounts as Record<string, number>)
+        : {};
+    const projectSlugCounts =
+      raw.projectSlugCounts &&
+      typeof raw.projectSlugCounts === "object" &&
+      raw.projectSlugCounts !== null
+        ? (raw.projectSlugCounts as Record<string, number>)
+        : {};
+    out.push({
+      date: id,
+      sessionCount: Number(raw.sessionCount ?? 0),
+      totalDurationMs: Number(raw.totalDurationMs ?? 0),
+      totalScrollPct: Number(raw.totalScrollPct ?? 0),
+      sectionCounts,
+      pathCounts,
+      projectSlugCounts,
+      updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : undefined,
+    });
+  }
+  return out;
 }

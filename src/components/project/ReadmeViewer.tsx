@@ -81,7 +81,7 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
         </h2>
         <div className="bg-bg-raised border border-border rounded-card p-6">
           <p className="text-text-secondary text-sm mb-3">
-            No se pudo cargar el README en línea para este repositorio.
+            README could not be loaded inline for this repository.
           </p>
           <a
             href={`https://github.com/${repo}#readme`}
@@ -89,7 +89,7 @@ export function ReadmeViewer({ repo }: ReadmeViewerProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium no-underline"
           >
-            Ver README en GitHub
+            View README on GitHub
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
