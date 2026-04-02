@@ -60,33 +60,20 @@ export function Navbar() {
             : "hidden md:flex"
         }`}
       >
-        <div className="flex flex-col items-start shrink-0">
-          <span
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-bg px-2 py-1 text-xs sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm"
-            aria-label="Available for work — Frontend Developer"
-          >
-            <span className="relative flex h-2 w-2 shrink-0" aria-hidden>
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-            </span>
-            <span className="text-text-primary font-medium">Available</span>
-            <span className="text-text-secondary">·</span>
-            <span className="whitespace-nowrap text-text-secondary">
-              Frontend Developer
-            </span>
+        <span
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-bg px-2 py-1 text-xs sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm"
+          aria-label="Available for work — Frontend Developer"
+        >
+          <span className="relative flex h-2 w-2 shrink-0" aria-hidden>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
           </span>
-          <p className="text-xs text-text-secondary tracking-wide mt-1 leading-snug md:whitespace-nowrap">
-            Agile workflow
-            <span className="mx-1.5 opacity-40">·</span>
-            Cursor
-            <span className="mx-1.5 opacity-40">·</span>
-            Claude
-            <span className="mx-1.5 opacity-40">·</span>
-            GPT
-            <span className="mx-1.5 opacity-40">·</span>
-            Gemini
-          </p>
-        </div>
+          <span className="text-text-primary font-medium">Available</span>
+          <span className="text-text-secondary">·</span>
+          <span className="whitespace-nowrap text-text-secondary">
+            Frontend Developer
+          </span>
+        </span>
         <Link
           href="/#projects"
           className="text-text-secondary hover:text-black text-sm font-medium transition-colors"
