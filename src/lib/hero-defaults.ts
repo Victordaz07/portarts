@@ -3,9 +3,9 @@
 export const DEFAULT_HERO_HEADLINE =
   "Frontend Developer building products people actually use";
 
-/** Primer vistazo: Agile + Git + experiencia operativa, en una línea escaneable. */
+/** Primer vistazo: filosofía Agile (valor iterativo, colaboración, adaptación) + Git + producción. */
 export const DEFAULT_HERO_SUBTITLE =
-  "Agile delivery, Git-first version control, and UIs shipped to production — grounded in 9+ years running real operations.";
+  "Agile ways of working — iterative value, collaboration with stakeholders, and adapting when priorities shift — alongside Git-first version control and production UIs. Grounded in 9+ years running real operations.";
 
 const LEGACY_SUBTITLES = new Set([
   "",
@@ -13,6 +13,7 @@ const LEGACY_SUBTITLES = new Set([
   "Full-stack developer building products that combine impeccable design with solid architecture.",
   "Building real products for real problems.",
   "9+ years in operations and logistics taught me how real systems fail. Now I build the interfaces that make them work.",
+  "Agile delivery, Git-first version control, and UIs shipped to production — grounded in 9+ years running real operations.",
 ]);
 
 export function resolveHeroSubtitle(configSubtitle: string | undefined): string {

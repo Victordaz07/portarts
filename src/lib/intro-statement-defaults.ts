@@ -5,7 +5,7 @@ import type { PortfolioConfig } from "@/lib/types";
  * Campo Firestore: `introTestimonial.quote` (histórico) — es el cuerpo del párrafo.
  */
 export const DEFAULT_INTRO_STATEMENT =
-  "I own customer-facing UI from backlog to production — realistic sprint commitments, pull requests that don’t ping-pong in review, and releases I ship with confidence. I use AI to speed up refactors and technical writing; Git, tests, and design review stay non-negotiable. That’s my bar when the goal is production, not demos.";
+  "I own customer-facing UI from backlog to production — scoped work, collaborative review, and releases I stand behind. I use AI to support refactors and technical writing; Git, tests, and design review stay non-negotiable. That’s my bar when the goal is production, not demos.";
 
 export function resolveIntroStatement(config: PortfolioConfig | null): string | null {
   const t = config?.introTestimonial;

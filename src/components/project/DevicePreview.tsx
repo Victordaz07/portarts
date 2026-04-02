@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Monitor, Tablet, Smartphone, ExternalLink, Maximize2 } from "lucide-react";
 import type { DeviceType } from "@/lib/types";
 
@@ -25,6 +25,27 @@ export function DevicePreview({
   const [loading, setLoading] = useState(!!initialUrl);
   const [blocked, setBlocked] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const normalizedIframeSrc = (() => {
+    if (!url) return "";
+    try {
+      return new URL(url).toString();
+    } catch {
+      return url;
+    }
+  })();
+
+  /**
+   * Reset overlay when URL changes; clear stuck spinner after a few seconds.
+   * Also: we do not append #top to the URL — that breaks many SPA routers.
+   */
+  useEffect(() => {
+    if (!normalizedIframeSrc) return;
+    setLoading(true);
+    setBlocked(false);
+    const t = window.setTimeout(() => setLoading(false), 14_000);
+    return () => window.clearTimeout(t);
+  }, [normalizedIframeSrc]);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
@@ -65,17 +86,6 @@ export function DevicePreview({
 
   const hasPreview = !!url;
 
-  const iframeSrc = (() => {
-    if (!url) return "";
-    try {
-      const parsed = new URL(url);
-      if (!parsed.hash) parsed.hash = "top";
-      return parsed.toString();
-    } catch {
-      return url;
-    }
-  })();
-
   const blockedPlaceholder = (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg z-20 p-8 text-center">
       <div className="w-12 h-12 rounded-full bg-surface border border-border flex items-center justify-center mb-4">
@@ -109,15 +119,14 @@ export function DevicePreview({
 
   const renderIframe = (className: string) => (
     <iframe
-      key={iframeSrc}
+      key={normalizedIframeSrc}
       ref={iframeRef}
-      src={iframeSrc}
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-      loading="lazy"
+      src={normalizedIframeSrc}
       onLoad={handleLoad}
       onError={handleError}
       className={className}
       title="Preview"
+      referrerPolicy="no-referrer-when-downgrade"
     />
   );
 

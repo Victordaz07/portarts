@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { PortfolioConfig } from "@/lib/types";
@@ -12,7 +11,6 @@ import {
   resolveHeroHeadline,
   resolveHeroSubtitle,
 } from "@/lib/hero-defaults";
-import { ResumeButton } from "@/components/ResumeButton";
 import { AnimatedStat } from "@/components/home/AnimatedStat";
 import {
   AiWorkflowPills,
@@ -94,7 +92,7 @@ export function Hero({ config }: HeroProps) {
           variants={fadeUpVariant}
           className="mt-8 grid grid-cols-1 gap-10 lg:mt-10 lg:grid-cols-2 lg:gap-12 xl:gap-16 lg:items-start"
         >
-          <div className="min-w-0 space-y-6">
+          <div className="min-w-0 space-y-6 lg:space-y-8">
             <div className="flex items-center gap-6 md:gap-8 py-6 lg:py-0 min-w-0 overflow-x-auto">
               {HERO_STATS.map((stat, index) => (
                 <Fragment key={stat.label}>
@@ -112,33 +110,17 @@ export function Hero({ config }: HeroProps) {
                 </Fragment>
               ))}
             </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/#projects"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-black text-white font-medium hover:opacity-90 transition-opacity"
-              >
-                View my work
-              </Link>
-              <Link
-                href="/#contact"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-black bg-white text-black font-medium hover:bg-bg-hover transition-colors"
-              >
-                Let&apos;s talk
-              </Link>
-              <ResumeButton variant="ghost" />
-            </div>
+            <MiniBioIntroBlock
+              config={config}
+              className="max-w-xl border-t border-border/50 pt-8 lg:border-t-0 lg:pt-0"
+            />
           </div>
 
           <motion.div
             variants={fadeUpVariant}
             className="flex min-w-0 flex-col border-t border-border/50 pt-8 lg:border-t-0 lg:border-l lg:border-border/50 lg:pl-10 xl:pl-12 lg:pt-0.5"
           >
-            <MiniBioIntroBlock config={config} className="" />
-            <AiWorkflowPills
-              items={aiWorkflowItems}
-              className="mt-8 sm:mt-9"
-            />
+            <AiWorkflowPills items={aiWorkflowItems} />
             <IntroStatementBlock config={config} />
           </motion.div>
         </motion.div>

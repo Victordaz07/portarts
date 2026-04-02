@@ -3,9 +3,9 @@ import type { PortfolioConfig } from "@/lib/types";
 export const DEFAULT_MINI_BIO_HEADLINE =
   "From warehouse ops to shipping production apps.";
 
-/** Directo: Agile, Git, entrega — alineado con el subtítulo del hero. */
+/** Agile = valor iterativo, colaboración y adaptación — no “entrega rápida”. Alineado con el hero. */
 export const DEFAULT_MINI_BIO_BODY =
-  "I run work in Agile: short sprints, clear backlog, PRs you can review fast. Git is the source of truth — branches, reviews, releases. I build interfaces that solve the problem, not demos.";
+  "I work with an Agile mindset: clear priorities, tight feedback loops with stakeholders, and adjusting the plan when we learn more — not chasing a fixed spec. Git is the source of truth — branches, reviews, releases. I build interfaces that solve the problem, not demos.";
 
 export function resolveMiniBio(config: PortfolioConfig | null): {
   headline: string;

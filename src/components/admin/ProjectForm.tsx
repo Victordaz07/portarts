@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { ImageUploader } from "./ImageUploader";
 import { SortableList } from "./SortableList";
 import { DevicePreview } from "@/components/project/DevicePreview";
+import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
 import { isSlugUnique } from "@/lib/firestore";
 import type {
   Project,
@@ -45,7 +46,13 @@ function parseKpisJson(raw: string): ProjectKpi[] | undefined {
 }
 
 
-type PreviewSlot = { label: string; url: string; type: DeviceType };
+type PreviewSlot = {
+  label: string;
+  url: string;
+  type: DeviceType;
+  /** When false, public page shows a link banner instead of iframe (sites that block embedding). */
+  embed: boolean;
+};
 
 function initialPreviewSlots(initial?: Partial<Project>): PreviewSlot[] {
   const fromArray = (initial?.previews ?? [])
@@ -54,10 +61,11 @@ function initialPreviewSlots(initial?: Partial<Project>): PreviewSlot[] {
       label: (p.label ?? "").trim(),
       url: (p.url ?? "").trim(),
       type: (p.type ?? "desktop") as DeviceType,
+      embed: p.embed !== false,
     }));
   if (fromArray.length > 0) {
     while (fromArray.length < PREVIEW_SLOT_COUNT) {
-      fromArray.push({ label: "", url: "", type: "desktop" });
+      fromArray.push({ label: "", url: "", type: "desktop", embed: true });
     }
     return fromArray;
   }
@@ -66,9 +74,10 @@ function initialPreviewSlots(initial?: Partial<Project>): PreviewSlot[] {
       label: "",
       url: (initial?.preview?.url ?? "").trim(),
       type: (initial?.preview?.type ?? "desktop") as DeviceType,
+      embed: true,
     },
-    { label: "", url: "", type: "desktop" },
-    { label: "", url: "", type: "desktop" },
+    { label: "", url: "", type: "desktop", embed: true },
+    { label: "", url: "", type: "desktop", embed: true },
   ];
 }
 
@@ -79,6 +88,7 @@ function buildPreviewPayload(slots: PreviewSlot[]): NonNullable<Project["preview
       url: s.url.trim(),
       type: s.type,
       allowFullscreen: true as const,
+      ...(s.embed === false ? { embed: false as const } : {}),
     }))
     .filter((p) => p.url.length > 0);
 }
@@ -701,6 +711,25 @@ export function ProjectForm({
                     { value: "desktop", label: "Desktop" },
                   ]}
                 />
+                <label className="flex cursor-pointer items-start gap-2 text-sm text-text-secondary">
+                  <input
+                    type="checkbox"
+                    className="mt-1 rounded border-border"
+                    checked={!slot.embed}
+                    onChange={(e) =>
+                      updatePreviewSlot(i, { embed: !e.target.checked })
+                    }
+                  />
+                  <span>
+                    <span className="font-medium text-text-primary">
+                      Solo enlace (sin iframe)
+                    </span>
+                    <span className="block text-xs text-text-muted leading-snug mt-0.5">
+                      Usa un banner con enlace si el sitio bloquea la vista incrustada (cabeceras
+                      X-Frame-Options). Ideal para la landing pública.
+                    </span>
+                  </span>
+                </label>
               </div>
             ))}
           </div>
@@ -761,12 +790,20 @@ export function ProjectForm({
                         Vista {i + 1}
                       </p>
                     )}
-                    <DevicePreview
-                      url={slot.url}
-                      type={slot.type}
-                      allowFullscreen={false}
-                      className="mb-0"
-                    />
+                    {slot.embed ? (
+                      <DevicePreview
+                        url={slot.url}
+                        type={slot.type}
+                        allowFullscreen={false}
+                        className="mb-0"
+                      />
+                    ) : (
+                      <PreviewLinkBanner
+                        url={slot.url}
+                        label={slot.label.trim() || `Vista ${i + 1}`}
+                        className="mb-0"
+                      />
+                    )}
                   </div>
                 ) : null
               )

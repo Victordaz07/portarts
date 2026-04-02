@@ -89,6 +89,8 @@ export interface Project {
     type: DeviceType;
     label: string;
     allowFullscreen?: boolean;
+    /** If false, show a compact link banner instead of an iframe (e.g. marketing URL that blocks embedding). */
+    embed?: boolean;
   }>;
   demoCredentials?: {
     url: string;

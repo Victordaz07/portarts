@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProjectBySlug } from "@/lib/firestore-server";
 import { DevicePreview } from "@/components/project/DevicePreview";
+import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
 import { DemoCredentials } from "@/components/project/DemoCredentials";
 import { ProjectHero } from "@/components/project/ProjectHero";
 import { FeatureGrid } from "@/components/project/FeatureGrid";
@@ -16,7 +17,7 @@ import { BrowserMockup } from "@/components/BrowserMockup";
 import { MobileMockup } from "@/components/MobileMockup";
 import type { Project } from "@/lib/types";
 
-const MOBILE_MOCKUP_SLUGS = new Set(["familydash", "xthegospel"]);
+const MOBILE_MOCKUP_SLUGS = new Set(["xthegospel"]);
 
 function resolveProjectHeroImage(project: Project): string | null {
   const explicit = project.coverImage?.trim();
@@ -90,13 +91,14 @@ export default async function ProjectPage({ params }: PageProps) {
           {
             url: project.preview.url,
             type: "desktop" as const,
-            label: "Landing Page",
+            label: "Marketing site",
+            embed: false,
             allowFullscreen: true,
           },
           {
             url: project.demoCredentials?.url || "https://familydash.net/login",
             type: "phone" as const,
-            label: "Live App",
+            label: "Live app",
             allowFullscreen: true,
           },
         ]
@@ -106,6 +108,9 @@ export default async function ProjectPage({ params }: PageProps) {
 
   const heroImageUrl = resolveProjectHeroImage(project);
   const useMobileMockup = MOBILE_MOCKUP_SLUGS.has(project.slug);
+  /** FamilyDash: no hero mockup/cover block (card + banners suffice). */
+  const showProjectMedia =
+    Boolean(heroImageUrl) && project.slug !== "familydash";
 
   return (
     <ScrollReveal>
@@ -121,17 +126,17 @@ export default async function ProjectPage({ params }: PageProps) {
           <ProjectHero project={project} />
         </div>
 
-        {heroImageUrl ? (
+        {showProjectMedia ? (
           <section className="reveal mb-12" data-analytics-section="project-media">
             {useMobileMockup ? (
               <MobileMockup
-                src={heroImageUrl}
+                src={heroImageUrl!}
                 alt={`${project.name} — app screenshot`}
                 className="my-8"
               />
             ) : (
               <BrowserMockup
-                src={heroImageUrl}
+                src={heroImageUrl!}
                 alt={`${project.name} — screenshot`}
                 className="my-8"
               />
@@ -140,28 +145,39 @@ export default async function ProjectPage({ params }: PageProps) {
         ) : null}
 
         {previewsToRender.length > 0 ? (
-          previewsToRender.map((p, i) => (
-            <section
-              key={`preview-${i}`}
-              className="reveal mb-14"
-              data-analytics-section="project-interactive"
-            >
-              <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">
-                🖥 {p.label}
-              </h2>
-              <ErrorBoundary section={`preview-${i}`}>
-                <DevicePreview
-                  url={p.url}
-                  type={p.type}
-                  allowFullscreen={p.allowFullscreen ?? true}
-                  projectName={project.name}
-                />
-              </ErrorBoundary>
-              {project.demoCredentials && i === previewsToRender.length - 1 && (
-                <DemoCredentials {...project.demoCredentials} />
-              )}
-            </section>
-          ))
+          previewsToRender.map((p, i) => {
+            const useEmbed = p.embed !== false;
+            return (
+              <section
+                key={`preview-${i}`}
+                className="reveal mb-14"
+                data-analytics-section="project-interactive"
+              >
+                {useEmbed ? (
+                  <>
+                    <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">
+                      🖥 {p.label}
+                    </h2>
+                    <ErrorBoundary section={`preview-${i}`}>
+                      <DevicePreview
+                        url={p.url}
+                        type={p.type}
+                        allowFullscreen={p.allowFullscreen ?? true}
+                        projectName={project.name}
+                      />
+                    </ErrorBoundary>
+                  </>
+                ) : (
+                  <ErrorBoundary section={`preview-${i}`}>
+                    <PreviewLinkBanner url={p.url} label={p.label} />
+                  </ErrorBoundary>
+                )}
+                {project.demoCredentials && i === previewsToRender.length - 1 && (
+                  <DemoCredentials {...project.demoCredentials} />
+                )}
+              </section>
+            );
+          })
         ) : (
           <section className="reveal mb-14" data-analytics-section="project-interactive">
             <h2 className="font-display text-2xl mb-5 pb-2 border-b border-border">

@@ -6,7 +6,7 @@ interface MiniBioIntroBlockProps {
   className?: string;
 }
 
-/** Intro copy (headline + body + link) for use beside hero stats/CTAs. */
+/** Intro copy (headline + body + link) debajo de las métricas del hero. */
 export function MiniBioIntroBlock({ config, className = "" }: MiniBioIntroBlockProps) {
   const { headline, body } = resolveMiniBio(config);
 

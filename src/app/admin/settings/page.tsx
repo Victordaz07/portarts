@@ -295,7 +295,7 @@ export default function AdminSettingsPage() {
                   })
                 }
                 rows={4}
-                placeholder="First person: how you own delivery, Agile/Git, and AI — no quotes or signature line."
+                placeholder="First person: how you own UI, Agile mindset (iterative value, collaboration) — not speed — Git, AI — no quotes or signature line."
               />
               <Input
                 label="Email"

@@ -92,13 +92,14 @@ const projects = [
       {
         url: "https://familydash.net",
         type: "desktop",
-        label: "Landing Page",
+        label: "Marketing site",
+        embed: false,
         allowFullscreen: true,
       },
       {
         url: "https://familydash.net/login",
         type: "phone",
-        label: "Live App",
+        label: "Live app",
         allowFullscreen: true,
       },
     ],
@@ -571,23 +572,23 @@ const portfolioConfig = {
   title: "Full-Stack Developer",
   heroHeadline: "Frontend Developer building products people actually use",
   subtitle:
-    "Agile delivery, Git-first version control, and UIs shipped to production — grounded in 9+ years running real operations.",
+    "Agile ways of working — iterative value, collaboration with stakeholders, and adapting when priorities shift — alongside Git-first version control and production UIs. Grounded in 9+ years running real operations.",
   email: "das.graphic1306@gmail.com", // ← CAMBIA ESTO
   githubUsername: "Victordaz07",
   about: [
     "Frontend Developer with 9+ years in operations and logistics. I build interfaces that solve real problems — not demos, not tutorials. Products my own family uses daily.",
     "I work primarily with React, Next.js, and TypeScript. My focus is component architecture, performance, and the details that make an interface feel right. I ship clean, documented, production-ready code.",
-    "I run every project on an Agile workflow — sprint planning, version control discipline, documented decisions, and iterative delivery. Whether solo or in a team, the process is the same.",
+    "I run every project with Agile principles — iterative planning, collaboration with stakeholders, version control discipline, and adapting the plan when we learn more. Whether solo or in a team, value and flexibility beat a rigid roadmap.",
     "AI is part of my engineering stack, not a replacement for it. I use Cursor for architecture and refactoring at scale, Claude and GPT for logic audits and documentation, Gemini for research. Work that takes a month ships in three focused sessions — reviewed, tested, and owned by me end to end.",
   ],
   miniBio: {
     headline: "From warehouse ops to shipping production apps.",
     body:
-      "I run work in Agile: short sprints, clear backlog, PRs you can review fast. Git is the source of truth — branches, reviews, releases. I build interfaces that solve the problem, not demos.",
+      "I work with an Agile mindset: clear priorities, tight feedback loops with stakeholders, and adjusting the plan when we learn more — not chasing a fixed spec. Git is the source of truth — branches, reviews, releases. I build interfaces that solve the problem, not demos.",
   },
   introTestimonial: {
     quote:
-      "I own customer-facing UI from backlog to production — realistic sprint commitments, pull requests that don’t ping-pong in review, and releases I ship with confidence. I use AI to speed up refactors and technical writing; Git, tests, and design review stay non-negotiable. That’s my bar when the goal is production, not demos.",
+      "I own customer-facing UI from backlog to production — scoped work, collaborative review, and releases I stand behind. I use AI to support refactors and technical writing; Git, tests, and design review stay non-negotiable. That’s my bar when the goal is production, not demos.",
     enabled: true,
   },
   stats: [
