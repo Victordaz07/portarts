@@ -103,6 +103,15 @@ export default function AdminSettingsPage() {
     });
   };
 
+  const updateAiTools = (value: string) => {
+    if (!config) return;
+    const items = value.split(",").map((t) => t.trim()).filter(Boolean);
+    setConfig({
+      ...config,
+      aiTools: items.length > 0 ? items : undefined,
+    });
+  };
+
   const updateSocialLink = (key: "github" | "linkedin" | "twitter" | "website", value: string) => {
     if (!config) return;
     setConfig({
@@ -256,6 +265,38 @@ export default function AdminSettingsPage() {
                 }
                 rows={3}
               />
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary">
+                <input
+                  type="checkbox"
+                  className="rounded border-border"
+                  checked={config.introTestimonial?.enabled !== false}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      introTestimonial: {
+                        quote: config.introTestimonial?.quote ?? "",
+                        enabled: e.target.checked,
+                      },
+                    })
+                  }
+                />
+                Show intro paragraph (below AI pills, first person)
+              </label>
+              <Textarea
+                label="Intro paragraph (you speaking — not a quote)"
+                value={config.introTestimonial?.quote ?? ""}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    introTestimonial: {
+                      quote: e.target.value,
+                      enabled: config.introTestimonial?.enabled !== false,
+                    },
+                  })
+                }
+                rows={4}
+                placeholder="First person: how you own delivery, Agile/Git, and AI — no quotes or signature line."
+              />
               <Input
                 label="Email"
                 value={config.email}
@@ -354,11 +395,25 @@ export default function AdminSettingsPage() {
           </CollapsibleSection>
 
           <CollapsibleSection title="Tech Stack">
+            <p className="text-xs text-text-muted leading-relaxed mb-3">
+              Dos carriles en el hero: <strong className="text-text-secondary">Frontend Stack</strong>{" "}
+              (React, Next.js, …) y <strong className="text-text-secondary">AI Workflow</strong>{" "}
+              (Cursor, Claude, …). Opcionalmente puedes dejar solo{" "}
+              <code className="text-[11px] bg-bg-hover px-1 rounded">techStack</code> mezclado: el sitio
+              separa entradas conocidas de AI en el segundo carril.
+            </p>
             <Input
-              label="Tech Stack (comma-separated)"
+              label="Frontend Stack — techStack (comma-separated)"
               value={(config.techStack ?? []).join(", ")}
               onChange={(e) => updateTechStack(e.target.value)}
             />
+            <div className="mt-4">
+              <Input
+                label="AI Workflow — aiTools (comma-separated, opcional)"
+                value={(config.aiTools ?? []).join(", ")}
+                onChange={(e) => updateAiTools(e.target.value)}
+              />
+            </div>
           </CollapsibleSection>
 
           <CollapsibleSection title="Admin">

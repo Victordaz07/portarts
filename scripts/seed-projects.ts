@@ -571,7 +571,7 @@ const portfolioConfig = {
   title: "Full-Stack Developer",
   heroHeadline: "Frontend Developer building products people actually use",
   subtitle:
-    "9+ years in operations and logistics taught me how real systems fail. Now I build the interfaces that make them work.",
+    "Agile delivery, Git-first version control, and UIs shipped to production — grounded in 9+ years running real operations.",
   email: "das.graphic1306@gmail.com", // ← CAMBIA ESTO
   githubUsername: "Victordaz07",
   about: [
@@ -581,10 +581,14 @@ const portfolioConfig = {
     "AI is part of my engineering stack, not a replacement for it. I use Cursor for architecture and refactoring at scale, Claude and GPT for logic audits and documentation, Gemini for research. Work that takes a month ships in three focused sessions — reviewed, tested, and owned by me end to end.",
   ],
   miniBio: {
-    headline:
-      "From running warehouse operations to shipping production apps.",
+    headline: "From warehouse ops to shipping production apps.",
     body:
-      "9+ years managing teams and systems taught me that good software isn't about code — it's about solving the right problem. I bring that ops mindset to every interface I build.",
+      "I run work in Agile: short sprints, clear backlog, PRs you can review fast. Git is the source of truth — branches, reviews, releases. I build interfaces that solve the problem, not demos.",
+  },
+  introTestimonial: {
+    quote:
+      "I own customer-facing UI from backlog to production — realistic sprint commitments, pull requests that don’t ping-pong in review, and releases I ship with confidence. I use AI to speed up refactors and technical writing; Git, tests, and design review stay non-negotiable. That’s my bar when the goal is production, not demos.",
+    enabled: true,
   },
   stats: [
     { value: "9+", label: "Years in operations" },
@@ -600,11 +604,8 @@ const portfolioConfig = {
     "Firebase",
     "Figma",
     "Framer Motion",
-    "Cursor",
-    "Claude",
-    "GPT",
-    "Gemini",
   ],
+  aiTools: ["Cursor", "Claude", "GPT", "Gemini"],
   socialLinks: {
     github: "https://github.com/Victordaz07",
     linkedin: "", // ← AGREGA SI TIENES

@@ -4,15 +4,22 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { PortfolioConfig } from "@/lib/types";
-import { resolveTechStackItems } from "@/lib/tech-stack";
+import {
+  resolveAiWorkflowItems,
+  resolveFrontendStackItems,
+} from "@/lib/tech-stack";
 import {
   resolveHeroHeadline,
   resolveHeroSubtitle,
 } from "@/lib/hero-defaults";
 import { ResumeButton } from "@/components/ResumeButton";
 import { AnimatedStat } from "@/components/home/AnimatedStat";
-import { HeroTechMarquee } from "@/components/home/HeroTechMarquee";
+import {
+  AiWorkflowPills,
+  HeroDevStackMarquee,
+} from "@/components/home/HeroTechMarquee";
 import { MiniBioIntroBlock } from "@/components/home/MiniBio";
+import { IntroStatementBlock } from "@/components/home/IntroStatementBlock";
 
 interface HeroProps {
   config: PortfolioConfig | null;
@@ -52,7 +59,8 @@ const HERO_STATS = [
 export function Hero({ config }: HeroProps) {
   const headline = resolveHeroHeadline(config?.heroHeadline);
   const subtitle = resolveHeroSubtitle(config?.subtitle);
-  const techItems = resolveTechStackItems(config);
+  const frontendStackItems = resolveFrontendStackItems(config);
+  const aiWorkflowItems = resolveAiWorkflowItems(config);
   const prefersReduced = useReducedMotion();
   const staggerVariant = prefersReduced ? {} : stagger;
   const fadeUpVariant = prefersReduced ? {} : fadeUp;
@@ -65,7 +73,7 @@ export function Hero({ config }: HeroProps) {
         animate={prefersReduced ? false : "visible"}
       >
         <motion.div variants={fadeUpVariant} className="mb-5 w-full min-w-0">
-          <HeroTechMarquee items={techItems} />
+          <HeroDevStackMarquee frontendItems={frontendStackItems} />
         </motion.div>
 
         <motion.h1
@@ -122,10 +130,17 @@ export function Hero({ config }: HeroProps) {
             </div>
           </div>
 
-          <MiniBioIntroBlock
-            config={config}
-            className="min-w-0 border-t border-border/50 pt-8 lg:border-t-0 lg:border-l lg:border-border/50 lg:pl-10 xl:pl-12 lg:pt-0.5"
-          />
+          <motion.div
+            variants={fadeUpVariant}
+            className="flex min-w-0 flex-col border-t border-border/50 pt-8 lg:border-t-0 lg:border-l lg:border-border/50 lg:pl-10 xl:pl-12 lg:pt-0.5"
+          >
+            <MiniBioIntroBlock config={config} className="" />
+            <AiWorkflowPills
+              items={aiWorkflowItems}
+              className="mt-8 sm:mt-9"
+            />
+            <IntroStatementBlock config={config} />
+          </motion.div>
         </motion.div>
       </motion.div>
     </section>

@@ -9,6 +9,8 @@ export interface PortfolioConfig {
   about: string[];
   stats: Array<{ value: string; label: string }>;
   techStack: string[];
+  /** Carril AI del hero (marquee); opcional — si falta, se infiere de `techStack` o fallback. */
+  aiTools?: string[];
   socialLinks: {
     github?: string;
     linkedin?: string;
@@ -22,6 +24,16 @@ export interface PortfolioConfig {
   miniBio?: {
     headline: string;
     body: string;
+  };
+  /**
+   * Párrafo en 1ª persona bajo intro + AI pills (`quote` = texto; nombre histórico "testimonial").
+   * `enabled: false` oculta el bloque. `author`/`role` legacy — ya no se muestran en UI.
+   */
+  introTestimonial?: {
+    quote?: string;
+    author?: string;
+    role?: string;
+    enabled?: boolean;
   };
 }
 

@@ -5,7 +5,11 @@ import {
   resolveHeroHeadline,
   resolveHeroSubtitle,
 } from "@/lib/hero-defaults";
-import { resolveTechStackItems } from "@/lib/tech-stack";
+import {
+  resolveAiWorkflowItems,
+  resolveFrontendStackItems,
+} from "@/lib/tech-stack";
+import { renderTechIcon } from "@/components/home/tech-stack-visual";
 
 interface HomePreviewProps {
   config: PortfolioConfig | null;
@@ -17,20 +21,39 @@ export function HomePreview({ config }: HomePreviewProps) {
   const stats = config.stats ?? [];
   const headline = resolveHeroHeadline(config.heroHeadline);
   const subtitle = resolveHeroSubtitle(config.subtitle);
-  const techItems = resolveTechStackItems(config);
+  const frontendItems = resolveFrontendStackItems(config);
+  const aiItems = resolveAiWorkflowItems(config);
 
   return (
     <div className="text-[11px] leading-tight scale-[0.4] origin-top-left w-[250%] h-[250%] overflow-hidden pointer-events-none select-none">
       <div className="min-h-screen flex flex-col justify-center p-4">
-        <div className="mb-3 flex w-full flex-wrap gap-1">
-          {techItems.map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-border bg-white px-1.5 py-0.5 text-[8px] text-text-secondary"
-            >
-              {item}
-            </span>
-          ))}
+        <div className="mb-2 flex flex-col gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-0.5">
+            {frontendItems.map((item) => (
+              <span
+                key={item}
+                title={item}
+                className="flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-white"
+              >
+                <span className="flex scale-[0.32] items-center justify-center">
+                  {renderTechIcon(item)}
+                </span>
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-0.5">
+            {aiItems.map((item) => (
+              <span
+                key={item}
+                title={item}
+                className="flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-white"
+              >
+                <span className="flex scale-[0.32] items-center justify-center">
+                  {renderTechIcon(item)}
+                </span>
+              </span>
+            ))}
+          </div>
         </div>
         <h1 className="font-display text-2xl font-normal leading-tight tracking-tight mb-2 text-text-primary">
           {headline}
