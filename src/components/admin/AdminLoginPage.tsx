@@ -73,8 +73,8 @@ export function AdminLoginPage() {
             PORTARTS STUDIO
           </Link>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-[2.5rem] md:leading-[1.15]">
-            Welcome back,
-            <span className="block bg-linear-to-r from-cyan-200 via-white to-sky-200 bg-clip-text text-transparent">
+            Welcome back,{" "}
+            <span className="bg-linear-to-r from-cyan-200 via-white to-sky-200 bg-clip-text text-transparent">
               builder.
             </span>
           </h1>

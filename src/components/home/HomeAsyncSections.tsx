@@ -3,7 +3,6 @@ import {
   getPublishedProjects,
 } from "@/lib/firestore-server";
 import { Hero } from "@/components/home/Hero";
-import { MiniBio } from "@/components/home/MiniBio";
 import { ProjectGrid } from "@/components/home/ProjectGrid";
 import { GitHubRepos } from "@/components/home/GitHubRepos";
 import { AboutSection } from "@/components/home/AboutSection";
@@ -17,11 +16,6 @@ export async function HomeHeroAsync() {
       <Hero config={config} />
     </section>
   );
-}
-
-export async function HomeMiniBioAsync() {
-  const config = await getPortfolioConfig();
-  return <MiniBio config={config} />;
 }
 
 export async function HomeProjectsAsync() {

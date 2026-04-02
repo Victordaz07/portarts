@@ -111,34 +111,34 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-white/4 px-3 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
+          <p className="text-[10px] font-medium uppercase leading-tight tracking-wider text-slate-500 sm:text-xs">
             Sesiones ({rangeDays}d)
           </p>
-          <p className="mt-2 font-display text-3xl text-white tabular-nums">
+          <p className="mt-1.5 font-display text-xl tabular-nums text-white sm:mt-2 sm:text-3xl">
             {totals.sessions}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-white/4 px-3 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
+          <p className="text-[10px] font-medium uppercase leading-tight tracking-wider text-slate-500 sm:text-xs">
             Tiempo medio en página
           </p>
-          <p className="mt-2 font-display text-3xl text-cyan-200/90 tabular-nums">
+          <p className="mt-1.5 font-display text-xl tabular-nums text-cyan-200/90 sm:mt-2 sm:text-3xl">
             {formatDuration(totals.avgDur)}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-white/4 px-3 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
+          <p className="text-[10px] font-medium uppercase leading-tight tracking-wider text-slate-500 sm:text-xs">
             Scroll medio (máx.)
           </p>
-          <p className="mt-2 font-display text-3xl text-emerald-300/90 tabular-nums">
+          <p className="mt-1.5 font-display text-xl tabular-nums text-emerald-300/90 sm:mt-2 sm:text-3xl">
             {Math.round(totals.avgScroll)}%
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-white/10 bg-white/3 p-4 sm:p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-4">Sesiones por día</h3>
           <div className="h-[240px] w-full">
@@ -187,7 +187,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-2xl border border-white/10 bg-white/3 p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-3">Secciones (donde hubo más foco)</h3>
           <ul className="space-y-2 text-sm">

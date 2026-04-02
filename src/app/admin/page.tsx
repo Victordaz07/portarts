@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-10">
         <div className="rounded-2xl border border-white/10 bg-white/4 px-6 py-5 backdrop-blur-sm">
           <p className="text-xs uppercase tracking-wider text-slate-500">Total projects</p>
           <p className="mt-2 font-display text-4xl text-white tabular-nums">

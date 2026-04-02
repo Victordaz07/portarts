@@ -12,6 +12,7 @@ import {
 import { ResumeButton } from "@/components/ResumeButton";
 import { AnimatedStat } from "@/components/home/AnimatedStat";
 import { HeroTechMarquee } from "@/components/home/HeroTechMarquee";
+import { MiniBioIntroBlock } from "@/components/home/MiniBio";
 
 interface HeroProps {
   config: PortfolioConfig | null;
@@ -81,38 +82,50 @@ export function Hero({ config }: HeroProps) {
           {subtitle}
         </motion.p>
 
-        <motion.div variants={fadeUpVariant} className="flex items-center gap-6 md:gap-8 py-6">
-          {HERO_STATS.map((stat, index) => (
-            <Fragment key={stat.label}>
-              {index > 0 ? (
-                <div
-                  className="h-8 md:h-10 w-px bg-border shrink-0 self-stretch min-h-8 md:min-h-10"
-                  aria-hidden
-                />
-              ) : null}
-              <AnimatedStat
-                value={stat.value}
-                suffix={stat.suffix}
-                label={stat.label}
-              />
-            </Fragment>
-          ))}
-        </motion.div>
+        <motion.div
+          variants={fadeUpVariant}
+          className="mt-8 grid grid-cols-1 gap-10 lg:mt-10 lg:grid-cols-2 lg:gap-12 xl:gap-16 lg:items-start"
+        >
+          <div className="min-w-0 space-y-6">
+            <div className="flex items-center gap-6 md:gap-8 py-6 lg:py-0 min-w-0 overflow-x-auto">
+              {HERO_STATS.map((stat, index) => (
+                <Fragment key={stat.label}>
+                  {index > 0 ? (
+                    <div
+                      className="h-8 md:h-10 w-px bg-border shrink-0 self-stretch min-h-8 md:min-h-10"
+                      aria-hidden
+                    />
+                  ) : null}
+                  <AnimatedStat
+                    value={stat.value}
+                    suffix={stat.suffix}
+                    label={stat.label}
+                  />
+                </Fragment>
+              ))}
+            </div>
 
-        <motion.div variants={fadeUpVariant} className="flex flex-wrap items-center gap-3 mt-6">
-          <Link
-            href="/#projects"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-black text-white font-medium hover:opacity-90 transition-opacity"
-          >
-            View my work
-          </Link>
-          <Link
-            href="/#contact"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-black bg-white text-black font-medium hover:bg-bg-hover transition-colors"
-          >
-            Let&apos;s talk
-          </Link>
-          <ResumeButton variant="ghost" />
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/#projects"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-black text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                View my work
+              </Link>
+              <Link
+                href="/#contact"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-black bg-white text-black font-medium hover:bg-bg-hover transition-colors"
+              >
+                Let&apos;s talk
+              </Link>
+              <ResumeButton variant="ghost" />
+            </div>
+          </div>
+
+          <MiniBioIntroBlock
+            config={config}
+            className="min-w-0 border-t border-border/50 pt-8 lg:border-t-0 lg:border-l lg:border-border/50 lg:pl-10 xl:pl-12 lg:pt-0.5"
+          />
         </motion.div>
       </motion.div>
     </section>
