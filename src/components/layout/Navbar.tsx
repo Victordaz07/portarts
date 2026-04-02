@@ -75,7 +75,7 @@ export function Navbar() {
               Frontend Developer
             </span>
           </span>
-          <p className="text-xs text-text-secondary tracking-wide mt-1 max-w-[min(100%,280px)] leading-snug">
+          <p className="text-xs text-text-secondary tracking-wide mt-1 leading-snug md:whitespace-nowrap">
             Agile workflow
             <span className="mx-1.5 opacity-40">·</span>
             Cursor

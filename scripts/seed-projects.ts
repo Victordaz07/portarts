@@ -600,6 +600,10 @@ const portfolioConfig = {
     "Firebase",
     "Figma",
     "Framer Motion",
+    "Cursor",
+    "Claude",
+    "GPT",
+    "Gemini",
   ],
   socialLinks: {
     github: "https://github.com/Victordaz07",
