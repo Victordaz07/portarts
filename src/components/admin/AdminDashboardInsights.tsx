@@ -92,7 +92,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
 
   if (!hasData) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-12 text-center backdrop-blur-sm">
+      <div className="rounded-2xl border border-white/10 bg-white/3 px-6 py-12 text-center backdrop-blur-sm">
         <p className="text-slate-400 text-sm leading-relaxed max-w-md mx-auto">
           Aún no hay sesiones agregadas en los últimos {rangeDays} días. Visita el sitio
           público (fuera de <code className="text-cyan-300/80">/admin</code>) para generar
@@ -112,7 +112,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
             Sesiones ({rangeDays}d)
           </p>
@@ -120,7 +120,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
             {totals.sessions}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
             Tiempo medio en página
           </p>
@@ -128,7 +128,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
             {formatDuration(totals.avgDur)}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/4 px-5 py-4 backdrop-blur-sm">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
             Scroll medio (máx.)
           </p>
@@ -139,7 +139,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-4 sm:p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-4">Sesiones por día</h3>
           <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +166,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-4 sm:p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-4">Scroll medio por día (%)</h3>
           <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -188,7 +188,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-3">Secciones (donde hubo más foco)</h3>
           <ul className="space-y-2 text-sm">
             {topSections.map(([name, count]) => (
@@ -202,7 +202,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
             ))}
           </ul>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-3">Rutas más vistas</h3>
           <ul className="space-y-2 text-sm">
             {topPaths.map(([pathKey, count]) => (
@@ -218,7 +218,7 @@ export function AdminDashboardInsights({ rangeDays, data }: AdminDashboardInsigh
             ))}
           </ul>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-5 backdrop-blur-sm">
           <h3 className="text-sm font-medium text-slate-300 mb-3">Proyectos (páginas /project/…)</h3>
           <ul className="space-y-2 text-sm">
             {topProjects.length === 0 ? (

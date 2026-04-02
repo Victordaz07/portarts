@@ -74,7 +74,7 @@ export function AdminLoginPage() {
           </Link>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-[2.5rem] md:leading-[1.15]">
             Welcome back,
-            <span className="block bg-gradient-to-r from-cyan-200 via-white to-sky-200 bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-cyan-200 via-white to-sky-200 bg-clip-text text-transparent">
               builder.
             </span>
           </h1>
@@ -93,7 +93,7 @@ export function AdminLoginPage() {
           </footer>
         </blockquote>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-lg sm:p-8">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-lg sm:p-8">
           <p className="mb-6 text-center text-sm font-medium text-slate-300">
             One tap. No friction.
           </p>
@@ -101,7 +101,7 @@ export function AdminLoginPage() {
           <button
             type="button"
             onClick={() => signInWithGitHub()}
-            className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#2d333b] to-[#1c2128] px-6 py-4 text-left shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-[1.02] hover:border-cyan-500/30 hover:shadow-[0_16px_48px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 active:scale-[0.99]"
+            className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-linear-to-b from-[#2d333b] to-[#1c2128] px-6 py-4 text-left shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-[1.02] hover:border-cyan-500/30 hover:shadow-[0_16px_48px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 active:scale-[0.99]"
           >
             <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               style={{

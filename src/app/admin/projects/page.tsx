@@ -73,7 +73,7 @@ export default function AdminProjectsPage() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-8 py-16 text-center">
+        <div className="rounded-2xl border border-dashed border-white/15 bg-white/2 px-8 py-16 text-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-cyan-400/50 mb-4">
             <i className="fa-brands fa-react text-2xl" aria-hidden />
           </div>

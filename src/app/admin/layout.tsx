@@ -92,7 +92,7 @@ function UnauthorizedPage({ uid }: { uid: string }) {
             <code className="text-xs bg-white/5 px-1.5 py-0.5 rounded text-slate-200">config/portfolio</code>{" "}
             document in Firestore, in the <code className="text-xs bg-white/5 px-1.5 py-0.5 rounded text-slate-200">allowedAdmins</code> field.
           </p>
-          <div className="mb-8 p-4 bg-white/[0.04] border border-white/10 rounded-xl text-left backdrop-blur-sm">
+          <div className="mb-8 p-4 bg-white/4 border border-white/10 rounded-xl text-left backdrop-blur-sm">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Your UID (copy it):</p>
             <div className="flex items-center gap-2">
               <code className="text-sm text-cyan-300/90 break-all flex-1">{uid}</code>
@@ -106,7 +106,7 @@ function UnauthorizedPage({ uid }: { uid: string }) {
             </div>
           </div>
 
-          <div className="mb-6 p-4 border border-white/10 rounded-xl text-left space-y-3 bg-white/[0.02]">
+          <div className="mb-6 p-4 border border-white/10 rounded-xl text-left space-y-3 bg-white/2">
             <p className="text-xs text-slate-500 uppercase tracking-wider">
               Check vs Firestore (read-only)
             </p>
