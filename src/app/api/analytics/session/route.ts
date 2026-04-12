@@ -42,7 +42,23 @@ function parseAllowedHosts(): Set<string> {
   return hosts;
 }
 
-function isAllowedOrigin(origin: string | null, referer: string | null): boolean {
+/** Hostname de la petición (dominio por el que llegó el usuario al despliegue). */
+function getRequestHostname(request: Request): string | null {
+  const xf = request.headers.get("x-forwarded-host");
+  if (xf) {
+    const first = xf.split(",")[0]?.trim();
+    if (first) return first.split(":")[0]?.toLowerCase() ?? null;
+  }
+  const host = request.headers.get("host");
+  if (!host) return null;
+  return host.split(":")[0]?.toLowerCase() ?? null;
+}
+
+function isAllowedOrigin(
+  origin: string | null,
+  referer: string | null,
+  requestHostname: string | null,
+): boolean {
   const hosts = parseAllowedHosts();
   const tryParse = (u: string | null) => {
     if (!u) return null;
@@ -58,6 +74,10 @@ function isAllowedOrigin(origin: string | null, referer: string | null): boolean
     process.env.NODE_ENV === "development" &&
     (o.hostname === "localhost" || o.hostname === "127.0.0.1")
   ) {
+    return true;
+  }
+  // Mismo despliegue: el usuario visita por el mismo host que declara Origin (p. ej. dominio custom sin NEXT_PUBLIC_SITE_URL).
+  if (requestHostname && o.hostname.toLowerCase() === requestHostname) {
     return true;
   }
   if (hosts.size === 0) {
@@ -81,7 +101,7 @@ interface SessionBody {
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
-  if (!isAllowedOrigin(origin, referer)) {
+  if (!isAllowedOrigin(origin, referer, getRequestHostname(request))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
