@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Pencil } from "lucide-react";
@@ -72,6 +73,11 @@ export function ProjectCard({
 
   const cover = resolveCover(project);
   const hasCover = !!cover;
+  const [coverFailed, setCoverFailed] = useState(false);
+  useEffect(() => {
+    setCoverFailed(false);
+  }, [project.id, cover?.src]);
+  const showCoverImage = hasCover && !coverFailed;
   const logoUrl = project.logoUrl?.trim();
   const showTitleOnCard = project.showTitleOnCard !== false;
   const coverAlt = cover?.caption
@@ -87,7 +93,7 @@ export function ProjectCard({
   const cardBody = (
     <>
       <div className="relative w-full h-[200px] overflow-hidden rounded-t-[12px]">
-        {hasCover ? (
+        {showCoverImage ? (
           <>
             <div
               className={`absolute inset-0 z-0 ${visualGradient} opacity-50`}
@@ -105,6 +111,7 @@ export function ProjectCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={project.featured}
               unoptimized
+              onError={() => setCoverFailed(true)}
             />
           </>
         ) : (

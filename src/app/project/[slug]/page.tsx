@@ -19,6 +19,34 @@ import type { Project } from "@/lib/types";
 
 const MOBILE_MOCKUP_SLUGS = new Set(["xthegospel"]);
 
+/** `owner/repo` para la API de GitHub; null si no hay un par válido. */
+function resolveGithubFullRepo(project: Project): string | null {
+  const rawUrl = project.githubUrl?.trim();
+  if (rawUrl) {
+    try {
+      const u = new URL(rawUrl);
+      const host = u.hostname.replace(/^www\./, "");
+      if (host === "github.com") {
+        const parts = u.pathname.split("/").filter(Boolean);
+        if (parts.length >= 2) {
+          return `${parts[0]}/${parts[1]}`.replace(/\.git$/i, "");
+        }
+      }
+    } catch {
+      const stripped = rawUrl
+        .replace(/^https?:\/\/(www\.)?github\.com\//i, "")
+        .replace(/\/$/, "");
+      const segments = stripped.split("/").filter(Boolean);
+      if (segments.length >= 2) {
+        return `${segments[0]}/${segments[1]}`.replace(/\.git$/i, "");
+      }
+    }
+  }
+  const repo = project.githubRepo?.trim();
+  if (repo?.includes("/")) return repo.replace(/\.git$/i, "");
+  return null;
+}
+
 function resolveProjectHeroImage(project: Project): string | null {
   const explicit = project.coverImage?.trim();
   if (explicit) return explicit;
@@ -77,9 +105,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   if (!project) notFound();
 
-  const githubFullRepo = project.githubUrl
-    ? project.githubUrl.replace("https://github.com/", "").replace(/\/$/, "")
-    : null;
+  const githubFullRepo = resolveGithubFullRepo(project);
   const hasLinks =
     project.links &&
     Object.values(project.links).some((v) => v && typeof v === "string");

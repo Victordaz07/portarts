@@ -109,7 +109,7 @@ const projects = [
       password: "Demo2026!",
       disclaimer: "Demo account — data resets periodically",
     },
-    githubRepo: "FamilyDash",
+    githubRepo: "Victordaz07/FamilyDash",
     githubUrl: "https://github.com/Victordaz07/FamilyDash",
     metadata: {
       Platform: "Web (PWA)",
