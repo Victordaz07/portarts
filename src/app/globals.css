@@ -337,6 +337,41 @@ body {
   margin: 10px 0;
 }
 
+/* ══════════════════════════════════════════════
+   ADMIN PANEL — overrides de modo oscuro
+   ══════════════════════════════════════════════ */
+
+/* Select dropdown options heredan el fondo oscuro en navegadores que lo permiten */
+.admin-page-bg select option {
+  background: #1a2035;
+  color: #f1f5f9;
+}
+
+/* Scrollbar oscura para el panel admin */
+.admin-page-bg ::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+.admin-page-bg ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+.admin-page-bg ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Foco visible en inputs del admin */
+.admin-page-bg input:focus,
+.admin-page-bg textarea:focus,
+.admin-page-bg select:focus {
+  outline: none;
+  border-color: #22d3ee !important;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+}
+
+/* Checkbox en modo oscuro */
+.admin-page-bg input[type="checkbox"] {
+  accent-color: #22d3ee;
+}
+
 /* Admin login — floating icon field */
 @keyframes admin-login-float {
   0%,

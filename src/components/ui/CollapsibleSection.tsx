@@ -33,7 +33,7 @@ export function CollapsibleSection({
           <ChevronRight className="w-4 h-4 text-text-muted" />
         )}
       </button>
-      {open && <div className="p-4 border-t border-border">{children}</div>}
+      {open && <div className="p-4 border-t border-border bg-bg-raised">{children}</div>}
     </div>
   );
 }

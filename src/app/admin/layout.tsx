@@ -220,7 +220,24 @@ export default function AdminLayout({
     <AdminShell>
       <AdminSidebar />
       <main
-        className="flex-1 min-w-0 w-full overflow-auto px-4 py-6 sm:px-6 sm:py-7 lg:px-8 lg:py-8 xl:px-10 xl:py-9 text-slate-100 [--color-text-primary:#f8fafc] [--color-text-secondary:#94a3b8] [--color-text-muted:#64748b] [--color-border:rgba(255,255,255,0.12)] [--color-bg-hover:rgba(255,255,255,0.06)]"
+        className={[
+          "flex-1 min-w-0 w-full overflow-auto text-slate-100",
+          "px-4 py-6 sm:px-6 sm:py-7 lg:px-8 lg:py-8 xl:px-10 xl:py-9",
+          // Tokens de color — modo oscuro del admin
+          "[--color-bg:#111827]",
+          "[--color-bg-raised:#161b26]",
+          "[--color-bg-card:#0f1419]",
+          "[--color-bg-hover:rgba(255,255,255,0.07)]",
+          "[--color-border:rgba(255,255,255,0.12)]",
+          "[--color-border-hover:rgba(255,255,255,0.25)]",
+          "[--color-text-primary:#f8fafc]",
+          "[--color-text-secondary:#94a3b8]",
+          "[--color-text-muted:#64748b]",
+          "[--color-accent:#22d3ee]",
+          "[--color-accent-dim:rgba(34,211,238,0.12)]",
+          "[--color-rose:#f87171]",
+          "[--color-green:#4ade80]",
+        ].join(" ")}
       >
         {children}
       </main>
