@@ -1,175 +1,175 @@
-# 🎯 SETUP INICIAL — INSTRUCCIONES PARA CURSOR
+# Initial setup — step-by-step (Firebase + Cursor)
 
-> **Repo:** https://github.com/Victordaz07/portarts
-> **GitHub User:** Victordaz07
-> **Proyecto:** PortArts — Portfolio Interactivo
+> **Repo:** https://github.com/Victordaz07/portarts  
+> **GitHub user:** Victordaz07  
+> **Project:** PortArts — interactive developer portfolio  
 
 ---
 
-## PASO 0: CLONAR E INICIALIZAR
+## Step 0 — Clone and bootstrap
 
 ```bash
 git clone https://github.com/Victordaz07/portarts.git
 cd portarts
 
-# Crear proyecto Next.js DENTRO del repo (sin crear subcarpeta)
-npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+# If you are scaffolding Next.js inside the folder (historical note):
+# npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 
-# Instalar dependencias
-npm install firebase react-markdown remark-gfm rehype-raw lucide-react
-npm install -D @types/node
+npm install
 ```
 
 ---
 
-## PASO 1: COPIAR ARCHIVOS DE REFERENCIA
+## Step 1 — Reference files (if rebuilding from scratch)
 
-Copiar estos archivos en la raíz del proyecto:
-- `PORTFOLIO-PRD-CURSOR.md` → referencia técnica completa
-- `portfolio-v3-interactive.html` → referencia visual
-- `tailwind.config.reference.ts` → reemplazar tailwind.config.ts con este contenido
-- `globals.css.reference` → reemplazar src/app/globals.css con este contenido
+Copy any reference assets you maintain alongside the repo:
+
+- `PORTFOLIO-PRD-CURSOR.md` — full technical spec  
+- `portfolio-v3-interactive.html` — visual reference (if present)  
+- Tailwind / CSS reference files — only if you are regenerating styles from scratch  
+
+The current repo already contains the implemented app; you usually **do not** need to replace `tailwind.config` or `globals.css` unless you are customizing.
 
 ---
 
-## PASO 2: FIREBASE SETUP (VICTOR LO HACE MANUAL)
+## Step 2 — Firebase (manual in Console)
 
-### 2.1 Crear proyecto en Firebase Console
-1. Ir a https://console.firebase.google.com
-2. "Agregar proyecto" → nombre: `portarts`
-3. Desactivar Google Analytics (no lo necesitamos)
-4. Esperar a que se cree
+### 2.1 Create a Firebase project
 
-### 2.2 Crear Web App
-1. En el dashboard del proyecto → click en icono Web `</>`
-2. Nombre: `portarts-web`
-3. Marcar "Firebase Hosting"
-4. Copiar las credenciales que aparecen
+1. Go to https://console.firebase.google.com  
+2. **Add project** → name: `portarts` (or your choice)  
+3. Google Analytics is optional  
+4. Wait until the project is ready  
 
-### 2.3 Activar Authentication
-1. Build → Authentication → "Comenzar"
-2. Sign-in method → GitHub → Habilitar
-3. **Necesitas crear una GitHub OAuth App:**
-   - Ir a https://github.com/settings/developers
-   - "New OAuth App"
-   - Application name: `PortArts`
-   - Homepage URL: `https://portarts-XXXXX.web.app` (o `http://localhost:3000` por ahora)
-   - Authorization callback URL: Copiar el que Firebase te muestra (algo como `https://portarts-XXXXX.firebaseapp.com/__/auth/handler`)
-   - Copiar el Client ID y Client Secret que GitHub te da
-   - Pegar ambos en Firebase Authentication → GitHub provider
+### 2.2 Register a web app
 
-### 2.3.1 Dominios autorizados (obligatorio en Vercel)
+1. In the project dashboard → **Web** `</>`  
+2. Name: e.g. `portarts-web`  
+3. Enable **Firebase Hosting** if prompted  
+4. Copy the config values for `.env.local`  
 
-Si al abrir el admin ves **`auth/unauthorized-domain`** en la consola, Firebase no permite OAuth desde esa URL.
+### 2.3 Enable Authentication
 
-1. Firebase Console → **Authentication** → pestaña **Settings** (Configuración) → **Authorized domains**.
-2. Pulsa **Add domain** y añade **todas** las URLs desde las que uses el sitio, por ejemplo:
-   - `localhost` (suele venir por defecto)
-   - Tu proyecto en Vercel: `tu-app.vercel.app`
-   - Cada **deployment preview** si los usas: p. ej. `portarts-okreppage-victor-ruizs-projects-2df6e66a.vercel.app` (el subdominio exacto sale en la barra de direcciones o en el mensaje de error de la consola).
-   - Tu dominio personalizado si lo tienes: `tudominio.com`
-3. Guarda y **recarga** la página del admin; vuelve a probar GitHub / Google.
+1. **Build → Authentication → Get started**  
+2. **Sign-in method → GitHub → Enable**  
+3. **Create a GitHub OAuth App:**  
+   - https://github.com/settings/developers → **New OAuth App**  
+   - Application name: `PortArts`  
+   - Homepage URL: `https://<your-project>.web.app` (or `http://localhost:3000` for dev)  
+   - Authorization callback URL: use the URL Firebase shows (e.g. `https://<project>.firebaseapp.com/__/auth/handler`)  
+   - Paste **Client ID** and **Client Secret** into the GitHub provider in Firebase  
 
-> **Tip:** En producción suele bastar con `tu-proyecto.vercel.app` y tu dominio final. Los previews de Vercel tienen un hostname distinto cada vez: o los añades cuando fallen, o trabajas el admin solo en la URL principal.
+### 2.3.1 Authorized domains (required on Vercel / previews)
 
-### 2.4 Activar Firestore
-1. Build → Firestore Database → "Crear base de datos"
-2. Modo producción
-3. Ubicación: `us-central1` (o la más cercana)
+If the admin shows **`auth/unauthorized-domain`** in the console, Firebase is blocking OAuth on that host.
 
-### 2.5 Activar Storage
-1. Build → Storage → "Comenzar"
-2. Modo producción
+1. Firebase Console → **Authentication → Settings → Authorized domains**  
+2. **Add domain** for every host you use, for example:  
+   - `localhost` (often default)  
+   - Your Vercel project: `your-app.vercel.app`  
+   - Each **preview** URL if you test previews  
+   - Your custom domain if you use one  
+3. Save and **reload** the app; try GitHub / Google again  
 
-### 2.6 Crear `.env.local`
+> **Tip:** In production, your main `*.vercel.app` and custom domain are usually enough. Preview URLs change; add them when you hit errors or do admin work on the primary URL only.
 
-Copia los valores desde Firebase Console → Configuración del proyecto → Tus apps (Web). **No subas** `.env.local` al repo.
+### 2.4 Enable Firestore
+
+1. **Build → Firestore Database → Create database**  
+2. Production mode  
+3. Region: e.g. `us-central1`  
+
+### 2.5 Enable Storage
+
+1. **Build → Storage → Get started**  
+2. Production mode  
+
+### 2.6 Create `.env.local`
+
+Copy values from Firebase Console → Project settings → Your apps (Web). **Never commit** `.env.local`.
 
 ```bash
-# En la raíz del proyecto portarts/
-NEXT_PUBLIC_FIREBASE_API_KEY=tu_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu-proyecto-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=tu_app_id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=opcional
+# In the portarts repo root
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=optional
 
-# Producción / Vercel — JSON completo de cuenta de servicio (una variable, sin romper el JSON)
+# Production / Vercel — full service account JSON as one line (secret)
 FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
 
-# Opcional — más rate limit en GitHub API
+# Optional — higher GitHub API rate limits
 GITHUB_TOKEN=
 ```
 
-### 2.7 Seed inicial de Firestore (DESPUÉS del primer login)
+### 2.7 Seed Firestore (after first login)
 
-Una vez que Victor haga login con GitHub por primera vez, necesita:
+After you sign in with GitHub once:
 
-1. Ir a Firebase Console → Firestore
-2. Crear colección `config`
-3. Crear documento con ID `portfolio`
-4. Agregar estos campos:
+1. Firebase Console → Firestore  
+2. Create collection `config`  
+3. Create document with id `portfolio`  
+4. Add fields, for example:
 
 ```json
 {
-  "name": "Victor",
+  "name": "Your Name",
   "title": "Full-Stack Developer",
-  "subtitle": "Full-stack developer construyendo productos que combinan diseño impecable con arquitectura sólida.",
+  "subtitle": "Short hero line describing what you build.",
   "email": "",
   "githubUsername": "Victordaz07",
   "about": [
-    "Desarrollo productos digitales que resuelven problemas reales. Desde plataformas de gestión de flotas hasta apps de productividad con IA.",
-    "Mi stack combina React, React Native, Next.js con backends en Firebase y Supabase. Uso herramientas de IA como Claude, Cursor y Antigravity."
+    "Paragraph one — what you build and who you help.",
+    "Paragraph two — stack and tools you use."
   ],
   "stats": [
-    {"value": "5+", "label": "Proyectos"},
-    {"value": "3", "label": "Plataformas"},
+    {"value": "5+", "label": "Projects"},
+    {"value": "3", "label": "Platforms"},
     {"value": "Web", "label": "iOS & Android"},
-    {"value": "AI", "label": "Powered Dev"}
+    {"value": "AI", "label": "Dev workflow"}
   ],
-  "techStack": ["React", "React Native", "Next.js", "Firebase", "Supabase", "TypeScript", "Figma", "Claude AI", "Cursor", "Antigravity"],
+  "techStack": ["React", "Next.js", "Firebase", "TypeScript", "Figma"],
   "socialLinks": {
     "github": "https://github.com/Victordaz07"
   },
-  "allowedAdmins": ["PONER-TU-UID-AQUI"]
+  "allowedAdmins": ["PASTE-YOUR-UID-HERE"]
 }
 ```
 
-> **IMPORTANTE:** El UID lo encuentras en Firebase Console → Authentication → Users → copiar el UID de tu cuenta.
+> **Important:** UID: Firebase Console → **Authentication → Users** → copy your user’s UID.
 
-### ¿El portfolio en Vercel se ve “vacío”?
+### If the site looks “empty” on Vercel
 
-- El servidor lee Firestore con **Firebase Admin** si existe **`FIREBASE_SERVICE_ACCOUNT_JSON`** en Vercel (Variables de entorno). Sin eso, el fallback puede fallar por reglas y verás poco o nada en la home.
-- Comprueba en **Firestore** que existan el documento **`config/portfolio`** y proyectos con **`published: true`** (como en el JSON de arriba).
-- Si en local ves un error tipo **“Unable to detect a Project Id”**: falta **`NEXT_PUBLIC_FIREBASE_PROJECT_ID`** o el JSON de servicio sin **`project_id`**. Tras corregir variables, borra caché y reinicia: `npm run clean && npm run dev`.
-- **Índices compuestos**: despliega los de `firestore.indexes.json` con `firebase deploy --only firestore:indexes`. Si un índice está “building”, la home puede listar vacío unos minutos.
-- **Reglas**: despliega `firestore.rules` (`firebase deploy --only firestore:rules`). Las reglas actuales permiten lectura pública de proyectos con `published == true` o valores legacy (`"true"`, `1`); los **nuevos** documentos deben seguir usando **boolean** (`validProject`).
+- Server reads use **Firebase Admin** when **`FIREBASE_SERVICE_ACCOUNT_JSON`** is set in Vercel. Without it, SSR may not see data depending on rules.  
+- Confirm **`config/portfolio`** exists and projects have **`published: true`** where needed.  
+- If local error **“Unable to detect a Project Id”**: fix **`NEXT_PUBLIC_FIREBASE_PROJECT_ID`** or service account `project_id`. Then `npm run clean && npm run dev`.  
+- Deploy indexes from `firestore.indexes.json`: `firebase deploy --only firestore:indexes`. While an index is building, lists can be empty briefly.  
+- Deploy rules: `firebase deploy --only firestore:rules`. New projects should use **boolean** `published` per `validProject()` in rules.
 
 ---
 
-## PASO 3: FIREBASE CLI
+## Step 3 — Firebase CLI
 
 ```bash
-# Instalar Firebase CLI (si no la tienes)
 npm install -g firebase-tools
-
-# Login
 firebase login
-
-# Inicializar en el proyecto
 firebase init
-
-# Seleccionar:
-# - Firestore (rules + indexes)
-# - Storage (rules)
-# - Hosting (con Web Frameworks)
-# - Seleccionar el proyecto portarts que creaste
 ```
 
-### Archivos de Firebase que se generan:
+Select as needed:
 
-**`firestore.rules`** — Usa el archivo [`firestore.rules`](firestore.rules) del repo (resumen):
+- Firestore (rules + indexes)  
+- Storage (rules)  
+- Hosting (Web Frameworks / Next.js)  
+- Link to the Firebase project you created  
+
+### Generated Firebase files
+
+Use the repo’s **`firestore.rules`** (summary):
+
 ```
 match /config/{docId} {
   allow read: if true;
@@ -180,156 +180,83 @@ match /projects/{projectId} {
   allow create: if isAdmin() && validProject();
   allow update, delete: if isAdmin();
 }
-function isPublishedPublic(p) {
-  return p == true || p == "true" || p == 1;
-}
 ```
-Despliega con `firebase deploy --only firestore:rules`.
 
-**`storage.rules`** — Usa el archivo `storage.rules` del repo (claim `portfolioAdmin`, no `firestore.get()`).
+Deploy: `firebase deploy --only firestore:rules`.
 
-En el **plan Spark (gratuito)**, Firebase **no permite** leer Firestore dentro de reglas de Storage, así que las subidas fallan si solo compruebas `allowedAdmins` ahí. Solución en este proyecto:
+**`storage.rules`** — uses custom claim `portfolioAdmin` (not `firestore.get()` inside Storage rules).
 
-1. Tu UID sigue en `config/portfolio.allowedAdmins` (Firestore + panel admin).
-2. Ejecuta **`npm run sync-admin-claims`** con `serviceAccountKey.json` en la raíz (o credenciales por env), **o** en **Admin → Settings** pulsa **«Sincronizar permisos de Storage»** (requiere `FIREBASE_SERVICE_ACCOUNT_JSON` en el servidor, p. ej. Vercel).
-3. **Cierra sesión y vuelve a entrar** (o el botón ya fuerza `getIdToken(true)`) para que el token incluya el claim.
+On the **Spark (free) plan**, Storage rules cannot read Firestore, so admin checks use **custom claims**:
 
-Si pasas a **Blaze**, podrías volver a reglas basadas en `firestore.get()`, pero no es obligatorio si usas los claims.
+1. Keep UIDs in `config/portfolio.allowedAdmins`.  
+2. Run **`npm run sync-admin-claims`** with a service account locally, **or** use **Admin → Settings → Sync Storage permissions** (needs `FIREBASE_SERVICE_ACCOUNT_JSON` on the server).  
+3. **Sign out and sign in again** (or refresh ID token) so the token includes the claim.
+
+On **Blaze**, you could use Firestore-backed rules in Storage; claims are still a valid approach.
 
 ---
 
-## PASO 4: DECIRLE A CURSOR QUÉ HACER
+## Step 4 — Cursor / AI prompts (optional)
 
-### Prompt inicial para Cursor:
-
-```
-Lee el archivo PORTFOLIO-PRD-CURSOR.md que está en la raíz del proyecto. 
-Este es el PRD completo del proyecto.
-
-También tienes como referencia visual el archivo portfolio-v3-interactive.html.
-
-Ejecuta la FASE 1 completa (pasos 1-6 del PRD, sección "ORDEN DE IMPLEMENTACIÓN"):
-1. El proyecto Next.js ya está creado
-2. Configura Firebase (lib/firebase.ts) usando las variables de .env.local
-3. Implementa los design tokens en globals.css y tailwind.config.ts
-   (usa los archivos de referencia tailwind.config.reference.ts y globals.css.reference)
-4. Crea los componentes UI base (Button, Input, Card, etc.)
-5. Implementa Navbar + Footer
-6. Crea el layout raíz con Google Fonts (Instrument Serif, Outfit, JetBrains Mono) y providers
-
-NO avances a la Fase 2 hasta que confirme que la Fase 1 funciona.
-```
-
-### Prompt para Fase 2:
+### Initial prompt
 
 ```
-La Fase 1 está completa y funciona. Ahora ejecuta la FASE 2 completa 
-(pasos 7-17 del PRD):
+Read PORTFOLIO-PRD-CURSOR.md in the repo root — full PRD.
+Use portfolio-v3-interactive.html as visual reference if present.
 
-Sigue exactamente las especificaciones del PRD para cada componente.
-El diseño debe replicar la estética del archivo portfolio-v3-interactive.html.
-
-Componente más importante: DevicePreview.tsx — sigue la especificación 
-6.1 del PRD al pie de la letra. Los device frames deben verse idénticos 
-al CSS en globals.css.reference.
+Execute PHASE 1 (PRD “implementation order”):
+- Firebase config in lib/firebase.ts from .env.local
+- Design tokens in globals.css / Tailwind
+- Base UI components, Navbar, Footer, root layout + fonts
 ```
 
-### Prompt para Fase 3:
+### Later phases
 
-```
-Fase 2 funciona correctamente. Ejecuta la FASE 3 (pasos 18-25 del PRD):
-- Auth con GitHub
-- Admin layout con auth guard  
-- ProjectForm completo con todos los campos
-- ImageUploader a Firebase Storage
-- CRUD completo de proyectos
-- Settings page
-
-Sigue las Firestore Security Rules del PRD.
-```
-
-### Prompt para Fase 4:
-
-```
-Todo funcional. Ejecuta la FASE 4 (pasos 26-32 del PRD):
-- Ambient blobs + noise overlay
-- Page transitions
-- Loading skeletons
-- Error boundaries
-- SEO meta tags
-- Mobile responsive final pass
-- Preparar para deploy a Firebase Hosting
-```
+Follow the PRD sections for Phases 2–4 (components, auth, admin, polish, SEO, deploy).
 
 ---
 
-## PASO 5: DEPLOY
+## Step 5 — Deploy
 
 ```bash
-# Build y deploy
 firebase deploy
-
-# O solo hosting:
+# or
 firebase deploy --only hosting
-
-# Solo reglas:
 firebase deploy --only firestore:rules,storage:rules
 ```
 
 ---
 
-## ESTRUCTURA FINAL ESPERADA
+## Expected layout (reference)
 
 ```
 portarts/
-├── .env.local                    # Credenciales (NO en git)
+├── .env.local
 ├── .gitignore
-├── PORTFOLIO-PRD-CURSOR.md       # Referencia técnica
-├── portfolio-v3-interactive.html # Referencia visual
+├── PORTFOLIO-PRD-CURSOR.md
 ├── firebase.json
 ├── firestore.rules
 ├── firestore.indexes.json
 ├── storage.rules
 ├── next.config.ts
-├── tailwind.config.ts
 ├── package.json
-├── tsconfig.json
 └── src/
     ├── app/
-    │   ├── layout.tsx
-    │   ├── page.tsx              # Home pública
-    │   ├── project/[slug]/page.tsx
-    │   ├── admin/...
-    │   └── api/github/route.ts
     ├── components/
-    │   ├── layout/
-    │   ├── home/
-    │   ├── project/
-    │   ├── admin/
-    │   └── ui/
     ├── lib/
-    ├── context/
-    ├── hooks/
-    └── styles/
-        └── globals.css
+    └── ...
 ```
 
 ---
 
-## CHECKLIST FINAL
+## Final checklist
 
-- [ ] Proyecto Firebase creado
-- [ ] GitHub OAuth App creada
-- [ ] Auth activado con GitHub provider
-- [ ] Firestore activado
-- [ ] Storage activado
-- [ ] `.env.local` con todas las credenciales
-- [ ] Repo clonado y Next.js inicializado
-- [ ] Archivos de referencia copiados a la raíz
-- [ ] Firebase CLI instalado e inicializado
-- [ ] Fase 1 ejecutada en Cursor
-- [ ] Fase 2 ejecutada en Cursor
-- [ ] Fase 3 ejecutada en Cursor
-- [ ] Fase 4 ejecutada en Cursor
-- [ ] Documento `config/portfolio` creado en Firestore con tu UID
-- [ ] `firebase deploy` exitoso
+- [ ] Firebase project created  
+- [ ] GitHub OAuth app created  
+- [ ] GitHub provider enabled in Firebase Auth  
+- [ ] Firestore enabled  
+- [ ] Storage enabled  
+- [ ] `.env.local` filled (and secrets on Vercel if used)  
+- [ ] `config/portfolio` document with your UID in `allowedAdmins`  
+- [ ] Firestore rules + indexes deployed  
+- [ ] `firebase deploy` succeeds  
