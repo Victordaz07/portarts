@@ -156,7 +156,7 @@ export function ProjectForm({
     JSON.stringify(initial?.kpis ?? [], null, 2)
   );
   const [featured, setFeatured] = useState(initial?.featured ?? false);
-  const [published, setPublished] = useState(initial?.published ?? false);
+  const [published, setPublished] = useState(initial?.published ?? true);
   const [statusText, setStatusText] = useState(initial?.status?.text ?? "");
   const [statusColor, setStatusColor] = useState<ProjectStatusColor>(
     initial?.status?.color ?? "green"
@@ -454,6 +454,11 @@ export function ProjectForm({
                 <span className="text-sm">Published</span>
               </label>
             </div>
+            {!published && (
+              <p className="text-sm text-amber-500">
+                This project is unpublished and will not appear on the public site until "Published" is checked.
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <Input label="Status (text)" value={statusText} onChange={(e) => setStatusText(e.target.value)} />
               <Select label="Status (color)" value={statusColor} onChange={(e) => setStatusColor(e.target.value as ProjectStatusColor)} options={STATUS_COLORS} />
