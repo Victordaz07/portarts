@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -28,7 +29,19 @@ const BACKDROP_ICONS: Array<{
 ];
 
 export function AdminLoginPage() {
-  const { signInWithGitHub } = useAuth();
+  const { signInWithGitHub, authError } = useAuth();
+  const [signingIn, setSigningIn] = useState(false);
+
+  const handleClick = async () => {
+    setSigningIn(true);
+    try {
+      await signInWithGitHub();
+    } catch {
+      // authError from context already reflects the failure
+    } finally {
+      setSigningIn(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#06080c] text-white">
@@ -98,10 +111,17 @@ export function AdminLoginPage() {
             One tap. No friction.
           </p>
 
+          {authError && (
+            <p className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-center text-sm text-rose-200">
+              {authError}
+            </p>
+          )}
+
           <button
             type="button"
-            onClick={() => signInWithGitHub()}
-            className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-linear-to-b from-[#2d333b] to-[#1c2128] px-6 py-4 text-left shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-[1.02] hover:border-cyan-500/30 hover:shadow-[0_16px_48px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 active:scale-[0.99]"
+            onClick={handleClick}
+            disabled={signingIn}
+            className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-linear-to-b from-[#2d333b] to-[#1c2128] px-6 py-4 text-left shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-[1.02] hover:border-cyan-500/30 hover:shadow-[0_16px_48px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               style={{
@@ -123,7 +143,7 @@ export function AdminLoginPage() {
                 </span>
                 <span>
                   <span className="block text-base font-semibold tracking-tight text-white">
-                    Continue with GitHub
+                    {signingIn ? "Connecting…" : "Continue with GitHub"}
                   </span>
                   <span className="mt-0.5 block text-sm text-slate-400">
                     Where your repos already live
