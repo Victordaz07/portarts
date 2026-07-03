@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
 } from "react";
+import { FirebaseError } from "firebase/app";
 import { getRedirectResult, onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
@@ -20,9 +21,23 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   isAdminUser: boolean;
+  authError: string | null;
   signInWithGitHub: () => Promise<unknown>;
   signInWithGoogle: () => Promise<unknown>;
   signOut: () => Promise<void>;
+}
+
+function describeAuthError(e: unknown): string {
+  if (e instanceof FirebaseError) {
+    if (e.code === "auth/unauthorized-domain") {
+      return "Este dominio no está autorizado en Firebase Authentication (Authentication → Settings → Authorized domains).";
+    }
+    if (e.code === "auth/account-exists-with-different-credential") {
+      return "Ya existe una cuenta con ese correo usando otro proveedor de acceso.";
+    }
+    return `Error de autenticación (${e.code}).`;
+  }
+  return e instanceof Error ? e.message : "No se pudo iniciar sesión.";
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -31,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -43,18 +59,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setLoading(false);
     });
-    void getRedirectResult(auth).catch(() => {
-      /* redirect errors are surfaced via onAuthStateChanged or next sign-in */
+    void getRedirectResult(auth).catch((e) => {
+      setAuthError(describeAuthError(e));
     });
     return () => unsub();
   }, []);
 
   const handleSignInGitHub = useCallback(async () => {
-    return signInWithGitHub();
+    setAuthError(null);
+    try {
+      return await signInWithGitHub();
+    } catch (e) {
+      setAuthError(describeAuthError(e));
+      throw e;
+    }
   }, []);
 
   const handleSignInGoogle = useCallback(async () => {
-    return signInWithGoogle();
+    setAuthError(null);
+    try {
+      return await signInWithGoogle();
+    } catch (e) {
+      setAuthError(describeAuthError(e));
+      throw e;
+    }
   }, []);
 
   const handleSignOut = useCallback(async () => {
@@ -67,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         isAdminUser,
+        authError,
         signInWithGitHub: handleSignInGitHub,
         signInWithGoogle: handleSignInGoogle,
         signOut: handleSignOut,
