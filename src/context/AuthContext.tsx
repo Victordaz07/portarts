@@ -3,22 +3,31 @@
 import {
   createContext,
   useContext,
+  useCallback,
   useEffect,
   useState,
-  useCallback,
 } from "react";
-import { FirebaseError } from "firebase/app";
-import { getRedirectResult, onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import {
-  isAdmin,
-  signInWithGitHub,
-  signInWithGoogle,
-  signOut as authSignOut,
-} from "@/lib/auth";
+  SessionProvider,
+  useSession,
+  signIn as nextSignIn,
+  signOut as nextSignOut,
+} from "next-auth/react";
+
+/**
+ * Auth context — thin shim over Auth.js (NextAuth). Keeps the same `useAuth()`
+ * shape the app already consumes so components did not need rewrites when we
+ * moved off Firebase Auth. `user.uid` maps to the Auth.js user id/email.
+ */
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
 
 interface AuthContextValue {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   isAdminUser: boolean;
   authError: string | null;
@@ -27,82 +36,82 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-function describeAuthError(e: unknown): string {
-  if (e instanceof FirebaseError) {
-    if (e.code === "auth/unauthorized-domain") {
-      return "Este dominio no está autorizado en Firebase Authentication (Authentication → Settings → Authorized domains).";
-    }
-    if (e.code === "auth/account-exists-with-different-credential") {
-      return "Ya existe una cuenta con ese correo usando otro proveedor de acceso.";
-    }
-    return `Error de autenticación (${e.code}).`;
-  }
-  return e instanceof Error ? e.message : "No se pudo iniciar sesión.";
-}
-
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdminUser, setIsAdminUser] = useState(false);
+function describeAuthErrorParam(code: string | null): string | null {
+  if (!code) return null;
+  switch (code) {
+    case "OAuthAccountNotLinked":
+      return "Ya existe una cuenta con ese correo usando otro proveedor de acceso.";
+    case "AccessDenied":
+      return "Acceso denegado por el proveedor de autenticación.";
+    case "Configuration":
+      return "Error de configuración de autenticación. Revisa las variables AUTH_* en el servidor.";
+    default:
+      return `Error de autenticación (${code}).`;
+  }
+}
+
+function InnerAuthProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const [authError, setAuthError] = useState<string | null>(null);
 
+  // Surface OAuth errors returned via ?error= on the callback URL (no useSearchParams
+  // so we don't force a Suspense boundary around the whole app).
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
-      if (u) {
-        const admin = await isAdmin(u.uid);
-        setIsAdminUser(admin);
-      } else {
-        setIsAdminUser(false);
+    if (typeof window === "undefined") return;
+    const code = new URLSearchParams(window.location.search).get("error");
+    const msg = describeAuthErrorParam(code);
+    if (msg) setAuthError(msg);
+  }, []);
+
+  const user: AuthUser | null = session?.user
+    ? {
+        uid: session.user.id ?? session.user.email ?? "",
+        email: session.user.email ?? null,
+        displayName: session.user.name ?? null,
+        photoURL: session.user.image ?? null,
       }
-      setLoading(false);
-    });
-    void getRedirectResult(auth).catch((e) => {
-      setAuthError(describeAuthError(e));
-    });
-    return () => unsub();
-  }, []);
+    : null;
 
-  const handleSignInGitHub = useCallback(async () => {
+  const isAdminUser = Boolean(session?.user?.isAdmin);
+
+  const signInWithGitHub = useCallback(async () => {
     setAuthError(null);
-    try {
-      return await signInWithGitHub();
-    } catch (e) {
-      setAuthError(describeAuthError(e));
-      throw e;
-    }
+    return nextSignIn("github", { callbackUrl: "/admin" });
   }, []);
 
-  const handleSignInGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async () => {
     setAuthError(null);
-    try {
-      return await signInWithGoogle();
-    } catch (e) {
-      setAuthError(describeAuthError(e));
-      throw e;
-    }
+    return nextSignIn("google", { callbackUrl: "/admin" });
   }, []);
 
-  const handleSignOut = useCallback(async () => {
-    await authSignOut();
+  const signOut = useCallback(async () => {
+    await nextSignOut({ callbackUrl: "/" });
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        loading,
+        loading: status === "loading",
         isAdminUser,
         authError,
-        signInWithGitHub: handleSignInGitHub,
-        signInWithGoogle: handleSignInGoogle,
-        signOut: handleSignOut,
+        signInWithGitHub,
+        signInWithGoogle,
+        signOut,
       }}
     >
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <InnerAuthProvider>{children}</InnerAuthProvider>
+    </SessionProvider>
   );
 }
 

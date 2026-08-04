@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProjectBySlug } from "@/lib/firestore-server";
+import { getProjectBySlug } from "@/lib/data-server";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
 import { DemoCredentials } from "@/components/project/DemoCredentials";

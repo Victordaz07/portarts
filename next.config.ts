@@ -3,16 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      // GitHub (repo READMEs, avatars)
       { protocol: "https", hostname: "raw.githubusercontent.com" },
-      { protocol: "https", hostname: "firebasestorage.googleapis.com" },
-      /** Buckets con nombre `*.firebasestorage.app` (Firebase 2024+) pueden servir por este host. */
-      { protocol: "https", hostname: "*.firebasestorage.app" },
-      { protocol: "https", hostname: "storage.googleapis.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
-      /** Capturas en previews de Vercel u otros despliegues. */
-      { protocol: "https", hostname: "*.vercel.app" },
+      // Vercel Blob (project/cover/gallery uploads)
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      // OAuth provider avatars (Google) + Vercel preview screenshots
       { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "*.vercel.app" },
     ],
   },
 };

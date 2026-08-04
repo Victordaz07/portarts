@@ -17,7 +17,8 @@ export interface PortfolioConfig {
     twitter?: string;
     website?: string;
   };
-  allowedAdmins: string[];
+  /** Legacy field (admin access now via ADMIN_EMAILS env var). Kept optional for older config docs. */
+  allowedAdmins?: string[];
   metaDescription?: string;
   ogImage?: string;
   /** Mini-bio between Hero and Projects (optional; defaults in code). */

@@ -5,7 +5,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { AuthProvider } from "@/context/AuthContext";
-import { getPortfolioConfig } from "@/lib/firestore-server";
+import { getPortfolioConfig } from "@/lib/data-server";
 
 export const dynamic = "force-dynamic";
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAdminFirestoreOrNull } from "@/lib/firebase-admin-server";
+import { isDbConfigured } from "@/lib/db";
+import { recordAnalyticsSession } from "@/lib/data-server";
 
 export const runtime = "nodejs";
 
@@ -130,56 +131,17 @@ export async function POST(request: Request) {
       : null;
   const projectSlug = projectSlugRaw ? sanitizeKey(projectSlugRaw, 80) : null;
 
-  const db = getAdminFirestoreOrNull();
-  if (!db) {
+  if (!isDbConfigured()) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
-  const date = new Date().toISOString().slice(0, 10);
-  const ref = db.collection("analytics_daily").doc(date);
-  const pathKey = pathToKey(path || "/");
-
   try {
-    await db.runTransaction(async (tx) => {
-      const snap = await tx.get(ref);
-      const d = snap.data() ?? {};
-      const sectionCounts = {
-        ...(typeof d.sectionCounts === "object" && d.sectionCounts !== null
-          ? (d.sectionCounts as Record<string, number>)
-          : {}),
-      };
-      sectionCounts[lastSection] = (sectionCounts[lastSection] ?? 0) + 1;
-
-      const pathCounts = {
-        ...(typeof d.pathCounts === "object" && d.pathCounts !== null
-          ? (d.pathCounts as Record<string, number>)
-          : {}),
-      };
-      pathCounts[pathKey] = (pathCounts[pathKey] ?? 0) + 1;
-
-      const projectSlugCounts = {
-        ...(typeof d.projectSlugCounts === "object" && d.projectSlugCounts !== null
-          ? (d.projectSlugCounts as Record<string, number>)
-          : {}),
-      };
-      if (projectSlug) {
-        projectSlugCounts[projectSlug] = (projectSlugCounts[projectSlug] ?? 0) + 1;
-      }
-
-      tx.set(
-        ref,
-        {
-          date,
-          sessionCount: Number(d.sessionCount ?? 0) + 1,
-          totalDurationMs: Number(d.totalDurationMs ?? 0) + durationMs,
-          totalScrollPct: Number(d.totalScrollPct ?? 0) + maxScrollPct,
-          sectionCounts,
-          pathCounts,
-          projectSlugCounts,
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true },
-      );
+    await recordAnalyticsSession({
+      pathKey: pathToKey(path || "/"),
+      lastSection,
+      durationMs,
+      maxScrollPct,
+      projectSlug,
     });
   } catch (e) {
     console.error("[analytics/session]", e);

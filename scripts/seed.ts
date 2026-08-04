@@ -1,52 +1,36 @@
 /**
- * PORTARTS — SEED DE PROYECTOS REALES
- * =====================================
- * Cómo ejecutar:
- *   npx tsx scripts/seed-projects.ts
+ * PORTARTS — Postgres seed (Neon + Drizzle).
+ * Loads Victor's real projects + portfolio config into the database.
  *
- * Requiere:
- *   - .env.local con las credenciales de Firebase
- *   - npm install tsx dotenv (si no los tienes)
- *
- * IMPORTANTE: Este script usa el Admin SDK.
- * Necesitas GOOGLE_APPLICATION_CREDENTIALS o
- * poner tu serviceAccountKey.json en la raíz.
- *
- * ALTERNATIVA FÁCIL: Usa el Admin Panel del portafolio
- * en /admin/projects/new y pega los datos de cada
- * proyecto que están abajo como objetos JSON.
+ * Usage:
+ *   1. Set DATABASE_URL in .env.local (or .env)
+ *   2. npm run db:push      # create tables
+ *   3. npm run seed         # load this data (idempotent, upserts by slug)
  */
+import { config as loadEnv } from "dotenv";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import {
+  projects as projectsTable,
+  portfolioConfig as portfolioConfigTable,
+} from "../src/lib/db/schema";
 
-import { initializeApp, cert, getApps } from "firebase-admin/app";
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import * as dotenv from "dotenv";
-import * as path from "path";
-import * as fs from "fs";
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_URL_NON_POOLING;
 
-// ─── INIT FIREBASE ADMIN ──────────────────────────────────────────────────────
-function initAdmin() {
-  if (getApps().length > 0) return;
-
-  const serviceAccountPath = path.resolve(process.cwd(), "serviceAccountKey.json");
-
-  if (fs.existsSync(serviceAccountPath)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
-    initializeApp({ credential: cert(serviceAccount) });
-  } else {
-    // Fallback: usa variables de entorno (Vercel/CI)
-    initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
-  }
+if (!DATABASE_URL) {
+  console.error("❌ Missing DATABASE_URL (set it in .env.local or .env).");
+  process.exit(1);
 }
 
-initAdmin();
-const db = getFirestore();
+const db = drizzle(neon(DATABASE_URL));
 
 // ─── PROYECTOS ────────────────────────────────────────────────────────────────
-
 const projects = [
   // ──────────────────────────────────────────────────────────────────
   // 1. FAMILYDASH
@@ -616,47 +600,75 @@ const portfolioConfig = {
     "Victor Ruiz — Frontend developer building real products with React, Next.js, TypeScript, Tailwind CSS, and Firebase.",
 };
 
-// ─── SEED ─────────────────────────────────────────────────────────────────────
+// ─── SEED (Postgres) ───────────────────────────────────────────────────────────
 
-async function seed() {
-  console.log("🌱 Starting seed...\n");
+const PROMOTED = new Set([
+  "id",
+  "slug",
+  "published",
+  "order",
+  "featured",
+  "name",
+  "createdAt",
+  "updatedAt",
+]);
 
-  // Portfolio config
-  console.log("📋 Writing portfolio config...");
-  await db.collection("config").doc("portfolio").set(portfolioConfig, { merge: true });
-  console.log("   ✅ config/portfolio written\n");
-
-  // Projects
-  console.log("📦 Writing projects...");
-  for (const project of projects) {
-    const { slug, preview, ...rest } = project;
-
-    // Skip preview if no URL (XtheGospel)
-    const previewData =
-      preview.url ? preview : { ...preview, url: "" };
-
-    const data = {
-      ...rest,
-      slug,
-      preview: previewData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    };
-
-    // Use slug as document ID for easy lookup
-    await db.collection("projects").doc(slug).set(data);
-    console.log(`   ✅ projects/${slug} → ${project.name}`);
+function toRow(p: Record<string, unknown>) {
+  const data: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(p)) {
+    if (!PROMOTED.has(k)) data[k] = v;
   }
-
-  console.log("\n🎉 Seed complete!");
-  console.log("\n⚠️  NEXT STEPS:");
-  console.log("   1. Update portfolioConfig.email with your real email");
-  console.log("   2. Update portfolioConfig.allowedAdmins with your Firebase UID");
-  console.log("   3. Add screenshots to each project via the Admin Panel");
-  console.log("   4. Run: npx tsx scripts/seed-projects.ts");
+  return {
+    id: String(p.slug),
+    slug: String(p.slug),
+    published: Boolean(p.published),
+    order: Number(p.order) || 0,
+    featured: Boolean(p.featured),
+    name: String(p.name ?? ""),
+    data,
+  };
 }
 
-seed().catch((err) => {
-  console.error("❌ Seed failed:", err);
-  process.exit(1);
-});
+async function seed() {
+  console.log("🌱 Seeding Postgres...\n");
+
+  // Portfolio config (drop the legacy allowedAdmins field — admins are via ADMIN_EMAILS now).
+  const cfg: Record<string, unknown> = { ...(portfolioConfig as Record<string, unknown>) };
+  delete cfg.allowedAdmins;
+  await db
+    .insert(portfolioConfigTable)
+    .values({ id: "portfolio", data: cfg as never })
+    .onConflictDoUpdate({
+      target: portfolioConfigTable.id,
+      set: { data: cfg as never, updatedAt: new Date() },
+    });
+  console.log("   ✅ portfolio config");
+
+  for (const p of projects as Array<Record<string, unknown>>) {
+    const row = toRow(p);
+    await db
+      .insert(projectsTable)
+      .values(row as never)
+      .onConflictDoUpdate({
+        target: projectsTable.slug,
+        set: {
+          published: row.published,
+          order: row.order,
+          featured: row.featured,
+          name: row.name,
+          data: row.data as never,
+          updatedAt: new Date(),
+        },
+      });
+    console.log(`   ✅ ${row.slug} → ${row.name}`);
+  }
+
+  console.log("\n🎉 Seed complete.");
+}
+
+seed()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("❌ Seed failed:", err);
+    process.exit(1);
+  });

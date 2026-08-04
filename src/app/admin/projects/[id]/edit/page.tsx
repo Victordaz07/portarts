@@ -8,7 +8,7 @@ import {
   getProjectById,
   updateProject,
   slugExists,
-} from "@/lib/firestore";
+} from "@/lib/data-client";
 import type { Project } from "@/lib/types";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getPublishedProjects } from "@/lib/firestore-server";
+import { getPublishedProjects } from "@/lib/data-server";
 
 const BASE = "https://portarts.vercel.app";
 

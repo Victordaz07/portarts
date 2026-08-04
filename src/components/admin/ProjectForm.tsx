@@ -10,7 +10,7 @@ import { ImageUploader } from "./ImageUploader";
 import { SortableList } from "./SortableList";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
-import { isSlugUnique } from "@/lib/firestore";
+import { isSlugUnique } from "@/lib/data-client";
 import type {
   Project,
   ProjectTheme,

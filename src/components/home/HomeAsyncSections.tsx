@@ -1,7 +1,7 @@
 import {
   getPortfolioConfig,
   getPublishedProjects,
-} from "@/lib/firestore-server";
+} from "@/lib/data-server";
 import { Hero } from "@/components/home/Hero";
 import { ProjectGrid } from "@/components/home/ProjectGrid";
 import { GitHubRepos } from "@/components/home/GitHubRepos";

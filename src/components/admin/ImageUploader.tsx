@@ -1,17 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebase";
-
-function isFirebaseError(err: unknown): err is { code: string; message?: string } {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    typeof (err as { code: unknown }).code === "string"
-  );
-}
 
 async function compressImage(
   file: File,
@@ -72,30 +61,34 @@ export function ImageUploader({
     setUploading(true);
     setError(null);
     try {
+      // Compress large images in the browser (keeps original name/ext otherwise).
       let blob: Blob = file;
+      let filename = file.name;
       if (file.size > 500 * 1024) {
         blob = await compressImage(file, 1200, 0.8);
+        const baseName = file.name.replace(/\.[^/.]+$/, "");
+        filename = `${baseName}.webp`;
       }
-      const ext = file.size > 500 * 1024 ? "webp" : file.name.split(".").pop() ?? "webp";
-      const baseName = file.name.replace(/\.[^/.]+$/, "");
-      const path = `projects/${projectId}/${Date.now()}-${baseName}.${ext}`;
-      const storageRef = ref(storage, path);
-      await uploadBytes(storageRef, blob);
-      const url = await getDownloadURL(storageRef);
+
+      const form = new FormData();
+      form.append("file", blob, filename);
+      form.append("projectId", projectId);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: form,
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `Error ${res.status} al subir la imagen`);
+      }
+      const { url } = (await res.json()) as { url: string };
       onUpload(url, caption);
       setCaption("");
       if (inputRef.current) inputRef.current.value = "";
     } catch (err) {
       console.error(err);
-      if (isFirebaseError(err) && err.code === "storage/unauthorized") {
-        setError(
-          "Storage denegado: en plan Spark, Firebase no permite leer Firestore desde reglas de Storage. " +
-            "Ve a Admin → Settings → «Sincronizar permisos de Storage» (o ejecuta npm run sync-admin-claims con la cuenta de servicio), " +
-            "luego cierra sesión y vuelve a entrar para refrescar el token."
-        );
-      } else {
-        setError(err instanceof Error ? err.message : "Error al subir la imagen");
-      }
+      setError(err instanceof Error ? err.message : "Error al subir la imagen");
     } finally {
       setUploading(false);
     }
