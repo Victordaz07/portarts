@@ -12,6 +12,8 @@ import { isAdminEmail } from "@/lib/admin";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub, Google],
   session: { strategy: "jwt" },
+  // Trust the deploy host (Vercel custom domains / previews) so callbacks resolve.
+  trustHost: true,
   callbacks: {
     async jwt({ token }) {
       token.isAdmin = isAdminEmail(token.email);
