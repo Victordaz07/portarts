@@ -43,8 +43,8 @@ export function GitHubRepos({ username }: GitHubReposProps) {
         if (!res.ok) throw new Error("Error loading repos");
         return res.json();
       })
-      .then((data: Repo[]) => {
-        setRepos(data);
+      .then((data: unknown) => {
+        setRepos(Array.isArray(data) ? (data as Repo[]) : []);
         setError(null);
       })
       .catch((err) => setError(err.message))

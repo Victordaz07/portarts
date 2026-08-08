@@ -64,7 +64,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) {
-    return { title: "Project not found" };
+    // Under force-dynamic streaming, notFound() renders the not-found body with
+    // a 200 (a Next limitation), so mark the page noindex to keep search engines
+    // from indexing non-existent project URLs.
+    return { title: "Project not found", robots: { index: false, follow: false } };
   }
   const description =
     project.description?.trim() || project.tagline?.trim() || "";
