@@ -30,18 +30,19 @@ export async function GET(request: NextRequest) {
 
   const token = process.env.GITHUB_TOKEN;
 
-  try {
-    // List user repos
-    if (user && type === "repos") {
-      const url = `https://api.github.com/users/${user}/repos?sort=updated&per_page=6&type=owner`;
-      const cacheKey = url;
-      const cached = getCached(cacheKey);
-      if (cached !== null) {
-        return NextResponse.json(cached, {
-          headers: { "X-Cache": "HIT" },
-        });
-      }
+  // List user repos.
+  // Degrades gracefully: any upstream failure (rate limit, 401/403, network)
+  // returns an empty list with a 200 so the public site shows a neutral
+  // "No public repos" state instead of a red error. The reason is surfaced in
+  // the `X-GitHub-Notice` header for debugging.
+  if (user && type === "repos") {
+    const url = `https://api.github.com/users/${user}/repos?sort=updated&per_page=6&type=owner`;
+    const cached = getCached(url);
+    if (cached !== null) {
+      return NextResponse.json(cached, { headers: { "X-Cache": "HIT" } });
+    }
 
+    try {
       const res = await fetch(url, {
         headers: {
           Accept: "application/vnd.github.v3+json",
@@ -49,41 +50,41 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      if (res.status === 403) {
+      if (!res.ok) {
         const remaining = res.headers.get("X-RateLimit-Remaining");
-        if (remaining === "0" || !remaining) {
-          return NextResponse.json(
-            {
-              error:
-                "Rate limit de GitHub alcanzado. Configura GITHUB_TOKEN en .env.local para aumentar el límite.",
-            },
-            { status: 429, headers: { "X-Cache": "MISS" } }
-          );
-        }
-      }
-
-      if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
-      const data = await res.json();
-      setCache(cacheKey, data);
-      return NextResponse.json(data, {
-        headers: { "X-Cache": "MISS" },
-      });
-    }
-
-    // Get README
-    if (repo && file === "readme") {
-      const url = `https://api.github.com/repos/${repo}/readme`;
-      const cacheKey = url;
-      const cached = getCached(cacheKey);
-      if (cached !== null && typeof cached === "string") {
-        return new NextResponse(cached, {
-          headers: {
-            "Content-Type": "text/html; charset=utf-8",
-            "X-Cache": "HIT",
-          },
+        const notice =
+          res.status === 403 && (remaining === "0" || !remaining)
+            ? "GitHub rate limit reached — set GITHUB_TOKEN to raise it."
+            : `GitHub API returned ${res.status}.`;
+        return NextResponse.json([], {
+          headers: { "X-Cache": "MISS", "X-GitHub-Notice": notice },
         });
       }
 
+      const data = await res.json();
+      const repos = Array.isArray(data) ? data : [];
+      setCache(url, repos);
+      return NextResponse.json(repos, { headers: { "X-Cache": "MISS" } });
+    } catch (err) {
+      console.error("GitHub repos error:", err);
+      return NextResponse.json([], {
+        headers: { "X-Cache": "MISS", "X-GitHub-Notice": "GitHub unreachable." },
+      });
+    }
+  }
+
+  // Get README (rendered as HTML). Consumed inside an ErrorBoundary on the
+  // project page, so surfacing a non-200 here is acceptable.
+  if (repo && file === "readme") {
+    const url = `https://api.github.com/repos/${repo}/readme`;
+    const cached = getCached(url);
+    if (cached !== null && typeof cached === "string") {
+      return new NextResponse(cached, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "X-Cache": "HIT" },
+      });
+    }
+
+    try {
       const res = await fetch(url, {
         headers: {
           Accept: "application/vnd.github.v3.html",
@@ -97,33 +98,36 @@ export async function GET(request: NextRequest) {
           return NextResponse.json(
             {
               error:
-                "Rate limit de GitHub alcanzado. Configura GITHUB_TOKEN en .env.local para aumentar el límite.",
+                "Rate limit de GitHub alcanzado. Configura GITHUB_TOKEN para aumentar el límite.",
             },
             { status: 429, headers: { "X-Cache": "MISS" } }
           );
         }
       }
 
-      if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
-      const html = await res.text();
-      setCache(cacheKey, html);
-      return new NextResponse(html, {
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "X-Cache": "MISS",
-        },
-      });
-    }
+      if (res.status === 404) {
+        return NextResponse.json({ error: "README not found" }, { status: 404 });
+      }
+      if (!res.ok) {
+        return NextResponse.json(
+          { error: `GitHub API: ${res.status}` },
+          { status: 502 }
+        );
+      }
 
-    return NextResponse.json(
-      { error: "Missing params: user+type=repos or repo+file=readme" },
-      { status: 400 }
-    );
-  } catch (err) {
-    console.error("GitHub API error:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "GitHub API error" },
-      { status: 500 }
-    );
+      const html = await res.text();
+      setCache(url, html);
+      return new NextResponse(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "X-Cache": "MISS" },
+      });
+    } catch (err) {
+      console.error("GitHub README error:", err);
+      return NextResponse.json({ error: "GitHub unreachable" }, { status: 502 });
+    }
   }
+
+  return NextResponse.json(
+    { error: "Missing params: user+type=repos or repo+file=readme" },
+    { status: 400 }
+  );
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { getPortfolioConfig, updatePortfolioConfig } from "@/lib/firestore";
-import { auth } from "@/lib/firebase";
+import { getPortfolioConfig, updatePortfolioConfig } from "@/lib/data-client";
 import type { PortfolioConfig } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -14,10 +13,6 @@ import { HomePreview } from "@/components/admin/HomePreview";
 export default function AdminSettingsPage() {
   const [config, setConfig] = useState<PortfolioConfig | null>(null);
   const [loading, setLoading] = useState(true);
-  const [syncClaimsStatus, setSyncClaimsStatus] = useState<
-    "idle" | "syncing" | "ok" | "error"
-  >("idle");
-  const [syncClaimsMessage, setSyncClaimsMessage] = useState("");
   const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const isFirstRun = useRef(true);
   const prevConfigRef = useRef<string>("");
@@ -118,50 +113,6 @@ export default function AdminSettingsPage() {
       ...config,
       socialLinks: { ...config.socialLinks, [key]: value || undefined },
     });
-  };
-
-  const updateAllowedAdmins = (value: string) => {
-    if (!config) return;
-    const uids = value.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
-    setConfig({ ...config, allowedAdmins: uids });
-  };
-
-  const syncStorageClaims = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      setSyncClaimsStatus("error");
-      setSyncClaimsMessage("Inicia sesión en el panel admin primero.");
-      return;
-    }
-    setSyncClaimsStatus("syncing");
-    setSyncClaimsMessage("");
-    try {
-      const idToken = await user.getIdToken();
-      const res = await fetch("/api/admin/sync-admin-claims", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      const body = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        ok?: boolean;
-      };
-      if (!res.ok) {
-        setSyncClaimsStatus("error");
-        setSyncClaimsMessage(
-          body.error ??
-            `Error ${res.status}. En local suele faltar FIREBASE_SERVICE_ACCOUNT_JSON; usa npm run sync-admin-claims.`
-        );
-        return;
-      }
-      await user.getIdToken(true);
-      setSyncClaimsStatus("ok");
-      setSyncClaimsMessage(
-        "Listo. Token actualizado: ya puedes subir imágenes a Storage. Si fallara, cierra sesión y entra otra vez."
-      );
-    } catch (e) {
-      setSyncClaimsStatus("error");
-      setSyncClaimsMessage(e instanceof Error ? e.message : "Error de red");
-    }
   };
 
   const handleSave = async () => {
@@ -416,42 +367,19 @@ export default function AdminSettingsPage() {
             </div>
           </CollapsibleSection>
 
-          <CollapsibleSection title="Admin">
-            <div className="space-y-4">
+          <CollapsibleSection title="Admin access">
+            <div className="space-y-3">
               <p className="text-xs text-text-muted leading-relaxed">
-                Las subidas a Firebase Storage usan el permiso{" "}
-                <code className="text-text-secondary bg-bg-hover px-1 rounded">portfolioAdmin</code> en tu
-                cuenta (no basta con estar en la lista para Firestore en plan gratuito). Tras cambiar UIDs o
-                si Storage rechaza subidas, pulsa sincronizar.
+                Admin access is controlled by the{" "}
+                <code className="text-text-secondary bg-bg-hover px-1 rounded">
+                  ADMIN_EMAILS
+                </code>{" "}
+                environment variable (comma-separated list of emails) on the
+                server. Add or remove admins in your Vercel project settings →
+                Environment Variables, then redeploy. Image uploads go to Vercel
+                Blob and are authorized by your logged-in session — no extra
+                permission sync needed.
               </p>
-              <label className="block text-xs text-text-secondary uppercase tracking-wider">
-                Allowed UIDs (comma or space separated)
-              </label>
-              <Textarea
-                value={(config.allowedAdmins ?? []).join(", ")}
-                onChange={(e) => updateAllowedAdmins(e.target.value)}
-                rows={3}
-                placeholder="uid1, uid2"
-              />
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={syncStorageClaims}
-                  disabled={syncClaimsStatus === "syncing"}
-                >
-                  {syncClaimsStatus === "syncing"
-                    ? "Sincronizando…"
-                    : "Sincronizar permisos de Storage"}
-                </Button>
-                {syncClaimsStatus === "ok" && (
-                  <span className="text-xs text-green">{syncClaimsMessage}</span>
-                )}
-                {syncClaimsStatus === "error" && (
-                  <span className="text-xs text-rose max-w-md">{syncClaimsMessage}</span>
-                )}
-              </div>
             </div>
           </CollapsibleSection>
 

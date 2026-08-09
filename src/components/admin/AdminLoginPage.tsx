@@ -172,9 +172,9 @@ export function AdminLoginPage() {
           Only authorized accounts can access the panel. If you&apos;re
           stuck, check{" "}
           <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-slate-400">
-            allowedAdmins
+            ADMIN_EMAILS
           </code>{" "}
-          in Firestore.
+          in your environment variables.
         </p>
 
         <Link

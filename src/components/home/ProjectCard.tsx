@@ -19,10 +19,10 @@ const THEME_CLASSES: Record<ProjectTheme, string> = {
 };
 
 const STATUS_DOTS: Record<string, string> = {
-  green: "bg-[#dcfce7] text-[#166534]",
-  yellow: "bg-[#fef3c7] text-[#92400e]",
-  blue: "bg-[#dbeafe] text-[#1d4ed8]",
-  red: "bg-[#ffe4e6] text-[#be123c]",
+  green: "bg-emerald-500/15 text-emerald-300",
+  yellow: "bg-amber-500/15 text-amber-300",
+  blue: "bg-sky-500/15 text-sky-300",
+  red: "bg-rose-500/15 text-rose-300",
 };
 
 const VISUAL_GRADIENTS: Record<string, string> = {
@@ -163,10 +163,10 @@ export function ProjectCard({
         >
           <span
             className={cn(
-              "translate-y-1 text-sm font-medium",
+              "translate-y-1 text-sm font-semibold",
               "px-3.5 py-1.5 rounded-full",
-              "bg-white/95 text-black shadow-md",
-              "border border-white/40",
+              "bg-accent text-black shadow-md",
+              "border border-transparent",
               "transition-transform duration-300 ease-out",
               "group-hover:translate-y-0",
             )}
@@ -178,14 +178,14 @@ export function ProjectCard({
       <div className="relative z-3 p-5">
         <div className="flex gap-2 flex-wrap mb-3">
           {project.featured && (
-            <span className="px-2.5 py-1 bg-[#f4f4f5] rounded-full text-xs text-text-secondary font-medium">
+            <span className="px-2.5 py-1 bg-white/6 rounded-full text-xs text-text-secondary font-medium">
               Featured
             </span>
           )}
           {project.tags?.map((tag) => (
             <span
               key={tag}
-              className="px-2.5 py-1 bg-[#f4f4f5] rounded-full text-xs text-text-secondary font-medium"
+              className="px-2.5 py-1 bg-white/6 rounded-full text-xs text-text-secondary font-medium"
             >
               {tag}
             </span>
@@ -193,9 +193,9 @@ export function ProjectCard({
         </div>
         <h3
           className={cn(
-            "text-black font-bold text-[20px] mb-2",
+            "text-text-primary font-bold text-[20px] mb-2",
             "transition-colors duration-200",
-            "group-hover:text-text-primary",
+            "group-hover:text-accent",
           )}
         >
           {project.name}
@@ -210,12 +210,12 @@ export function ProjectCard({
           <div className="mt-4 space-y-1 text-[13px] leading-relaxed text-text-secondary">
             {problem ? (
               <p>
-                <span className="font-semibold text-black">Problem:</span> {problem}
+                <span className="font-semibold text-text-primary">Problem:</span> {problem}
               </p>
             ) : null}
             {role ? (
               <p>
-                <span className="font-semibold text-black">Role:</span> {role}
+                <span className="font-semibold text-text-primary">Role:</span> {role}
               </p>
             ) : null}
           </div>
@@ -224,7 +224,7 @@ export function ProjectCard({
           <div className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusColor}`}>
             {project.status?.text ?? "In development"}
           </div>
-          <div className="w-8 h-8 rounded-full border border-[#dbeafe] flex items-center justify-center text-accent transition-all duration-300 group-hover:bg-[#eff6ff] group-hover:-rotate-12">
+          <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-accent transition-all duration-300 group-hover:bg-accent/10 group-hover:border-accent/40 group-hover:-rotate-12">
             <ArrowUpRight className="w-4 h-4" />
           </div>
         </div>
@@ -237,7 +237,7 @@ export function ProjectCard({
     return (
       <div
         className={cn(
-          "rounded-[12px] overflow-hidden border bg-white",
+          "rounded-[12px] overflow-hidden border bg-bg-card",
           "group transition-all duration-300 ease-smooth",
           "hover:-translate-y-1 hover:shadow-md",
           footerDark
@@ -313,9 +313,9 @@ export function ProjectCard({
     <Link
       href={publicHref}
       className={cn(
-        "block rounded-[12px] overflow-hidden border border-border bg-white cursor-pointer",
+        "block rounded-[12px] overflow-hidden border border-border bg-bg-card cursor-pointer",
         "group transition-all duration-300 ease-smooth",
-        "hover:-translate-y-1 hover:shadow-sm hover:border-border",
+        "hover:-translate-y-1 hover:border-border-hover",
       )}
     >
       {cardBody}

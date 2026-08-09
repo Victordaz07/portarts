@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Suspense } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { AuthProvider } from "@/context/AuthContext";
-import { getPortfolioConfig } from "@/lib/firestore-server";
+import { getPortfolioConfig } from "@/lib/data-server";
 
 export const dynamic = "force-dynamic";
 
-const geistSans = Geist({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jetbrains",
 });
 
 const SITE_URL = "https://portarts.vercel.app";
@@ -100,9 +102,10 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
       <body className="font-body antialiased bg-bg text-text-primary">
+        <div className="dot-texture" aria-hidden />
         <Script
           src="https://kit.fontawesome.com/e566ecdb3d.js"
           crossOrigin="anonymous"

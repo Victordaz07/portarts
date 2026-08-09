@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Eye, EyeOff, Trash2 } from "lucide-react";
-import { getAllProjects, updateProject, deleteProject } from "@/lib/firestore";
+import { getAllProjects, updateProject, deleteProject } from "@/lib/data-client";
 import type { Project } from "@/lib/types";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ProjectCard } from "@/components/home/ProjectCard";

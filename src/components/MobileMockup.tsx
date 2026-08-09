@@ -19,8 +19,8 @@ export function MobileMockup({ src, alt, className }: MobileMockupProps) {
       <div
         className={cn(
           "relative rounded-[2.5rem]",
-          "border-[6px] border-black/10",
-          "bg-black/5",
+          "border-[6px] border-white/10",
+          "bg-white/5",
           "overflow-hidden",
           "shadow-sm",
         )}
@@ -30,7 +30,7 @@ export function MobileMockup({ src, alt, className }: MobileMockupProps) {
             "absolute top-0 left-1/2",
             "-translate-x-1/2",
             "w-24 h-5",
-            "bg-black/10",
+            "bg-white/10",
             "rounded-b-xl",
             "z-10",
           )}

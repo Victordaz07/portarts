@@ -17,7 +17,8 @@ export interface PortfolioConfig {
     twitter?: string;
     website?: string;
   };
-  allowedAdmins: string[];
+  /** Legacy field (admin access now via ADMIN_EMAILS env var). Kept optional for older config docs. */
+  allowedAdmins?: string[];
   metaDescription?: string;
   ogImage?: string;
   /** Mini-bio between Hero and Projects (optional; defaults in code). */
@@ -45,6 +46,24 @@ export type ProjectTheme =
   | "default"
   | "custom";
 
+/** High-level grouping used to organize the home grid into sections. */
+export type ProjectCategory = "web-app" | "website" | "portfolio" | "system";
+
+export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
+  "web-app": "Web apps & platforms",
+  website: "Business websites",
+  portfolio: "Portfolios",
+  system: "Systems & tools",
+};
+
+/** Display order of category sections on the home page. */
+export const PROJECT_CATEGORY_ORDER: ProjectCategory[] = [
+  "web-app",
+  "website",
+  "portfolio",
+  "system",
+];
+
 export type ProjectStatusColor = "green" | "yellow" | "blue" | "red";
 
 export type DeviceType = "phone" | "tablet" | "desktop";
@@ -66,6 +85,8 @@ export interface Project {
   fullDescription: string;
   featured: boolean;
   order: number;
+  /** Optional high-level grouping for the home sections. */
+  category?: ProjectCategory;
   status?: {
     text: string;
     color: ProjectStatusColor;

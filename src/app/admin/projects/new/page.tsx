@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectForm } from "@/components/admin/ProjectForm";
-import { createProject, getAllProjects, slugExists } from "@/lib/firestore";
+import { createProject, getAllProjects, slugExists } from "@/lib/data-client";
 
 export default function NewProjectPage() {
   const router = useRouter();

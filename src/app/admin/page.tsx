@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, FolderOpen, ExternalLink } from "lucide-react";
-import { getAllProjects, getAnalyticsDailyRange } from "@/lib/firestore";
+import { getAllProjects, getAnalyticsDailyRange } from "@/lib/data-client";
 import { ProjectCard } from "@/components/home/ProjectCard";
 import { AdminDashboardInsights } from "@/components/admin/AdminDashboardInsights";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";

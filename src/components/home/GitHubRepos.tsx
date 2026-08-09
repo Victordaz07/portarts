@@ -43,8 +43,8 @@ export function GitHubRepos({ username }: GitHubReposProps) {
         if (!res.ok) throw new Error("Error loading repos");
         return res.json();
       })
-      .then((data: Repo[]) => {
-        setRepos(data);
+      .then((data: unknown) => {
+        setRepos(Array.isArray(data) ? (data as Repo[]) : []);
         setError(null);
       })
       .catch((err) => setError(err.message))
@@ -57,7 +57,7 @@ export function GitHubRepos({ username }: GitHubReposProps) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="p-5 bg-white border border-border rounded-lg animate-pulse h-32"
+            className="p-5 bg-white/[0.03] border border-border rounded-lg animate-pulse h-32"
           />
         ))}
       </div>
@@ -88,9 +88,9 @@ export function GitHubRepos({ username }: GitHubReposProps) {
           href={repo.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block p-5 bg-white border border-border rounded-lg transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 no-underline text-inherit"
+          className="block p-5 bg-white/[0.03] border border-border rounded-lg transition-all duration-300 hover:border-border-hover hover:bg-white/[0.05] hover:-translate-y-0.5 no-underline text-inherit"
         >
-          <h4 className="text-base text-black mb-2 font-bold transition-colors hover:text-accent">
+          <h4 className="text-base text-text-primary mb-2 font-bold transition-colors hover:text-accent">
             {repo.name}
           </h4>
           <p className={`text-sm leading-relaxed mb-3 line-clamp-2 ${repo.description ? "text-text-secondary" : "text-text-muted italic"}`}>
@@ -104,7 +104,7 @@ export function GitHubRepos({ username }: GitHubReposProps) {
                     ? "bg-[#333333] text-[#f7df1e]"
                     : repo.language === "TypeScript"
                       ? "bg-cyan text-white"
-                      : "bg-[#f3f4f6] text-[#374151]"
+                      : "bg-white/8 text-text-secondary"
                 }`}
               >
                 <span

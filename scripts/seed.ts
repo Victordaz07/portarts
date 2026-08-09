@@ -1,52 +1,36 @@
 /**
- * PORTARTS — SEED DE PROYECTOS REALES
- * =====================================
- * Cómo ejecutar:
- *   npx tsx scripts/seed-projects.ts
+ * PORTARTS — Postgres seed (Neon + Drizzle).
+ * Loads Victor's real projects + portfolio config into the database.
  *
- * Requiere:
- *   - .env.local con las credenciales de Firebase
- *   - npm install tsx dotenv (si no los tienes)
- *
- * IMPORTANTE: Este script usa el Admin SDK.
- * Necesitas GOOGLE_APPLICATION_CREDENTIALS o
- * poner tu serviceAccountKey.json en la raíz.
- *
- * ALTERNATIVA FÁCIL: Usa el Admin Panel del portafolio
- * en /admin/projects/new y pega los datos de cada
- * proyecto que están abajo como objetos JSON.
+ * Usage:
+ *   1. Set DATABASE_URL in .env.local (or .env)
+ *   2. npm run db:push      # create tables
+ *   3. npm run seed         # load this data (idempotent, upserts by slug)
  */
+import { config as loadEnv } from "dotenv";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import {
+  projects as projectsTable,
+  portfolioConfig as portfolioConfigTable,
+} from "../src/lib/db/schema";
 
-import { initializeApp, cert, getApps } from "firebase-admin/app";
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import * as dotenv from "dotenv";
-import * as path from "path";
-import * as fs from "fs";
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_URL_NON_POOLING;
 
-// ─── INIT FIREBASE ADMIN ──────────────────────────────────────────────────────
-function initAdmin() {
-  if (getApps().length > 0) return;
-
-  const serviceAccountPath = path.resolve(process.cwd(), "serviceAccountKey.json");
-
-  if (fs.existsSync(serviceAccountPath)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
-    initializeApp({ credential: cert(serviceAccount) });
-  } else {
-    // Fallback: usa variables de entorno (Vercel/CI)
-    initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
-  }
+if (!DATABASE_URL) {
+  console.error("❌ Missing DATABASE_URL (set it in .env.local or .env).");
+  process.exit(1);
 }
 
-initAdmin();
-const db = getFirestore();
+const db = drizzle(neon(DATABASE_URL));
 
 // ─── PROYECTOS ────────────────────────────────────────────────────────────────
-
 const projects = [
   // ──────────────────────────────────────────────────────────────────
   // 1. FAMILYDASH
@@ -77,6 +61,7 @@ const projects = [
     featured: true,
     order: 1,
     published: true,
+    category: "web-app",
     status: {
       text: "Live",
       color: "green",
@@ -226,6 +211,7 @@ const projects = [
     featured: true,
     order: 2,
     published: true,
+    category: "web-app",
     status: {
       text: "In Development",
       color: "yellow",
@@ -356,6 +342,7 @@ const projects = [
     featured: false,
     order: 3,
     published: true,
+    category: "web-app",
     status: {
       text: "In Progress",
       color: "blue",
@@ -468,6 +455,7 @@ const projects = [
     featured: true,
     order: 4,
     published: true,
+    category: "web-app",
     status: {
       text: "Live",
       color: "green",
@@ -563,6 +551,362 @@ const projects = [
       github: "https://github.com/Victordaz07/Diario-Misional-Web",
     },
   },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 5. FREELANCEHUB (PowerfulCrm) — web app
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "freelancehub",
+    name: "FreelanceHub",
+    tagline: "Multi-tenant CRM for freelancers.",
+    description:
+      "A multi-tenant CRM that unifies projects, calendar, and invoicing for independent freelancers — with per-tenant data isolation and online payments.",
+    fullDescription:
+      "FreelanceHub is a comprehensive platform that brings a freelancer's whole operation into one place: client and project management, a calendar, and invoicing with online checkout.\n\nIt is built multi-tenant from the ground up, with row-level security isolating each account's data, background jobs for async work, and file storage for attachments. Core flows (calendar, invoicing) are live; form builders, a drag-and-drop kanban, and full checkout are on the roadmap.",
+    valueProps: {
+      problem: "Freelancers juggle clients, schedules, and invoices across disconnected tools.",
+      role: "Full-stack architecture and implementation, including multi-tenant security.",
+      outcome: "A single workspace for projects, scheduling, and getting paid.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT"],
+      summary:
+        "Built on an Agile, AI-augmented workflow — architecture and multi-tenant RLS reviewed and owned end to end.",
+    },
+    kpis: [
+      { value: "Multi", label: "tenant (RLS)" },
+      { value: "64", label: "commits" },
+      { value: "3", label: "core modules live" },
+    ],
+    featured: true,
+    order: 5,
+    published: true,
+    category: "web-app",
+    status: { text: "In Development", color: "yellow" },
+    tags: ["Next.js", "Prisma", "PostgreSQL", "Stripe", "SaaS"],
+    theme: "fleet",
+    preview: {
+      url: "https://powerful-crm.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/PowerfulCrm",
+    githubUrl: "https://github.com/Victordaz07/PowerfulCrm",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js 14 + Prisma + PostgreSQL",
+      Auth: "Clerk (multi-tenant)",
+      Payments: "Stripe / Mercado Pago",
+      Jobs: "Inngest",
+    },
+    techStack: [
+      "Next.js 14",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL (Neon)",
+      "Clerk",
+      "Stripe",
+      "Vercel Blob",
+      "Inngest",
+    ],
+    links: {
+      live: "https://powerful-crm.vercel.app",
+      github: "https://github.com/Victordaz07/PowerfulCrm",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 6. SGM MUSIC LAB (Generador-de-canciones) — web app / AI
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "sgm-music-lab",
+    name: "SGM Music Lab",
+    tagline: "AI song generation, end to end.",
+    description:
+      "Generates complete songs — lyrics, audio (via Suno), and cover art — from a single interface, orchestrating multiple AI services behind server-side proxies.",
+    fullDescription:
+      "SGM Music Lab turns a single prompt into a finished song: it writes the lyrics, composes and polls for the audio, and generates cover art with the title and logo composited via Canvas.\n\nAll third-party AI calls are proxied server-side through Route Handlers, with passwordless auth and client-side state. It's an end-to-end showcase of practical AI integration — not a toy demo.",
+    valueProps: {
+      problem: "Producing a song means stitching together lyrics, audio, and artwork across separate tools.",
+      role: "Product and full-stack build, including AI orchestration and Canvas compositing.",
+      outcome: "A one-screen pipeline from idea to a shareable song with cover art.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT"],
+      summary:
+        "AI-augmented build; the app itself integrates the Claude API and Suno behind server proxies.",
+    },
+    kpis: [
+      { value: "3", label: "AI services orchestrated" },
+      { value: "1", label: "screen, end-to-end" },
+    ],
+    featured: true,
+    order: 6,
+    published: true,
+    category: "web-app",
+    status: { text: "Live", color: "green" },
+    tags: ["Next.js", "AI", "Claude API", "TypeScript"],
+    theme: "focus",
+    preview: {
+      url: "https://generador-de-canciones.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/Generador-de-canciones",
+    githubUrl: "https://github.com/Victordaz07/Generador-de-canciones",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js + TypeScript",
+      AI: "Claude API + Suno + image gen",
+      Rendering: "Canvas (cover compositing)",
+    },
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Claude API",
+      "Suno",
+      "Canvas",
+      "Tailwind CSS",
+      "Vercel",
+    ],
+    links: {
+      live: "https://generador-de-canciones.vercel.app",
+      github: "https://github.com/Victordaz07/Generador-de-canciones",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 7. CRISLIA — UGC PORTFOLIO (portafolio-cristal) — portfolio
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "portafolio-crislia",
+    name: "Crislia — UGC Portfolio",
+    tagline: "A content creator's portfolio with its own CMS.",
+    description:
+      "A bilingual portfolio for a UGC creator: media kit, content feed, testimonials, and services — all editable from a no-code admin panel.",
+    fullDescription:
+      "Crislia's portfolio is a client project: a polished, bilingual (ES/EN) site that doubles as a media kit for brand deals — content feed, testimonials, and services.\n\nEvery section is database-driven and editable from a protected admin dashboard, with image and video uploads, so the creator can update everything without touching code.",
+    valueProps: {
+      problem: "Creators need a professional media kit they can update themselves.",
+      role: "Design and full-stack build, including the CMS and media pipeline.",
+      outcome: "A self-serve, always-current portfolio that wins brand collaborations.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude"],
+      summary:
+        "Client engagement delivered Agile — scoped, reviewed, and shipped to production.",
+    },
+    kpis: [
+      { value: "ES/EN", label: "bilingual" },
+      { value: "100%", label: "no-code editable" },
+    ],
+    featured: true,
+    order: 7,
+    published: true,
+    category: "portfolio",
+    status: { text: "Live", color: "green" },
+    tags: ["Next.js", "Prisma", "CMS", "Client work"],
+    theme: "family",
+    preview: {
+      url: "https://portafolio-cristal.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/portafolio-cristal",
+    githubUrl: "https://github.com/Victordaz07/portafolio-cristal",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js 14 + Prisma + PostgreSQL",
+      Media: "Vercel Blob (image/video)",
+      Type: "Client project",
+    },
+    techStack: [
+      "Next.js 14",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Vercel Blob",
+      "Tailwind CSS",
+    ],
+    links: {
+      live: "https://portafolio-cristal.vercel.app",
+      github: "https://github.com/Victordaz07/portafolio-cristal",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 8. VEHIKITÉ BARBERSHOP (Barbershop-William) — business website
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "vehikite-barbershop",
+    name: "Vehikité Barbershop",
+    tagline: "Booking platform for a Tongatapu barbershop.",
+    description:
+      "A bilingual (EN/Tongan) booking site with real-time scheduling, a moderated reviews system, and an admin panel for managing appointments.",
+    fullDescription:
+      "A client website for Vehikité, a barbershop in Tongatapu: customers book appointments against a real-time schedule, leave reviews (moderated before publishing), and the owner manages everything from an admin panel.\n\nBuilt bilingual (English/Tongan) with Firestore security rules and continuous deployment via GitHub Actions.",
+    valueProps: {
+      problem: "A local barbershop needed online booking instead of phone-and-paper scheduling.",
+      role: "Design, full-stack build, auth, and deployment.",
+      outcome: "A bilingual booking site with an admin panel the owner runs day to day.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude"],
+      summary: "Client build shipped with CI/CD to Firebase Hosting.",
+    },
+    kpis: [
+      { value: "EN/TO", label: "bilingual" },
+      { value: "Realtime", label: "scheduling" },
+    ],
+    featured: false,
+    order: 8,
+    published: true,
+    category: "website",
+    status: { text: "Live", color: "green" },
+    tags: ["React", "Vite", "Firebase", "Booking"],
+    theme: "gospel",
+    preview: {
+      url: "https://barbershop-william.web.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/Barbershop-William",
+    githubUrl: "https://github.com/Victordaz07/Barbershop-William",
+    metadata: {
+      Platform: "Web (React SPA)",
+      Stack: "React 19 + Vite + Firebase",
+      Languages: "English / Tongan",
+      Deploy: "Firebase Hosting (GitHub Actions)",
+      Type: "Client project",
+    },
+    techStack: [
+      "React 19",
+      "Vite",
+      "TypeScript",
+      "Firebase (Firestore + Auth)",
+      "Tailwind CSS",
+    ],
+    links: {
+      live: "https://barbershop-william.web.app",
+      github: "https://github.com/Victordaz07/Barbershop-William",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 9. BAUTIZAPP — single-file HTML tool (system)
+  //    NOTE: update `live` if your Vercel project name differs from "bautizapp".
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "bautizapp",
+    name: "BautizApp",
+    tagline: "Baptism programs & WhatsApp invites in one tool.",
+    description:
+      "An offline-first tool to create baptism programs and shareable WhatsApp invitations — a guided 4-step wizard with 5 languages, design customization, and PDF export.",
+    fullDescription:
+      "BautizApp is a single-file, offline-first web app that turns a few inputs into a finished baptism program and a ready-to-share WhatsApp invitation.\n\nIt runs entirely in the browser (no backend): a 4-step wizard, five languages, live design customization, PDF generation via jsPDF, and image export via html2canvas, all persisted to local storage. Built for real use by members of The Church of Jesus Christ of Latter-day Saints.",
+    valueProps: {
+      problem: "Preparing baptism programs and invitations by hand is slow and inconsistent.",
+      role: "Product design and full front-end implementation (single-file, offline).",
+      outcome: "A guided tool that outputs a polished program and invitation in minutes.",
+    },
+    kpis: [
+      { value: "4", label: "step wizard" },
+      { value: "5", label: "languages" },
+      { value: "0", label: "backend", suffix: " · offline" },
+    ],
+    featured: false,
+    order: 9,
+    published: true,
+    category: "system",
+    status: { text: "Live", color: "green" },
+    tags: ["HTML", "Vanilla JS", "jsPDF", "Offline-first"],
+    theme: "gospel",
+    preview: {
+      url: "https://bautizapp.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    previews: [
+      {
+        url: "https://bautizapp.vercel.app",
+        type: "desktop",
+        label: "Live tool",
+        embed: false,
+        allowFullscreen: true,
+      },
+    ],
+    githubRepo: "Victordaz07/Bautizapp",
+    githubUrl: "https://github.com/Victordaz07/Bautizapp",
+    metadata: {
+      Platform: "Web (single-file, offline-first)",
+      Stack: "HTML5 + CSS3 + Vanilla JS",
+      Libraries: "jsPDF + html2canvas",
+      Languages: "5",
+    },
+    techStack: ["HTML5", "CSS3", "JavaScript", "jsPDF", "html2canvas"],
+    links: {
+      live: "https://bautizapp.vercel.app",
+      github: "https://github.com/Victordaz07/Bautizapp",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 10. SHOMERCARE — single-file HTML tool (system)
+  //     NOTE: update `live` if your Vercel project name differs from "shomercare-demo".
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "shomercare",
+    name: "ShomerCare",
+    tagline: "Shift scheduling & comms for operations teams.",
+    description:
+      "An offline-first scheduling and communication tool for custodial and operations teams — zones, shift assignments, days-off tracking, WhatsApp integration, and cross-device sync via QR.",
+    fullDescription:
+      "ShomerCare coordinates custodial and operations teams across zones and time windows, entirely in a single offline-first web page.\n\nIt handles team management, shift assignments, and days-off tracking, pushes updates through WhatsApp, and syncs state across devices with QR codes — no backend required. It's actively used to run real operations.",
+    valueProps: {
+      problem: "Coordinating cleaning/ops shifts across zones and people is error-prone on paper.",
+      role: "Product design and full front-end implementation (single-file, offline).",
+      outcome: "A lightweight system that keeps a real operations team organized and in sync.",
+    },
+    kpis: [
+      { value: "QR", label: "cross-device sync" },
+      { value: "0", label: "backend", suffix: " · offline" },
+      { value: "Real", label: "operations use" },
+    ],
+    featured: false,
+    order: 10,
+    published: true,
+    category: "system",
+    status: { text: "Live", color: "green" },
+    tags: ["HTML", "Vanilla JS", "Offline-first", "PWA"],
+    theme: "fleet",
+    preview: {
+      url: "https://shomercare-demo.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    previews: [
+      {
+        url: "https://shomercare-demo.vercel.app",
+        type: "desktop",
+        label: "Live tool",
+        embed: false,
+        allowFullscreen: true,
+      },
+    ],
+    githubRepo: "Victordaz07/shomercare-demo",
+    githubUrl: "https://github.com/Victordaz07/shomercare-demo",
+    metadata: {
+      Platform: "Web (single-file, offline-first)",
+      Stack: "HTML + CSS + Vanilla JS",
+      Sync: "QR codes (cross-device)",
+      Comms: "WhatsApp",
+    },
+    techStack: ["HTML", "CSS", "JavaScript", "Offline-first"],
+    links: {
+      live: "https://shomercare-demo.vercel.app",
+      github: "https://github.com/Victordaz07/shomercare-demo",
+    },
+  },
 ];
 
 // ─── PORTFOLIO CONFIG ─────────────────────────────────────────────────────────
@@ -616,47 +960,75 @@ const portfolioConfig = {
     "Victor Ruiz — Frontend developer building real products with React, Next.js, TypeScript, Tailwind CSS, and Firebase.",
 };
 
-// ─── SEED ─────────────────────────────────────────────────────────────────────
+// ─── SEED (Postgres) ───────────────────────────────────────────────────────────
 
-async function seed() {
-  console.log("🌱 Starting seed...\n");
+const PROMOTED = new Set([
+  "id",
+  "slug",
+  "published",
+  "order",
+  "featured",
+  "name",
+  "createdAt",
+  "updatedAt",
+]);
 
-  // Portfolio config
-  console.log("📋 Writing portfolio config...");
-  await db.collection("config").doc("portfolio").set(portfolioConfig, { merge: true });
-  console.log("   ✅ config/portfolio written\n");
-
-  // Projects
-  console.log("📦 Writing projects...");
-  for (const project of projects) {
-    const { slug, preview, ...rest } = project;
-
-    // Skip preview if no URL (XtheGospel)
-    const previewData =
-      preview.url ? preview : { ...preview, url: "" };
-
-    const data = {
-      ...rest,
-      slug,
-      preview: previewData,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-    };
-
-    // Use slug as document ID for easy lookup
-    await db.collection("projects").doc(slug).set(data);
-    console.log(`   ✅ projects/${slug} → ${project.name}`);
+function toRow(p: Record<string, unknown>) {
+  const data: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(p)) {
+    if (!PROMOTED.has(k)) data[k] = v;
   }
-
-  console.log("\n🎉 Seed complete!");
-  console.log("\n⚠️  NEXT STEPS:");
-  console.log("   1. Update portfolioConfig.email with your real email");
-  console.log("   2. Update portfolioConfig.allowedAdmins with your Firebase UID");
-  console.log("   3. Add screenshots to each project via the Admin Panel");
-  console.log("   4. Run: npx tsx scripts/seed-projects.ts");
+  return {
+    id: String(p.slug),
+    slug: String(p.slug),
+    published: Boolean(p.published),
+    order: Number(p.order) || 0,
+    featured: Boolean(p.featured),
+    name: String(p.name ?? ""),
+    data,
+  };
 }
 
-seed().catch((err) => {
-  console.error("❌ Seed failed:", err);
-  process.exit(1);
-});
+async function seed() {
+  console.log("🌱 Seeding Postgres...\n");
+
+  // Portfolio config (drop the legacy allowedAdmins field — admins are via ADMIN_EMAILS now).
+  const cfg: Record<string, unknown> = { ...(portfolioConfig as Record<string, unknown>) };
+  delete cfg.allowedAdmins;
+  await db
+    .insert(portfolioConfigTable)
+    .values({ id: "portfolio", data: cfg as never })
+    .onConflictDoUpdate({
+      target: portfolioConfigTable.id,
+      set: { data: cfg as never, updatedAt: new Date() },
+    });
+  console.log("   ✅ portfolio config");
+
+  for (const p of projects as Array<Record<string, unknown>>) {
+    const row = toRow(p);
+    await db
+      .insert(projectsTable)
+      .values(row as never)
+      .onConflictDoUpdate({
+        target: projectsTable.slug,
+        set: {
+          published: row.published,
+          order: row.order,
+          featured: row.featured,
+          name: row.name,
+          data: row.data as never,
+          updatedAt: new Date(),
+        },
+      });
+    console.log(`   ✅ ${row.slug} → ${row.name}`);
+  }
+
+  console.log("\n🎉 Seed complete.");
+}
+
+seed()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("❌ Seed failed:", err);
+    process.exit(1);
+  });

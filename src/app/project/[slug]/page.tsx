@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProjectBySlug } from "@/lib/firestore-server";
+import { getProjectBySlug } from "@/lib/data-server";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
 import { DemoCredentials } from "@/components/project/DemoCredentials";
@@ -64,7 +64,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) {
-    return { title: "Project not found" };
+    // Under force-dynamic streaming, notFound() renders the not-found body with
+    // a 200 (a Next limitation), so mark the page noindex to keep search engines
+    // from indexing non-existent project URLs.
+    return { title: "Project not found", robots: { index: false, follow: false } };
   }
   const description =
     project.description?.trim() || project.tagline?.trim() || "";
