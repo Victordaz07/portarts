@@ -11,13 +11,26 @@ import { SortableList } from "./SortableList";
 import { DevicePreview } from "@/components/project/DevicePreview";
 import { PreviewLinkBanner } from "@/components/project/PreviewLinkBanner";
 import { isSlugUnique } from "@/lib/data-client";
+import {
+  PROJECT_CATEGORY_LABELS,
+  PROJECT_CATEGORY_ORDER,
+} from "@/lib/types";
 import type {
   Project,
   ProjectTheme,
   ProjectStatusColor,
+  ProjectCategory,
   DeviceType,
   ProjectKpi,
 } from "@/lib/types";
+
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: "", label: "— None —" },
+  ...PROJECT_CATEGORY_ORDER.map((c) => ({
+    value: c,
+    label: PROJECT_CATEGORY_LABELS[c],
+  })),
+];
 
 const PREVIEW_SLOT_COUNT = 3;
 
@@ -163,6 +176,9 @@ export function ProjectForm({
   );
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [tagInput, setTagInput] = useState("");
+  const [category, setCategory] = useState<ProjectCategory | "">(
+    initial?.category ?? ""
+  );
   const [theme, setTheme] = useState<ProjectTheme>(
     (initial?.theme as ProjectTheme) ?? "default"
   );
@@ -218,6 +234,7 @@ export function ProjectForm({
     featured,
     published,
     order: initial?.order ?? 0,
+    category: category || undefined,
     status: { text: statusText || "In development", color: statusColor },
     tags,
     theme,
@@ -249,7 +266,7 @@ export function ProjectForm({
     };
   }, [
     slug, name, tagline, description, fullDescription, problem, role, outcome, kpisJson, featured, published,
-    statusText, statusColor, tags, theme, themeColor, previewSlots,
+    statusText, statusColor, category, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
     initial?.order,
@@ -281,7 +298,7 @@ export function ProjectForm({
     return () => clearTimeout(timer);
   }, [
     slug, name, tagline, description, fullDescription, problem, role, outcome, kpisJson, featured, published,
-    statusText, statusColor, tags, theme, themeColor, previewSlots,
+    statusText, statusColor, category, tags, theme, themeColor, previewSlots,
     githubRepo, metadataEntries, features, techStack, timeline, gallery,
     coverImage, logoUrl, showTitleOnCard, links,
     projectId, onAutosave, getFormData, initial?.order,
@@ -463,6 +480,12 @@ export function ProjectForm({
               <Input label="Status (text)" value={statusText} onChange={(e) => setStatusText(e.target.value)} />
               <Select label="Status (color)" value={statusColor} onChange={(e) => setStatusColor(e.target.value as ProjectStatusColor)} options={STATUS_COLORS} />
             </div>
+            <Select
+              label="Category (home section)"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as ProjectCategory | "")}
+              options={CATEGORIES}
+            />
           </div>
         </CollapsibleSection>
 

@@ -61,6 +61,7 @@ const projects = [
     featured: true,
     order: 1,
     published: true,
+    category: "web-app",
     status: {
       text: "Live",
       color: "green",
@@ -210,6 +211,7 @@ const projects = [
     featured: true,
     order: 2,
     published: true,
+    category: "web-app",
     status: {
       text: "In Development",
       color: "yellow",
@@ -340,6 +342,7 @@ const projects = [
     featured: false,
     order: 3,
     published: true,
+    category: "web-app",
     status: {
       text: "In Progress",
       color: "blue",
@@ -452,6 +455,7 @@ const projects = [
     featured: true,
     order: 4,
     published: true,
+    category: "web-app",
     status: {
       text: "Live",
       color: "green",
@@ -545,6 +549,246 @@ const projects = [
     links: {
       live: "https://diario-misional.vercel.app/login",
       github: "https://github.com/Victordaz07/Diario-Misional-Web",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 5. FREELANCEHUB (PowerfulCrm) — web app
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "freelancehub",
+    name: "FreelanceHub",
+    tagline: "Multi-tenant CRM for freelancers.",
+    description:
+      "A multi-tenant CRM that unifies projects, calendar, and invoicing for independent freelancers — with per-tenant data isolation and online payments.",
+    fullDescription:
+      "FreelanceHub is a comprehensive platform that brings a freelancer's whole operation into one place: client and project management, a calendar, and invoicing with online checkout.\n\nIt is built multi-tenant from the ground up, with row-level security isolating each account's data, background jobs for async work, and file storage for attachments. Core flows (calendar, invoicing) are live; form builders, a drag-and-drop kanban, and full checkout are on the roadmap.",
+    valueProps: {
+      problem: "Freelancers juggle clients, schedules, and invoices across disconnected tools.",
+      role: "Full-stack architecture and implementation, including multi-tenant security.",
+      outcome: "A single workspace for projects, scheduling, and getting paid.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT"],
+      summary:
+        "Built on an Agile, AI-augmented workflow — architecture and multi-tenant RLS reviewed and owned end to end.",
+    },
+    kpis: [
+      { value: "Multi", label: "tenant (RLS)" },
+      { value: "64", label: "commits" },
+      { value: "3", label: "core modules live" },
+    ],
+    featured: true,
+    order: 5,
+    published: true,
+    category: "web-app",
+    status: { text: "In Development", color: "yellow" },
+    tags: ["Next.js", "Prisma", "PostgreSQL", "Stripe", "SaaS"],
+    theme: "fleet",
+    preview: {
+      url: "https://powerful-crm.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/PowerfulCrm",
+    githubUrl: "https://github.com/Victordaz07/PowerfulCrm",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js 14 + Prisma + PostgreSQL",
+      Auth: "Clerk (multi-tenant)",
+      Payments: "Stripe / Mercado Pago",
+      Jobs: "Inngest",
+    },
+    techStack: [
+      "Next.js 14",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL (Neon)",
+      "Clerk",
+      "Stripe",
+      "Vercel Blob",
+      "Inngest",
+    ],
+    links: {
+      live: "https://powerful-crm.vercel.app",
+      github: "https://github.com/Victordaz07/PowerfulCrm",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 6. SGM MUSIC LAB (Generador-de-canciones) — web app / AI
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "sgm-music-lab",
+    name: "SGM Music Lab",
+    tagline: "AI song generation, end to end.",
+    description:
+      "Generates complete songs — lyrics, audio (via Suno), and cover art — from a single interface, orchestrating multiple AI services behind server-side proxies.",
+    fullDescription:
+      "SGM Music Lab turns a single prompt into a finished song: it writes the lyrics, composes and polls for the audio, and generates cover art with the title and logo composited via Canvas.\n\nAll third-party AI calls are proxied server-side through Route Handlers, with passwordless auth and client-side state. It's an end-to-end showcase of practical AI integration — not a toy demo.",
+    valueProps: {
+      problem: "Producing a song means stitching together lyrics, audio, and artwork across separate tools.",
+      role: "Product and full-stack build, including AI orchestration and Canvas compositing.",
+      outcome: "A one-screen pipeline from idea to a shareable song with cover art.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude", "GPT"],
+      summary:
+        "AI-augmented build; the app itself integrates the Claude API and Suno behind server proxies.",
+    },
+    kpis: [
+      { value: "3", label: "AI services orchestrated" },
+      { value: "1", label: "screen, end-to-end" },
+    ],
+    featured: true,
+    order: 6,
+    published: true,
+    category: "web-app",
+    status: { text: "Live", color: "green" },
+    tags: ["Next.js", "AI", "Claude API", "TypeScript"],
+    theme: "focus",
+    preview: {
+      url: "https://generador-de-canciones.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/Generador-de-canciones",
+    githubUrl: "https://github.com/Victordaz07/Generador-de-canciones",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js + TypeScript",
+      AI: "Claude API + Suno + image gen",
+      Rendering: "Canvas (cover compositing)",
+    },
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Claude API",
+      "Suno",
+      "Canvas",
+      "Tailwind CSS",
+      "Vercel",
+    ],
+    links: {
+      live: "https://generador-de-canciones.vercel.app",
+      github: "https://github.com/Victordaz07/Generador-de-canciones",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 7. CRISLIA — UGC PORTFOLIO (portafolio-cristal) — portfolio
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "portafolio-crislia",
+    name: "Crislia — UGC Portfolio",
+    tagline: "A content creator's portfolio with its own CMS.",
+    description:
+      "A bilingual portfolio for a UGC creator: media kit, content feed, testimonials, and services — all editable from a no-code admin panel.",
+    fullDescription:
+      "Crislia's portfolio is a client project: a polished, bilingual (ES/EN) site that doubles as a media kit for brand deals — content feed, testimonials, and services.\n\nEvery section is database-driven and editable from a protected admin dashboard, with image and video uploads, so the creator can update everything without touching code.",
+    valueProps: {
+      problem: "Creators need a professional media kit they can update themselves.",
+      role: "Design and full-stack build, including the CMS and media pipeline.",
+      outcome: "A self-serve, always-current portfolio that wins brand collaborations.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude"],
+      summary:
+        "Client engagement delivered Agile — scoped, reviewed, and shipped to production.",
+    },
+    kpis: [
+      { value: "ES/EN", label: "bilingual" },
+      { value: "100%", label: "no-code editable" },
+    ],
+    featured: true,
+    order: 7,
+    published: true,
+    category: "portfolio",
+    status: { text: "Live", color: "green" },
+    tags: ["Next.js", "Prisma", "CMS", "Client work"],
+    theme: "family",
+    preview: {
+      url: "https://portafolio-cristal.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/portafolio-cristal",
+    githubUrl: "https://github.com/Victordaz07/portafolio-cristal",
+    metadata: {
+      Platform: "Web (Next.js App Router)",
+      Stack: "Next.js 14 + Prisma + PostgreSQL",
+      Media: "Vercel Blob (image/video)",
+      Type: "Client project",
+    },
+    techStack: [
+      "Next.js 14",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Vercel Blob",
+      "Tailwind CSS",
+    ],
+    links: {
+      live: "https://portafolio-cristal.vercel.app",
+      github: "https://github.com/Victordaz07/portafolio-cristal",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 8. VEHIKITÉ BARBERSHOP (Barbershop-William) — business website
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "vehikite-barbershop",
+    name: "Vehikité Barbershop",
+    tagline: "Booking platform for a Tongatapu barbershop.",
+    description:
+      "A bilingual (EN/Tongan) booking site with real-time scheduling, a moderated reviews system, and an admin panel for managing appointments.",
+    fullDescription:
+      "A client website for Vehikité, a barbershop in Tongatapu: customers book appointments against a real-time schedule, leave reviews (moderated before publishing), and the owner manages everything from an admin panel.\n\nBuilt bilingual (English/Tongan) with Firestore security rules and continuous deployment via GitHub Actions.",
+    valueProps: {
+      problem: "A local barbershop needed online booking instead of phone-and-paper scheduling.",
+      role: "Design, full-stack build, auth, and deployment.",
+      outcome: "A bilingual booking site with an admin panel the owner runs day to day.",
+    },
+    workflow: {
+      tools: ["Cursor", "Claude"],
+      summary: "Client build shipped with CI/CD to Firebase Hosting.",
+    },
+    kpis: [
+      { value: "EN/TO", label: "bilingual" },
+      { value: "Realtime", label: "scheduling" },
+    ],
+    featured: false,
+    order: 8,
+    published: true,
+    category: "website",
+    status: { text: "Live", color: "green" },
+    tags: ["React", "Vite", "Firebase", "Booking"],
+    theme: "gospel",
+    preview: {
+      url: "https://barbershop-william.web.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    githubRepo: "Victordaz07/Barbershop-William",
+    githubUrl: "https://github.com/Victordaz07/Barbershop-William",
+    metadata: {
+      Platform: "Web (React SPA)",
+      Stack: "React 19 + Vite + Firebase",
+      Languages: "English / Tongan",
+      Deploy: "Firebase Hosting (GitHub Actions)",
+      Type: "Client project",
+    },
+    techStack: [
+      "React 19",
+      "Vite",
+      "TypeScript",
+      "Firebase (Firestore + Auth)",
+      "Tailwind CSS",
+    ],
+    links: {
+      live: "https://barbershop-william.web.app",
+      github: "https://github.com/Victordaz07/Barbershop-William",
     },
   },
 ];
