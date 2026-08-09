@@ -95,7 +95,7 @@ export function renderTechIcon(name: string): ReactNode {
   if (n === "cursor") {
     return (
       <SquareTerminal
-        className="h-7 w-7 text-slate-700"
+        className="h-7 w-7 text-slate-200"
         strokeWidth={1.75}
         aria-hidden
       />

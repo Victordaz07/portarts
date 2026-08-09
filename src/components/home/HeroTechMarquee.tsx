@@ -6,17 +6,17 @@ import { MARQUEE_DURATION_FRONTEND_SEC } from "@/lib/tech-stack";
 
 /** Píldoras del stack dev — solo texto (marquee). */
 function devPillClassName(): string {
-  return "inline-flex shrink-0 items-center text-sm text-text-secondary px-3 py-1.5 rounded-full bg-white border border-border shadow-sm";
+  return "inline-flex shrink-0 items-center text-sm text-text-secondary px-3 py-1.5 rounded-full bg-white/5 border border-border";
 }
 
 /** Píldora AI: icono a la izquierda, nombre a la derecha. */
 function AiToolPill({ name }: { name: string }) {
   return (
     <div
-      className="group inline-flex max-w-full items-center gap-2.5 rounded-full border border-border/40 bg-white py-1.5 pl-1.5 pr-4 shadow-sm transition-all duration-200 hover:border-slate-300/80 hover:shadow-md"
+      className="group inline-flex max-w-full items-center gap-2.5 rounded-full border border-border bg-white/5 py-1.5 pl-1.5 pr-4 transition-all duration-200 hover:border-border-hover hover:bg-white/[0.07]"
       title={name}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 ring-1 ring-[rgba(0,0,0,0.04)] [&_img]:max-h-[1.05rem] [&_img]:w-auto [&_i]:text-[1.05rem]">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/8 ring-1 ring-white/10 [&_img]:max-h-[1.05rem] [&_img]:w-auto [&_i]:text-[1.05rem]">
         {renderTechIcon(name)}
       </span>
       <span className="truncate text-[13px] font-medium tracking-tight text-text-secondary">

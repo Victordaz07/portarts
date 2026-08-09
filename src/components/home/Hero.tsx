@@ -64,7 +64,7 @@ export function Hero({ config }: HeroProps) {
   const fadeUpVariant = prefersReduced ? {} : fadeUp;
 
   return (
-    <section className="bg-white pt-1 pb-10 md:pt-2 md:pb-14">
+    <section className="relative pt-1 pb-10 md:pt-2 md:pb-14">
       <motion.div
         variants={staggerVariant}
         initial={prefersReduced ? false : "hidden"}
@@ -76,7 +76,7 @@ export function Hero({ config }: HeroProps) {
 
         <motion.h1
           variants={fadeUpVariant}
-          className="font-body text-[40px] md:text-[58px] lg:text-[68px] font-bold leading-[0.98] tracking-tight mb-4 text-black max-w-[980px]"
+          className="font-body text-[40px] md:text-[58px] lg:text-[68px] font-bold leading-[0.98] tracking-tight mb-4 text-text-primary max-w-[980px]"
         >
           {headline}
         </motion.h1>

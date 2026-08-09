@@ -18,7 +18,7 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
     <div>
       <div className="flex items-baseline gap-4 mb-10">
         <span className="font-mono text-xs text-accent">01</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-black">Projects</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-text-primary">Projects</h2>
         <div className="flex-1 h-px bg-border" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
