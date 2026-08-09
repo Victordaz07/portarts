@@ -791,6 +791,122 @@ const projects = [
       github: "https://github.com/Victordaz07/Barbershop-William",
     },
   },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 9. BAUTIZAPP — single-file HTML tool (system)
+  //    NOTE: update `live` if your Vercel project name differs from "bautizapp".
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "bautizapp",
+    name: "BautizApp",
+    tagline: "Baptism programs & WhatsApp invites in one tool.",
+    description:
+      "An offline-first tool to create baptism programs and shareable WhatsApp invitations — a guided 4-step wizard with 5 languages, design customization, and PDF export.",
+    fullDescription:
+      "BautizApp is a single-file, offline-first web app that turns a few inputs into a finished baptism program and a ready-to-share WhatsApp invitation.\n\nIt runs entirely in the browser (no backend): a 4-step wizard, five languages, live design customization, PDF generation via jsPDF, and image export via html2canvas, all persisted to local storage. Built for real use by members of The Church of Jesus Christ of Latter-day Saints.",
+    valueProps: {
+      problem: "Preparing baptism programs and invitations by hand is slow and inconsistent.",
+      role: "Product design and full front-end implementation (single-file, offline).",
+      outcome: "A guided tool that outputs a polished program and invitation in minutes.",
+    },
+    kpis: [
+      { value: "4", label: "step wizard" },
+      { value: "5", label: "languages" },
+      { value: "0", label: "backend", suffix: " · offline" },
+    ],
+    featured: false,
+    order: 9,
+    published: true,
+    category: "system",
+    status: { text: "Live", color: "green" },
+    tags: ["HTML", "Vanilla JS", "jsPDF", "Offline-first"],
+    theme: "gospel",
+    preview: {
+      url: "https://bautizapp.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    previews: [
+      {
+        url: "https://bautizapp.vercel.app",
+        type: "desktop",
+        label: "Live tool",
+        embed: false,
+        allowFullscreen: true,
+      },
+    ],
+    githubRepo: "Victordaz07/Bautizapp",
+    githubUrl: "https://github.com/Victordaz07/Bautizapp",
+    metadata: {
+      Platform: "Web (single-file, offline-first)",
+      Stack: "HTML5 + CSS3 + Vanilla JS",
+      Libraries: "jsPDF + html2canvas",
+      Languages: "5",
+    },
+    techStack: ["HTML5", "CSS3", "JavaScript", "jsPDF", "html2canvas"],
+    links: {
+      live: "https://bautizapp.vercel.app",
+      github: "https://github.com/Victordaz07/Bautizapp",
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // 10. SHOMERCARE — single-file HTML tool (system)
+  //     NOTE: update `live` if your Vercel project name differs from "shomercare-demo".
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "shomercare",
+    name: "ShomerCare",
+    tagline: "Shift scheduling & comms for operations teams.",
+    description:
+      "An offline-first scheduling and communication tool for custodial and operations teams — zones, shift assignments, days-off tracking, WhatsApp integration, and cross-device sync via QR.",
+    fullDescription:
+      "ShomerCare coordinates custodial and operations teams across zones and time windows, entirely in a single offline-first web page.\n\nIt handles team management, shift assignments, and days-off tracking, pushes updates through WhatsApp, and syncs state across devices with QR codes — no backend required. It's actively used to run real operations.",
+    valueProps: {
+      problem: "Coordinating cleaning/ops shifts across zones and people is error-prone on paper.",
+      role: "Product design and full front-end implementation (single-file, offline).",
+      outcome: "A lightweight system that keeps a real operations team organized and in sync.",
+    },
+    kpis: [
+      { value: "QR", label: "cross-device sync" },
+      { value: "0", label: "backend", suffix: " · offline" },
+      { value: "Real", label: "operations use" },
+    ],
+    featured: false,
+    order: 10,
+    published: true,
+    category: "system",
+    status: { text: "Live", color: "green" },
+    tags: ["HTML", "Vanilla JS", "Offline-first", "PWA"],
+    theme: "fleet",
+    preview: {
+      url: "https://shomercare-demo.vercel.app",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    previews: [
+      {
+        url: "https://shomercare-demo.vercel.app",
+        type: "desktop",
+        label: "Live tool",
+        embed: false,
+        allowFullscreen: true,
+      },
+    ],
+    githubRepo: "Victordaz07/shomercare-demo",
+    githubUrl: "https://github.com/Victordaz07/shomercare-demo",
+    metadata: {
+      Platform: "Web (single-file, offline-first)",
+      Stack: "HTML + CSS + Vanilla JS",
+      Sync: "QR codes (cross-device)",
+      Comms: "WhatsApp",
+    },
+    techStack: ["HTML", "CSS", "JavaScript", "Offline-first"],
+    links: {
+      live: "https://shomercare-demo.vercel.app",
+      github: "https://github.com/Victordaz07/shomercare-demo",
+    },
+  },
 ];
 
 // ─── PORTFOLIO CONFIG ─────────────────────────────────────────────────────────
