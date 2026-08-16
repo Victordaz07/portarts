@@ -907,7 +907,6 @@ const projects = [
       github: "https://github.com/Victordaz07/shomercare-demo",
     },
   },
-
   // ──────────────────────────────────────────────────────────────────
   // 11. SEEKER GOSPEL — deep gospel study platform
   // ──────────────────────────────────────────────────────────────────
@@ -1089,4 +1088,3 @@ seed()
     console.error("❌ Seed failed:", err);
     process.exit(1);
   });
-
