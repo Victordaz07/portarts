@@ -38,6 +38,8 @@ const projects = [
   {
     slug: "familydash",
     name: "FamilyDash",
+    coverImage: "/project-covers/familydash.webp",
+    showTitleOnCard: false,
     tagline: "The family operating system.",
     description:
       "A private, ad-free web app that keeps families organized — tasks, schedules, shared lists, and communication in one place. Built for real daily use.",
@@ -799,6 +801,8 @@ const projects = [
   {
     slug: "bautizapp",
     name: "BautizApp",
+    coverImage: "/project-covers/bautizapp.webp",
+    showTitleOnCard: false,
     tagline: "Baptism programs & WhatsApp invites in one tool.",
     description:
       "An offline-first tool to create baptism programs and shareable WhatsApp invitations — a guided 4-step wizard with 5 languages, design customization, and PDF export.",
@@ -857,6 +861,8 @@ const projects = [
   {
     slug: "shomercare",
     name: "ShomerCare",
+    coverImage: "/project-covers/shomercare.webp",
+    showTitleOnCard: false,
     tagline: "Shift scheduling & comms for operations teams.",
     description:
       "An offline-first scheduling and communication tool for custodial and operations teams — zones, shift assignments, days-off tracking, WhatsApp integration, and cross-device sync via QR.",
