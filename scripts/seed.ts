@@ -907,6 +907,62 @@ const projects = [
       github: "https://github.com/Victordaz07/shomercare-demo",
     },
   },
+  // ──────────────────────────────────────────────────────────────────
+  // 11. SEEKER GOSPEL — deep gospel study platform
+  // ──────────────────────────────────────────────────────────────────
+  {
+    slug: "seeker-gospel",
+    name: "Seeker Gospel",
+    tagline: "Deep gospel study, structured for serious learners.",
+    description:
+      "A multilingual gospel study platform with 300+ structured lessons, doctrinal modules, notes, quizzes, games, and optional cloud progress sync.",
+    fullDescription:
+      "Seeker Gospel turns a large library of gospel material into a focused, progressive study experience. Learners can explore doctrine, scripture characters, priesthood, leadership, restoration history, and difficult theological questions through structured modules.\n\nThe platform includes more than 300 lessons, personal notes, quizzes, Scripture Quest, offline/PWA support, and optional Firebase-backed accounts for syncing progress across devices.",
+    valueProps: {
+      problem: "Deep gospel study resources are often scattered and difficult to follow as a coherent learning path.",
+      role: "Product strategy, content architecture, UX design, and full-stack implementation.",
+      outcome: "A single study platform that guides learners from foundational principles to advanced doctrine.",
+    },
+    kpis: [
+      { value: "309+", label: "structured lessons" },
+      { value: "10", label: "study modules" },
+      { value: "PWA", label: "offline-ready" },
+    ],
+    featured: true,
+    order: 11,
+    published: true,
+    category: "web-app",
+    status: { text: "Live", color: "green" },
+    tags: ["React", "TypeScript", "Firebase", "PWA"],
+    theme: "gospel",
+    preview: {
+      url: "https://seekergospel.com",
+      type: "desktop",
+      allowFullscreen: true,
+    },
+    previews: [
+      {
+        url: "https://seekergospel.com",
+        type: "desktop",
+        label: "Live platform",
+        embed: false,
+        allowFullscreen: true,
+      },
+    ],
+    githubRepo: "Victordaz07/lineuponline",
+    githubUrl: "https://github.com/Victordaz07/lineuponline",
+    metadata: {
+      Platform: "Web + PWA",
+      Stack: "React + TypeScript + Vite",
+      Backend: "Firebase",
+      Content: "309+ lessons",
+    },
+    techStack: ["React", "TypeScript", "Vite", "Firebase", "PWA"],
+    links: {
+      live: "https://seekergospel.com",
+      github: "https://github.com/Victordaz07/lineuponline",
+    },
+  },
 ];
 
 // ─── PORTFOLIO CONFIG ─────────────────────────────────────────────────────────
