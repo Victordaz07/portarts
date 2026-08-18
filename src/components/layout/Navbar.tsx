@@ -27,7 +27,7 @@ export function Navbar() {
       <div className="flex items-center gap-2 sm:gap-2.5">
         <Link
           href="/"
-          className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
+          className="flex min-h-11 items-center gap-2.5 hover:opacity-85 transition-opacity"
         >
           <span
             className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-accent font-mono text-sm font-bold text-black"
