@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 import type { PortfolioConfig } from "@/lib/types";
 import {
   resolveAiWorkflowItems,
@@ -87,6 +88,22 @@ export function Hero({ config }: HeroProps) {
         >
           {subtitle}
         </motion.p>
+
+        <motion.div variants={fadeUpVariant} className="mt-7 flex flex-wrap gap-3">
+          <Link
+            href="#projects"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-accent px-5 py-2.5 font-semibold text-[#080a0c] transition-transform hover:-translate-y-0.5"
+            style={{ color: "#080a0c" }}
+          >
+            View projects
+          </Link>
+          <Link
+            href="#contact"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 py-2.5 font-semibold text-text-primary transition-colors hover:border-accent hover:text-accent"
+          >
+            Contact me
+          </Link>
+        </motion.div>
 
         <motion.div
           variants={fadeUpVariant}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Star, GitFork } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface Repo {
   name: string;
@@ -22,19 +21,28 @@ const LANG_COLORS: Record<string, string> = {
   Java: "#b07219",
 };
 
+const REPO_DESCRIPTIONS: Record<string, string> = {
+  lineuponline: "Multilingual gospel study platform with structured lessons, interactive modules, and offline-ready access.",
+  portarts: "Full-stack portfolio and case-study platform built with Next.js, PostgreSQL, authentication, and an admin workspace.",
+  "shomercare-demo": "Offline-first scheduling and operations tool with shift coordination, WhatsApp workflows, and QR sync.",
+  Bautizapp: "Offline-first tool for creating multilingual baptism programs, invitations, and downloadable PDFs.",
+  Callings: "Assignment and calling-management workspace designed for clearer coordination and follow-up.",
+  "mapa.biblico": "Interactive biblical map and study experience for exploring places, events, and scriptural context.",
+};
+
 interface GitHubReposProps {
   username: string;
 }
 
 export function GitHubRepos({ username }: GitHubReposProps) {
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(() => Boolean(username));
+  const [error, setError] = useState<string | null>(() =>
+    username ? null : "GitHub not configured.",
+  );
 
   useEffect(() => {
     if (!username) {
-      setLoading(false);
-      setError("GitHub not configured.");
       return;
     }
 
@@ -93,8 +101,8 @@ export function GitHubRepos({ username }: GitHubReposProps) {
           <h4 className="text-base text-text-primary mb-2 font-bold transition-colors hover:text-accent">
             {repo.name}
           </h4>
-          <p className={`text-sm leading-relaxed mb-3 line-clamp-2 ${repo.description ? "text-text-secondary" : "text-text-muted italic"}`}>
-            {repo.description || "No description available"}
+          <p className="text-sm leading-relaxed mb-3 line-clamp-2 text-text-secondary">
+            {repo.description || REPO_DESCRIPTIONS[repo.name] || "Selected public repository by Victor Ruiz."}
           </p>
           <div className="flex gap-4 text-xs text-text-secondary">
             {repo.language && (
@@ -116,14 +124,18 @@ export function GitHubRepos({ username }: GitHubReposProps) {
                 {repo.language}
               </span>
             )}
-            <span className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5" />
-              {repo.stargazers_count}
-            </span>
-            <span className="flex items-center gap-1">
-              <GitFork className="w-3.5 h-3.5" />
-              {repo.forks_count}
-            </span>
+            {repo.stargazers_count > 0 ? (
+              <span className="flex items-center gap-1" aria-label={`${repo.stargazers_count} stars`}>
+                <Star className="w-3.5 h-3.5" aria-hidden />
+                {repo.stargazers_count}
+              </span>
+            ) : null}
+            {repo.forks_count > 0 ? (
+              <span className="flex items-center gap-1" aria-label={`${repo.forks_count} forks`}>
+                <GitFork className="w-3.5 h-3.5" aria-hidden />
+                {repo.forks_count}
+              </span>
+            ) : null}
           </div>
         </a>
       ))}

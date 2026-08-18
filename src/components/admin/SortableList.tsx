@@ -26,7 +26,7 @@ interface SortableListProps<T> {
   getItemId: (item: T, index: number) => string;
 }
 
-function SortableItem<T>({
+function SortableItem({
   id,
   children,
 }: {
@@ -55,6 +55,7 @@ function SortableItem<T>({
     >
       <button
         type="button"
+        aria-label="Reorder item"
         className="p-1 text-text-muted hover:text-text-primary cursor-grab active:cursor-grabbing"
         {...attributes}
         {...listeners}

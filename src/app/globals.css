@@ -78,6 +78,16 @@ body {
 
 a { color: inherit; }
 
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #c6ff3d;
+  outline-offset: 3px;
+}
+
+.portfolio-project-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 620px;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 9px;

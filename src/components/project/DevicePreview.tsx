@@ -41,10 +41,15 @@ export function DevicePreview({
    */
   useEffect(() => {
     if (!normalizedIframeSrc) return;
-    setLoading(true);
-    setBlocked(false);
+    const resetTimer = window.setTimeout(() => {
+      setLoading(true);
+      setBlocked(false);
+    }, 0);
     const t = window.setTimeout(() => setLoading(false), 14_000);
-    return () => window.clearTimeout(t);
+    return () => {
+      window.clearTimeout(resetTimer);
+      window.clearTimeout(t);
+    };
   }, [normalizedIframeSrc]);
 
   const handleLoad = useCallback(() => {

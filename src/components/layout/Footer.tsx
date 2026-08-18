@@ -11,7 +11,7 @@ export function Footer({ name = "Victor Ruiz" }: { name?: string }) {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="text-text-secondary hover:text-accent transition-colors cursor-pointer"
+        className="inline-flex min-h-11 items-center text-text-secondary hover:text-accent transition-colors cursor-pointer"
       >
         ↑ Back to top
       </button>

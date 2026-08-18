@@ -34,7 +34,7 @@ export default function AdminSettingsPage() {
     const serialized = JSON.stringify(config);
     if (serialized === prevConfigRef.current) return;
     prevConfigRef.current = serialized;
-    setAutosaveStatus("unsaved");
+    const statusTimer = window.setTimeout(() => setAutosaveStatus("unsaved"), 0);
     const timer = setTimeout(async () => {
       setAutosaveStatus("saving");
       try {
@@ -45,7 +45,10 @@ export default function AdminSettingsPage() {
         setAutosaveStatus("unsaved");
       }
     }, 2000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(statusTimer);
+      clearTimeout(timer);
+    };
   }, [config]);
 
   const update = (key: keyof PortfolioConfig, value: unknown) => {

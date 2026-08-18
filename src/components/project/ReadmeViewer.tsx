@@ -13,14 +13,11 @@ interface ReadmeViewerProps {
 export function ReadmeViewer({ repo }: ReadmeViewerProps) {
   const [content, setContent] = useState<string | null>(null);
   const [format, setFormat] = useState<"html" | "markdown">("html");
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(() => Boolean(repo));
+  const [failed, setFailed] = useState(() => !repo);
 
   useEffect(() => {
-    if (!repo) {
-      setLoading(false);
-      return;
-    }
+    if (!repo) return;
 
     fetch(`/api/github?repo=${encodeURIComponent(repo)}&file=readme`)
       .then((res) => {

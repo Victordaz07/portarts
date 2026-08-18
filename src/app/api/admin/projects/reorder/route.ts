@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/auth";
 import { reorderProjects } from "@/lib/data-server";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,5 +20,6 @@ export async function POST(request: Request) {
     ? body.orderedIds.filter((x): x is string => typeof x === "string")
     : [];
   await reorderProjects(orderedIds);
+  revalidatePath("/");
   return NextResponse.json({ ok: true });
 }

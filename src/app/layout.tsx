@@ -7,8 +7,6 @@ import { AppShell } from "@/components/layout/AppShell";
 import { AuthProvider } from "@/context/AuthContext";
 import { getPortfolioConfig } from "@/lib/data-server";
 
-export const dynamic = "force-dynamic";
-
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -21,11 +19,21 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
 });
 
-const SITE_URL = "https://portarts.vercel.app";
+function resolveSiteUrl(value: string | undefined): string {
+  try {
+    const url = new URL(value || "");
+    if (url.protocol === "http:" || url.protocol === "https:") return url.origin;
+  } catch {
+    // Fall through to the canonical production domain.
+  }
+  return "https://portarts.dev";
+}
 
-const DEFAULT_TITLE = "Victor Ruiz — Frontend Developer";
+const SITE_URL = resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
+
+const DEFAULT_TITLE = "Victor Ruiz — Full-Stack Product Developer";
 const DEFAULT_DESCRIPTION =
-  "Frontend Developer building real products for real problems. React, Next.js, TypeScript, Tailwind CSS.";
+  "Full-stack product developer building useful web applications with React, Next.js, TypeScript, and modern product engineering practices.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getPortfolioConfig();
@@ -56,6 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description,
     metadataBase: new URL(SITE_URL),
+    alternates: { canonical: "/" },
     openGraph: {
       type: "website",
       url: SITE_URL,
@@ -88,7 +97,7 @@ const personJsonLd = {
   "@type": "Person",
   name: "Victor Ruiz",
   url: SITE_URL,
-  jobTitle: "Frontend Developer",
+  jobTitle: "Full-Stack Product Developer",
   description:
     "Frontend Developer building real products for real problems.",
   sameAs: ["https://github.com/Victordaz07"],

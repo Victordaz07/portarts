@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Pencil } from "lucide-react";
@@ -74,9 +74,6 @@ export function ProjectCard({
   const cover = resolveCover(project);
   const hasCover = !!cover;
   const [coverFailed, setCoverFailed] = useState(false);
-  useEffect(() => {
-    setCoverFailed(false);
-  }, [project.id, cover?.src]);
   const showCoverImage = hasCover && !coverFailed;
   const logoUrl = project.logoUrl?.trim();
   const showTitleOnCard = project.showTitleOnCard !== false;
@@ -110,7 +107,6 @@ export function ProjectCard({
               )}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={project.featured}
-              unoptimized
               onError={() => setCoverFailed(true)}
             />
           </>
@@ -141,14 +137,13 @@ export function ProjectCard({
                   width={56}
                   height={56}
                   className="object-contain object-center size-full"
-                  unoptimized
                 />
               </div>
             ) : null}
             {showTitleOnCard ? (
-              <h3 className="text-white text-2xl md:text-3xl font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+              <div aria-hidden className="text-white text-2xl md:text-3xl font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
                 {project.name}
-              </h3>
+              </div>
             ) : null}
           </div>
         )}
@@ -315,7 +310,7 @@ export function ProjectCard({
       className={cn(
         "block rounded-[12px] overflow-hidden border border-border bg-bg-card cursor-pointer",
         "group transition-all duration-300 ease-smooth",
-        "hover:-translate-y-1 hover:border-border-hover",
+        "portfolio-project-card hover:-translate-y-1 hover:border-border-hover",
       )}
     >
       {cardBody}

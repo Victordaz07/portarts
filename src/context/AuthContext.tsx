@@ -56,13 +56,12 @@ function InnerAuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Surface OAuth errors returned via ?error= on the callback URL (no useSearchParams
-  // so we don't force a Suspense boundary around the whole app).
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const code = new URLSearchParams(window.location.search).get("error");
-    const msg = describeAuthErrorParam(code);
-    if (msg) setAuthError(msg);
+    const message = describeAuthErrorParam(code);
+    if (!message) return;
+    const timer = window.setTimeout(() => setAuthError(message), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const user: AuthUser | null = session?.user

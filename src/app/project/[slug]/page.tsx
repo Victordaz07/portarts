@@ -18,6 +18,7 @@ import { MobileMockup } from "@/components/MobileMockup";
 import type { Project } from "@/lib/types";
 
 const MOBILE_MOCKUP_SLUGS = new Set(["xthegospel"]);
+export const revalidate = 300;
 
 /** `owner/repo` para la API de GitHub; null si no hay un par válido. */
 function resolveGithubFullRepo(project: Project): string | null {
@@ -88,7 +89,9 @@ export async function generateMetadata({
   return {
     title: project.name,
     description,
+    alternates: { canonical: `/project/${project.slug}` },
     openGraph: {
+      url: `/project/${project.slug}`,
       title: `${project.name} | Victor Ruiz`,
       description,
       images: ogImages,

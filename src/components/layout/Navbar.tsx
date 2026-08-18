@@ -39,22 +39,24 @@ export function Navbar() {
             Victor Ruiz
           </span>
         </Link>
-        <Link
-          href="/admin"
-          className="group/icon inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-text-faint transition-colors hover:bg-white/6 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35 sm:min-h-0 sm:min-w-0 sm:p-1"
-          aria-label={user ? "Open admin workspace" : "Workspace — sign in"}
-          title={user ? "Admin" : "Workspace"}
-        >
-          <i
-            className="fa-brands fa-react shrink-0 text-[1.125rem] leading-none opacity-55 transition-[opacity,color] group-hover/icon:opacity-100 sm:text-xl"
-            aria-hidden
-          />
-        </Link>
+        {user ? (
+          <Link
+            href="/admin"
+            className="group/icon inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-text-faint transition-colors hover:bg-white/6 hover:text-accent"
+            aria-label="Open admin workspace"
+            title="Admin"
+          >
+            <i
+              className="fa-brands fa-react shrink-0 text-xl leading-none opacity-55 transition-[opacity,color] group-hover/icon:opacity-100"
+              aria-hidden
+            />
+          </Link>
+        ) : null}
       </div>
 
       <button
         type="button"
-        className="md:hidden p-2 text-text-primary"
+        className="md:hidden inline-flex min-h-11 min-w-11 items-center justify-center p-2 text-text-primary"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
       >
@@ -84,28 +86,29 @@ export function Navbar() {
         </span>
         <Link
           href="/#projects"
-          className="text-text-secondary hover:text-accent text-sm font-medium transition-colors"
+          className="inline-flex min-h-11 items-center text-text-secondary hover:text-accent text-sm font-medium transition-colors"
           onClick={() => setMobileOpen(false)}
         >
           Projects
         </Link>
         <Link
           href="/#github"
-          className="text-text-secondary hover:text-accent text-sm font-medium transition-colors"
+          className="inline-flex min-h-11 items-center text-text-secondary hover:text-accent text-sm font-medium transition-colors"
           onClick={() => setMobileOpen(false)}
         >
           GitHub
         </Link>
         <Link
           href="/#about"
-          className="text-text-secondary hover:text-accent text-sm font-medium transition-colors"
+          className="inline-flex min-h-11 items-center text-text-secondary hover:text-accent text-sm font-medium transition-colors"
           onClick={() => setMobileOpen(false)}
         >
           About me
         </Link>
         <Link
           href="/#contact"
-          className="px-4 py-2 rounded-full bg-accent text-black text-sm font-semibold border border-transparent hover:brightness-110 transition-all"
+          className="inline-flex min-h-11 items-center px-4 py-2 rounded-full bg-accent text-[#080a0c] text-sm font-semibold border border-transparent hover:brightness-110 transition-all"
+          style={{ color: "#080a0c" }}
           onClick={() => setMobileOpen(false)}
         >
           Let&apos;s talk

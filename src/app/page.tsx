@@ -7,7 +7,7 @@ import {
   HomeLowerAsync,
 } from "@/components/home/HomeAsyncSections";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function SectionSpinner({ minHeight }: { minHeight: string }) {
   return (

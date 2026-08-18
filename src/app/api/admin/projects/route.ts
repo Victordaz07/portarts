@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/auth";
 import { createProject, getAllProjects } from "@/lib/data-server";
 import type { Project } from "@/lib/types";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,5 +29,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Falta slug" }, { status: 400 });
   }
   const id = await createProject(body);
+  revalidatePath("/");
   return NextResponse.json({ id }, { status: 201 });
 }

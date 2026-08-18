@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -212,7 +213,7 @@ export function ProjectForm({
   const [saving, setSaving] = useState(false);
   const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [slugError, setSlugError] = useState("");
-  const [slugChecking, setSlugChecking] = useState(false);
+  const [, setSlugChecking] = useState(false);
 
   useEffect(() => {
     if (name && !initial?.slug) setSlug(slugify(name));
@@ -220,7 +221,7 @@ export function ProjectForm({
 
   useEffect(() => {
     setKpisJson(JSON.stringify(initial?.kpis ?? [], null, 2));
-  }, [projectId]);
+  }, [projectId, initial?.kpis]);
 
   const getFormData = useCallback((): ProjectFormData => {
     const previews = buildPreviewPayload(previewSlots);
@@ -473,7 +474,7 @@ export function ProjectForm({
             </div>
             {!published && (
               <p className="text-sm text-amber-500">
-                This project is unpublished and will not appear on the public site until "Published" is checked.
+                This project is unpublished and will not appear on the public site until &quot;Published&quot; is checked.
               </p>
             )}
             <div className="grid grid-cols-2 gap-4">
@@ -684,7 +685,7 @@ export function ProjectForm({
               getItemId={(_, i) => `g-${i}`}
               renderItem={(g, i) => (
                 <div className="flex items-center gap-2">
-                  <img src={g.url} alt={g.caption} className="w-16 h-16 object-cover rounded shrink-0" />
+                  <Image src={g.url} alt={g.caption} width={64} height={64} className="w-16 h-16 object-cover rounded shrink-0" />
                   <span className="text-sm text-text-secondary flex-1 truncate">{g.caption || "No caption"}</span>
                   <button type="button" onClick={() => setGallery(gallery.filter((_, j) => j !== i))} className="text-rose">×</button>
                 </div>

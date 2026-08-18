@@ -19,7 +19,7 @@ export function MiniBioIntroBlock({ config, className = "" }: MiniBioIntroBlockP
         {body}{" "}
         <a
           href="#about"
-          className="text-text-primary underline-offset-4 hover:underline transition-colors"
+          className="inline-flex min-h-11 items-center text-text-primary underline-offset-4 hover:underline transition-colors"
         >
           More about me →
         </a>
